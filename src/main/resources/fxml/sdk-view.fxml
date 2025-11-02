@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="io.sdkman.controller.SdkController"
+           fx:id="rootContainer">
+
+    <!-- SDK列表视图 -->
+    <VBox fx:id="listView" styleClass="page-content" spacing="20">
+
+        <padding>
+            <Insets top="40" right="40" bottom="40" left="40"/>
+        </padding>
+
+        <!-- 页面头部 -->
+        <HBox alignment="CENTER_LEFT" spacing="15">
+            <VBox HBox.hgrow="ALWAYS" spacing="8">
+                <Label fx:id="titleLabel" styleClass="page-title"/>
+                <Label fx:id="subtitleLabel" styleClass="page-subtitle" wrapText="true"/>
+            </VBox>
+
+            <!-- 搜索框 -->
+            <TextField fx:id="searchField" styleClass="search-field" HBox.hgrow="NEVER"/>
+
+            <!-- 刷新按钮 -->
+            <Button fx:id="refreshButton" styleClass="action-button" onAction="#onRefreshClicked"
+                    minWidth="80" maxWidth="100" HBox.hgrow="NEVER"/>
+        </HBox>
+
+        <!-- 分类筛选 -->
+        <HBox spacing="8" alignment="CENTER_LEFT">
+            <Button fx:id="allCategoryButton" styleClass="filter-chip, filter-chip-active" onAction="#onAllCategoryClicked"/>
+            <Button fx:id="languagesCategoryButton" styleClass="filter-chip" onAction="#onLanguagesCategoryClicked"/>
+            <Button fx:id="buildToolsCategoryButton" styleClass="filter-chip" onAction="#onBuildToolsCategoryClicked"/>
+            <Button fx:id="frameworksCategoryButton" styleClass="filter-chip" onAction="#onFrameworksCategoryClicked"/>
+            <Button fx:id="serversCategoryButton" styleClass="filter-chip" onAction="#onServersCategoryClicked"/>
+            <Button fx:id="toolsCategoryButton" styleClass="filter-chip" onAction="#onToolsCategoryClicked"/>
+            <Button fx:id="otherCategoryButton" styleClass="filter-chip" onAction="#onOtherCategoryClicked"/>
+        </HBox>
+
+        <!-- SDK网格区域 -->
+        <ScrollPane fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS"
+                    styleClass="content-scroll">
+            <StackPane>
+                <FlowPane fx:id="sdkGridPane" hgap="16" vgap="16">
+                    <padding>
+                        <Insets top="10" right="10" bottom="10" left="10"/>
+                    </padding>
+                </FlowPane>
+
+                <!-- 加载中状态 -->
+                <VBox fx:id="loadingPane" alignment="CENTER" spacing="20"
+                      styleClass="empty-state" visible="false" managed="false">
+                    <ProgressIndicator/>
+                    <Label fx:id="loadingLabel"/>
+                </VBox>
+
+                <!-- 空状态 -->
+                <VBox fx:id="emptyPane" alignment="CENTER" spacing="20"
+                      styleClass="empty-state" visible="false" managed="false">
+                    <Label text="📦" style="-fx-font-size: 64px;"/>
+                    <Label fx:id="emptyTitleLabel" styleClass="empty-title"/>
+                    <Label fx:id="emptySubtitleLabel" styleClass="empty-subtitle"/>
+                </VBox>
+            </StackPane>
+        </ScrollPane>
+
+    </VBox>
+
+</StackPane>

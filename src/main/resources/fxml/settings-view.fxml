@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="io.sdkman.controller.SettingsController"
+      styleClass="page-content"
+      spacing="20">
+
+    <padding>
+        <Insets top="40" right="40" bottom="40" left="40"/>
+    </padding>
+
+  
+    <!-- 页面头部 -->
+    <VBox spacing="8">
+        <Label fx:id="titleLabel" styleClass="page-title"/>
+        <Label fx:id="subtitleLabel" styleClass="page-subtitle"/>
+    </VBox>
+
+    <!-- 设置内容 - ScrollPane -->
+    <ScrollPane VBox.vgrow="ALWAYS" fitToWidth="true" styleClass="settings-scroll">
+        <VBox spacing="10">
+
+            <!-- 主题设置 -->
+            <VBox spacing="12" styleClass="settings-section">
+                <Label fx:id="themeLabel" styleClass="settings-section-title"/>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <RadioButton fx:id="themeLightRadio"/>
+                    <RadioButton fx:id="themeDarkRadio"/>
+                    <RadioButton fx:id="themeAutoRadio"/>
+                </HBox>
+            </VBox>
+
+            <!-- 语言设置 -->
+            <VBox spacing="12" styleClass="settings-section">
+                <Label fx:id="languageLabel" styleClass="settings-section-title"/>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <RadioButton fx:id="languageEnRadio"/>
+                    <RadioButton fx:id="languageZhRadio"/>
+                </HBox>
+            </VBox>
+
+            <!-- 代理设置 -->
+            <VBox spacing="12" styleClass="settings-section">
+                <Label fx:id="proxyLabel" styleClass="settings-section-title"/>
+
+                <!-- 代理类型选择 -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <RadioButton fx:id="proxyNoneRadio"/>
+                    <RadioButton fx:id="proxyAutoRadio"/>
+                    <RadioButton fx:id="proxyManualRadio"/>
+                </HBox>
+
+                <!-- 手动配置区域 -->
+                <VBox fx:id="proxyManualBox" spacing="10" managed="false" visible="false">
+                    <padding>
+                        <Insets top="10" left="20"/>
+                    </padding>
+
+                    <!-- 代理主机 -->
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label fx:id="proxyHostLabel" minWidth="100"/>
+                        <TextField fx:id="proxyHostField" prefWidth="300"/>
+                    </HBox>
+
+                    <!-- 代理端口 -->
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label fx:id="proxyPortLabel" minWidth="100"/>
+                        <TextField fx:id="proxyPortField" prefWidth="300"/>
+                    </HBox>
+                </VBox>
+            </VBox>
+
+            <!-- SDKMAN 路径设置 -->
+            <VBox spacing="12" styleClass="settings-section">
+                <Label fx:id="sdkmanPathLabel" styleClass="settings-section-title"/>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <TextField fx:id="sdkmanPathField" prefWidth="400" HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="browseButton" onAction="#onBrowseClicked"/>
+                </HBox>
+            </VBox>
+
+            <!-- 保存按钮 -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <padding>
+                    <Insets top="20"/>
+                </padding>
+                <Button fx:id="saveButton" onAction="#onSaveClicked"/>
+            </HBox>
+        </VBox>
+    </ScrollPane>
+
+</VBox>

@@ -1,0 +1,228 @@
+package io.sdkman.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+
+/**
+ * SDK版本信息
+ */
+public class SdkVersion implements Installable {
+    private String version;
+    private String identifier;  // SDKMAN使用的唯一标识符（如21.0.9-amzn）
+    private String vendor;
+    private JdkCategory category;  // JDK分类（JDK、JavaFX、NIK）
+    private String candidate;  // SDK候选名称（如java、gradle、maven等）
+
+    // 用于JSON序列化的boolean字段（映射到JSON的"installed"字段）
+    @com.fasterxml.jackson.annotation.JsonProperty("installed")
+    private boolean installedValue;
+
+    @com.fasterxml.jackson.annotation.JsonProperty("default")
+    private boolean isDefaultValue;
+
+    private boolean inUse;
+
+    // 用于UI绑定的Property（不序列化）
+    @JsonIgnore
+    private BooleanProperty installed;
+
+    @JsonIgnore
+    private BooleanProperty isDefaultProperty;
+
+    // 安装状态（使用Property以支持UI绑定）
+    @JsonIgnore
+    private BooleanProperty installing;  // 是否正在安装
+
+    @JsonIgnore  // Property不能被序列化，使用getter/setter来处理
+    private StringProperty installProgress;  // 安装进度文本
+
+    public SdkVersion() {
+    }
+
+    public SdkVersion(String version) {
+        this.version = version;
+    }
+
+    public SdkVersion(String version, String vendor) {
+        this.version = version;
+        this.vendor = vendor;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
+
+    public String getVendor() {
+        return vendor;
+    }
+
+    public void setVendor(String vendor) {
+        this.vendor = vendor;
+    }
+
+    public JdkCategory getCategory() {
+        return category;
+    }
+
+    public void setCategory(JdkCategory category) {
+        this.category = category;
+    }
+
+    @JsonIgnore  // 不用于JSON序列化，仅用于业务逻辑
+    public boolean isInstalled() {
+        // 优先使用Property的值，如果Property未初始化则使用基本字段
+        if (installed != null) {
+            return installed.get();
+        }
+        return installedValue;
+    }
+
+    @JsonIgnore  // 不用于JSON序列化，使用installedValue字段
+    public void setInstalled(boolean value) {
+        // 同时更新基本字段和Property
+        this.installedValue = value;
+        if (this.installed == null) {
+            this.installed = new SimpleBooleanProperty(value);
+        } else {
+            this.installed.set(value);
+        }
+    }
+
+    @JsonIgnore
+    public BooleanProperty installedProperty() {
+        if (this.installed == null) {
+            // 初始化Property时使用基本字段的值
+            this.installed = new SimpleBooleanProperty(installedValue);
+        }
+        return this.installed;
+    }
+
+    @JsonIgnore
+    public boolean isDefault() {
+        // 优先使用Property的值，如果Property未初始化则使用基本字段
+        if (isDefaultProperty != null) {
+            return isDefaultProperty.get();
+        }
+        return isDefaultValue;
+    }
+
+    @JsonIgnore
+    public void setDefault(boolean value) {
+        // 同时更新基本字段和Property
+        this.isDefaultValue = value;
+        if (this.isDefaultProperty == null) {
+            this.isDefaultProperty = new SimpleBooleanProperty(value);
+        } else {
+            this.isDefaultProperty.set(value);
+        }
+    }
+
+    @JsonIgnore
+    public BooleanProperty isDefaultProperty() {
+        if (this.isDefaultProperty == null) {
+            // 初始化Property时使用基本字段的值
+            this.isDefaultProperty = new SimpleBooleanProperty(isDefaultValue);
+        }
+        return this.isDefaultProperty;
+    }
+
+    public boolean isInUse() {
+        return inUse;
+    }
+
+    public void setInUse(boolean inUse) {
+        this.inUse = inUse;
+    }
+
+    public void setCandidate(String candidate) {
+        this.candidate = candidate;
+    }
+
+    public boolean isInstalling() {
+        return installing != null && installing.get();
+    }
+
+    public void setInstalling(boolean value) {
+        if (this.installing == null) {
+            this.installing = new SimpleBooleanProperty(value);
+        } else {
+            this.installing.set(value);
+        }
+    }
+
+    @JsonIgnore
+    public BooleanProperty installingProperty() {
+        if (this.installing == null) {
+            this.installing = new SimpleBooleanProperty(false);
+        }
+        return this.installing;
+    }
+
+    public String getInstallProgress() {
+        return installProgress == null ? null : installProgress.get();
+    }
+
+    public void setInstallProgress(String progress) {
+        if (this.installProgress == null) {
+            this.installProgress = new SimpleStringProperty(progress);
+        } else {
+            this.installProgress.set(progress);
+        }
+    }
+
+    @JsonIgnore  // Property访问器不需要序列化
+    public StringProperty installProgressProperty() {
+        if (this.installProgress == null) {
+            this.installProgress = new SimpleStringProperty();
+        }
+        return this.installProgress;
+    }
+
+    @Override
+    public String toString() {
+        return "SdkVersion{" +
+                "version='" + version + '\'' +
+                ", vendor='" + vendor + '\'' +
+                ", installed=" + isInstalled() +
+                ", isDefault=" + isDefault() +
+                ", inUse=" + inUse +
+                '}';
+    }
+
+    // ==================== Installable接口实现 ====================
+
+    @Override
+    @JsonIgnore
+    public String getCandidate() {
+        // 返回设置的candidate字段，如果为null则默认返回"java"（向后兼容）
+        return candidate != null ? candidate : "java";
+    }
+
+    @Override
+    @JsonIgnore
+    public String getVersionIdentifier() {
+        return identifier;
+    }
+
+    @Override
+    @JsonIgnore
+    public String getDisplayName() {
+        return version;
+    }
+}
+

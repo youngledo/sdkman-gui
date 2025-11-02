@@ -1,0 +1,68 @@
+/* JDK Management Page Styles */
+
+/* Vendor Header Cell */
+.vendor-header-cell {
+    -fx-background-color: derive(-color-bg-default, -5%);
+    -fx-background-radius: 6;
+}
+
+.vendor-header-cell .vendor-label {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.vendor-header-cell .recommended-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -color-success-fg;
+    -fx-background-color: -color-success-subtle;
+    -fx-background-radius: 4;
+    -fx-padding: 2 8;
+}
+
+/* JDK Version Cell */
+.jdk-version-cell {
+    -fx-background-radius: 6;
+}
+
+.jdk-version-cell .version-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.jdk-version-cell .identifier-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: -color-fg-muted;
+}
+
+/* Status Labels */
+.jdk-version-cell .status-installed {
+    -fx-text-fill: -color-success-fg;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-background-color: -color-success-subtle;
+    -fx-background-radius: 4;
+    -fx-padding: 2 8;
+}
+
+.jdk-version-cell .status-default {
+    -fx-text-fill: -color-accent-fg;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-background-color: -color-accent-subtle;
+    -fx-background-radius: 4;
+    -fx-padding: 2 8;
+}
+
+.jdk-version-cell .status-not-installed {
+    -fx-text-fill: -color-fg-muted;
+    -fx-font-size: 12px;
+    -fx-background-color: -color-bg-subtle;
+    -fx-background-radius: 4;
+    -fx-padding: 2 8;
+}
+
+.jdk-version-cell .progress-label {
+    -fx-text-fill: -color-accent-fg;
+    -fx-font-weight: bold;
+}

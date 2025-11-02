@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="io.sdkman.controller.SdkDetailController"
+      spacing="20"
+      styleClass="page-content">
+
+    <padding>
+        <Insets top="30" right="40" bottom="30" left="40"/>
+    </padding>
+
+    <!-- 返回按钮和标题 -->
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <Button fx:id="backButton" text="← 返回" onAction="#onBackClicked" styleClass="button-outlined"/>
+        <Label fx:id="titleLabel" styleClass="page-title"/>
+    </HBox>
+
+    <!-- 滚动容器 -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="edge-to-edge">
+        <VBox spacing="25">
+            <padding>
+                <Insets top="10" bottom="10"/>
+            </padding>
+
+            <!-- SDK基本信息卡片 -->
+            <VBox spacing="10" styleClass="card">
+                <padding>
+                    <Insets right="20" bottom="10" left="20"/>
+                </padding>
+
+                <!-- 描述 -->
+                <VBox spacing="4">
+                    <Label fx:id="descriptionLabel" wrapText="true" styleClass="page-subtitle"/>
+                </VBox>
+
+                <HBox spacing="10">
+                    <!-- 官方网址 -->
+                    <VBox spacing="4" fx:id="websiteBox">
+                        <padding>
+                            <Insets top="10"/>
+                        </padding>
+                        <Label fx:id="websiteLabel" />
+                        <Hyperlink fx:id="websiteLink" />
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <!-- 架构 -->
+                    <VBox spacing="4" fx:id="archBox">
+                        <padding>
+                            <Insets top="10"/>
+                        </padding>
+                        <Label fx:id="architectureLabel" />
+                        <Label fx:id="architectures" />
+                    </VBox>
+                </HBox>
+
+
+            </VBox>
+
+            <!-- 可用版本列表 -->
+            <VBox spacing="8" styleClass="card">
+                <padding>
+                    <Insets top="10" right="20" bottom="20" left="20"/>
+                </padding>
+
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label fx:id="versionLabel" />
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="refreshVersionsButton" onAction="#onRefreshVersions" styleClass="button-outlined"/>
+                </HBox>
+
+                <!-- 版本列表容器 - 使用StackPane重叠显示 -->
+                <StackPane VBox.vgrow="ALWAYS">
+                    <!-- 版本列表 -->
+                    <ListView fx:id="versionsListView" styleClass="sdk-versions-list"/>
+
+                    <!-- 加载状态 - 覆盖在ListView上方 -->
+                    <VBox fx:id="versionsLoadingPane" alignment="CENTER" spacing="20"
+                          styleClass="empty-state, loading-overlay" visible="false" managed="true">
+                        <ProgressIndicator/>
+                        <Label fx:id="loadingLabel"/>
+                    </VBox>
+                </StackPane>
+
+            </VBox>
+
+        </VBox>
+    </ScrollPane>
+
+</VBox>

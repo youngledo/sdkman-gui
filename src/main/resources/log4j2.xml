@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" shutdownHook="disable">
+    <Properties>
+        <Property name="logPath">${sys:user.home}/.sdkman-gui/logs</Property>
+    </Properties>
+    <Appenders>
+        <!-- Console Appender -->
+        <Console name="CONSOLE" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %red{%pid} [%magenta{%thread}] %highlight{%-5level}{FATAL=bright red, ERROR=bright red, WARN=bright yellow, INFO=bright green, DEBUG=bright cyan, TRACE=bright black} %cyan{%logger{36}}:%L %msg%n"/>
+        </Console>
+
+        <!-- File Appender -->
+        <RollingFile name="FILE" fileName="${logPath}/sdkman-gui.log"
+                     filePattern="${logPath}/sdkman-gui-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="10MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="3">
+                <Delete basePath="${logPath}">
+                    <!--清理“.log.gz”的归档日志-->
+                    <IfFileName glob="*.log.gz" />
+                    <!--
+                    默认值为10天，具体格式参考：https://logging.apache.org/log4j/2.x/javadoc/log4j-core/org/apache/logging/log4j/core/appender/rolling/action/Duration.html
+                    -->
+                    <IfLastModified age="3d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <!-- 根日志级别 -->
+        <Root level="INFO">
+            <AppenderRef ref="CONSOLE"/>
+            <AppenderRef ref="FILE"/>
+        </Root>
+    </Loggers>
+</Configuration>

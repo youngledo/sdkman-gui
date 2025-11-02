@@ -1,0 +1,556 @@
+/* SDKMAN自定义样式 */
+
+/* 根容器 - 现代跨平台系统字体栈 */
+.root {
+    /*
+     * 现代系统字体栈，优先级：
+     * 1. System - JavaFX 系统字体（最佳兼容性）
+     * 2. SF Pro Text - macOS 现代字体
+     * 3. Segoe UI - Windows 系统字体
+     * 4. Roboto - Linux/Android 现代字体
+     * 5. Helvetica Neue - macOS 经典字体
+     * 6. Arial - 通用备选字体
+     */
+    -fx-font-family: "System", "SF Pro Text", "Segoe UI", "PingFang SC", "Arial", sans-serif;
+    -fx-font-size: 14px;
+
+    /* 字体渲染优化 */
+    -fx-font-smoothing-type: gray;  /* 灰度抗锯齿，适合大多数场景 */
+}
+
+/* ========== 侧边栏样式 ========== */
+.sidebar {
+    -fx-background-color: -color-canvas-subtle;
+    -fx-border-color: -color-border-default;
+    -fx-border-width: 0 1 0 0;
+}
+
+.sidebar-header {
+    -fx-border-color: -color-border-default;
+    -fx-border-width: 0 0 1 0;
+}
+
+.sidebar-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -color-fg-default;
+}
+
+.sidebar-nav {
+    -fx-background-color: transparent;
+}
+
+/* 导航按钮 */
+.nav-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -color-fg-default;
+    -fx-background-radius: 8px;
+    -fx-padding: 10 16 10 16;
+    -fx-font-size: 16px;
+    -fx-font-weight: 500;
+    -fx-cursor: hand;
+    -fx-alignment: CENTER_LEFT;
+    /* 中文字体渲染优化 */
+    -fx-font-smoothing-type: gray;
+    -fx-font-family: "PingFang SC", "SF Pro Text", "Segoe UI", "Arial", sans-serif;
+}
+
+.nav-button:hover {
+    -fx-background-color: -color-neutral-muted;
+}
+
+.nav-button-active {
+    -fx-background-color: -color-accent-muted;
+    -fx-text-fill: -color-accent-fg;
+    /* 确保激活状态也使用优化后的中文字体 */
+    -fx-font-family: "PingFang SC", "SF Pro Text", "Segoe UI", "Arial", sans-serif;
+    -fx-font-smoothing-type: gray;
+}
+
+.nav-button-active:hover {
+    -fx-background-color: -color-accent-muted;
+}
+
+.nav-icon {
+    -fx-font-size: 16px;
+    -fx-padding: 0 8 0 0;
+}
+
+.sidebar-separator {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.sidebar-separator .line {
+    -fx-background-color: -color-border-default;
+    -fx-border-width: 0;
+    -fx-pref-height: 1px;
+}
+
+/* ========== 内容区域样式 ========== */
+.content-pane {
+    -fx-background-color: -color-bg-default;
+}
+
+.page-content {
+    -fx-background-color: -color-bg-default;
+}
+
+.page-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -color-fg-default;
+}
+
+.page-subtitle {
+    -fx-font-size: 16px;
+    -fx-text-fill: -color-fg-muted;
+}
+
+/* ========== 设置页面样式 ========== */
+
+/* 设置页面的字体渲染优化 */
+.page-content {
+    /* 确保设置页面使用优化的字体渲染 */
+    -fx-font-smoothing-type: gray;
+}
+
+/* 设置页面标题优化 */
+.page-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: 500;  /* 减轻字重，改善中文字符渲染 */
+    -fx-text-fill: -color-fg-default;
+    /* 中文字体渲染优化 */
+    -fx-font-smoothing-type: gray;
+    -fx-font-family: "PingFang SC", "SF Pro Text", "Segoe UI", "Arial", sans-serif;
+}
+
+.page-subtitle {
+    -fx-font-size: 16px;
+    -fx-text-fill: -color-fg-muted;
+    /* 字体渲染优化 */
+    -fx-font-smoothing-type: gray;
+}
+
+/* 设置区域标题 */
+.settings-section-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 500;  /* 减轻字重，改善中文字符渲染 */
+    -fx-text-fill: -color-fg-default;
+    -fx-padding: 0 0 8 0;
+    /* 中文字体渲染优化 */
+    -fx-font-smoothing-type: gray;
+    /* 优先使用更适合中文的字体 */
+    -fx-font-family: "PingFang SC", "SF Pro Text", "Segoe UI", "Arial", sans-serif;
+}
+
+/* 设置区域容器 */
+.settings-section {
+    -fx-background-color: -color-canvas-default;
+    -fx-background-radius: 8px;
+    -fx-padding: 16px;
+    -fx-spacing: 12px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 8, 0, 0, 1);
+}
+
+/* 设置滚动面板 */
+.settings-scroll {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.settings-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.settings-scroll .scroll-bar:vertical {
+    -fx-background-color: -color-neutral-muted;
+    -fx-background-radius: 4px;
+    -fx-pref-width: 8px;
+}
+
+/* 设置标签字体优化 */
+.settings-section .label {
+    -fx-font-size: 14px;
+    -fx-text-fill: -color-fg-default;
+    -fx-font-smoothing-type: gray;
+}
+
+.settings-section .radio-button,
+.settings-section .check-box {
+    -fx-font-size: 14px;
+    -fx-text-fill: -color-fg-default;
+    -fx-font-smoothing-type: gray;
+}
+
+/* 输入框字体优化 */
+.settings-section .text-field {
+    -fx-font-size: 14px;
+    -fx-font-smoothing-type: gray;
+}
+
+/* 按钮字体优化 */
+.settings-section .button {
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+    -fx-font-smoothing-type: gray;
+}
+
+/* SDK卡片样式 */
+.sdk-card {
+    -fx-background-color: -color-canvas-default;
+    -fx-background-radius: 12px;
+    -fx-padding: 20px;
+    -fx-spacing: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0, 0, 2);
+    -fx-alignment: center;
+    -fx-pref-width: 180px;
+    -fx-pref-height: 220px;
+}
+
+.sdk-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 15, 0, 0, 3);
+    -fx-cursor: hand;
+}
+
+.sdk-name {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -color-fg-default;
+}
+
+.sdk-version {
+    -fx-font-size: 14px;
+    -fx-text-fill: -color-fg-muted;
+}
+
+/* 按钮样式 */
+.install-button {
+    -fx-background-color: -color-accent-emphasis;
+    -fx-text-fill: white;
+    -fx-background-radius: 8px;
+    -fx-padding: 8px 20px;
+    -fx-font-weight: bold;
+}
+
+.install-button:hover {
+    -fx-background-color: derive(-color-accent-emphasis, -10%);
+}
+
+.installed-button {
+    -fx-background-color: -color-neutral-muted;
+    -fx-text-fill: -color-fg-muted;
+    -fx-background-radius: 8px;
+    -fx-padding: 8px 20px;
+}
+
+.uninstall-button {
+    -fx-background-color: -color-danger-emphasis;
+    -fx-text-fill: white;
+    -fx-background-radius: 8px;
+    -fx-padding: 8px 16px;
+}
+
+.uninstall-button:hover {
+    -fx-background-color: derive(-color-danger-emphasis, -10%);
+}
+
+/* 分类标签 */
+.category-chip {
+    -fx-background-color: -color-neutral-muted;
+    -fx-background-radius: 16px;
+    -fx-padding: 6px 12px;
+    -fx-text-fill: -color-fg-default;
+    -fx-font-size: 12px;
+}
+
+.category-chip:hover {
+    -fx-background-color: -color-neutral-emphasis-plus;
+    -fx-cursor: hand;
+}
+
+.category-chip.selected {
+    -fx-background-color: -color-accent-emphasis;
+    -fx-text-fill: white;
+}
+
+/* 搜索框 */
+.search-field {
+    -fx-background-color: -color-canvas-default;
+    -fx-border-color: -color-border-default;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 8px 12px;
+    -fx-pref-width: 180px;
+}
+
+.search-field:focused {
+    -fx-border-color: -color-accent-emphasis;
+    -fx-border-width: 2px;
+}
+
+/* 列表项 */
+.sdk-list-item {
+    -fx-background-color: -color-canvas-default;
+    -fx-background-radius: 8px;
+    -fx-padding: 16px;
+    -fx-spacing: 12px;
+}
+
+.sdk-list-item:hover {
+    -fx-background-color: -color-canvas-subtle;
+}
+
+/* 状态标签 */
+.status-label {
+    -fx-background-radius: 12px;
+    -fx-padding: 4px 12px;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.status-installed {
+    -fx-background-color: -color-success-muted;
+    -fx-text-fill: -color-success-fg;
+}
+
+.status-default {
+    -fx-background-color: -color-accent-muted;
+    -fx-text-fill: -color-accent-fg;
+}
+
+.status-update {
+    -fx-background-color: -color-attention-muted;
+    -fx-text-fill: -color-attention-fg;
+}
+
+/* ========== 首页样式 ========== */
+.stats-container {
+    -fx-alignment: CENTER_LEFT;
+}
+
+.stat-card {
+    -fx-background-color: -color-canvas-default;
+    -fx-background-radius: 12px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.08), 10, 0, 0, 2);
+    -fx-alignment: CENTER;  /* 居中对齐 */
+    -fx-spacing: 8px;
+    -fx-min-width: 200px;  /* 增加最小宽度，确保有足够空间 */
+    -fx-pref-width: 200px;  /* 设置首选宽度 */
+}
+
+.stat-icon {
+    -fx-font-size: 32px;
+    -fx-alignment: CENTER;  /* 图标居中 */
+}
+
+.stat-number {
+    -fx-font-size: 32px;
+    -fx-font-weight: 600;  /* Medium weight，接近系统默认权重 */
+    /*
+     * 数字显示专用字体栈：
+     * 1. System - 系统字体确保一致性
+     * 2. SF Pro Display - macOS 大号文本优化
+     * 3. Segoe UI - Windows 系统字体
+     * 4. Roboto - Linux 现代字体
+     * 5. Helvetica Neue - macOS 经典字体
+     */
+    -fx-font-family: "System", "SF Pro Display", "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
+    -fx-text-fill: -color-fg-default;
+    -fx-max-width: INFINITY;  /* 允许无限宽度 */
+    -fx-pref-width: -1;  /* 使用内容宽度 */
+    -fx-wrap-text: false;  /* 禁止换行 */
+    -fx-alignment: CENTER;  /* 数字居中 */
+    -fx-padding: 0 10 0 10;  /* 左右各加10像素padding，确保有足够空间 */
+    -fx-smooth: true;  /* 启用抗锯齿，改善字体渲染 */
+}
+
+.stat-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: -color-fg-muted;
+    -fx-wrap-text: true;  /* 允许标签换行 */
+    -fx-alignment: CENTER;  /* 标签居中 */
+    -fx-text-alignment: CENTER;  /* 文本对齐方式为居中 */
+    -fx-max-width: INFINITY;  /* 允许无限宽度 */
+}
+
+.section-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: 600;
+    -fx-text-fill: -color-fg-default;
+}
+
+.action-button {
+    -fx-background-color: -color-accent-emphasis;
+    -fx-text-fill: white;
+    -fx-background-radius: 8px;
+    -fx-padding: 10 20 10 20;
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+    -fx-cursor: hand;
+}
+
+.action-button:hover {
+    -fx-background-color: derive(-color-accent-emphasis, -10%);
+}
+
+.hint-text {
+    -fx-font-size: 13px;
+    -fx-text-fill: -color-fg-muted;
+    -fx-font-style: italic;
+}
+
+/* ========== JDK/SDK页面样式 ========== */
+.filter-container {
+    -fx-alignment: CENTER_LEFT;
+}
+
+.filter-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: -color-fg-default;
+    -fx-font-weight: 500;
+}
+
+.filter-chip {
+    -fx-background-color: -color-canvas-subtle;
+    -fx-text-fill: -color-fg-default;
+    -fx-background-radius: 16px;
+    -fx-padding: 6 16 6 16;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+}
+
+.filter-chip:hover {
+    -fx-background-color: -color-neutral-muted;
+}
+
+.filter-chip-active {
+    -fx-background-color: -color-accent-emphasis;
+    -fx-text-fill: white;
+}
+
+.filter-chip-active:hover {
+    -fx-background-color: -color-accent-emphasis;
+}
+
+.content-scroll {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.content-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.content-scroll .scroll-bar {
+    -fx-background-color: transparent;
+}
+
+.sdk-list {
+    -fx-background-color: transparent;
+}
+
+.sdk-grid {
+    -fx-background-color: transparent;
+}
+
+/* ========== 空状态样式 ========== */
+.empty-state {
+    -fx-alignment: CENTER;
+    -fx-fill-width: true;
+    /* 确保在任何容器中都能居中显示 */
+    -fx-max-width: Infinity;
+    -fx-max-height: Infinity;
+}
+
+/* 加载状态特殊样式 - 用于覆盖在ListView上方 */
+.empty-state.loading-overlay {
+    -fx-background-color: rgba(255, 255, 255, 0.8);
+    -fx-background-radius: 8px;
+}
+
+/* ProgressIndicator 优化 */
+.empty-state .progress-indicator {
+    -fx-progress-color: -color-accent-fg;
+    -fx-pref-width: 32px;
+    -fx-pref-height: 32px;
+}
+
+/* 加载文字样式 */
+.empty-state .label {
+    -fx-font-size: 14px;
+    -fx-text-fill: -color-fg-muted;
+    -fx-font-smoothing-type: gray;
+    -fx-font-family: "PingFang SC", "SF Pro Text", "Segoe UI", "Arial", sans-serif;
+}
+
+.empty-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: 600;
+    -fx-text-fill: -color-fg-default;
+}
+
+.empty-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: -color-fg-muted;
+}
+
+/* ========== ListView优化样式 ========== */
+.sdk-list-view {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 5;
+}
+
+.sdk-list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 5 0 5 0;
+    -fx-background-insets: 0;
+    -fx-border-width: 0;
+}
+
+.sdk-list-view .list-cell:filled:hover {
+    -fx-background-color: transparent;
+}
+
+.sdk-list-view .list-cell:filled:selected {
+    -fx-background-color: transparent;
+}
+
+/* 优化滚动条性能 */
+.sdk-list-view .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 12px;
+}
+
+.sdk-list-view .scroll-bar:vertical .track {
+    -fx-background-color: -color-canvas-subtle;
+    -fx-background-radius: 6px;
+}
+
+.sdk-list-view .scroll-bar:vertical .thumb {
+    -fx-background-color: -color-border-default;
+    -fx-background-radius: 6px;
+    -fx-transition: -fx-background-color 0.2s ease;
+}
+
+.sdk-list-view .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: -color-neutral-emphasis;
+}
+
+.sdk-list-view .scroll-bar:vertical .thumb:pressed {
+    -fx-background-color: derive(-color-neutral-emphasis, -10%);
+}
+
+.sdk-list-view .scroll-bar .increment-button,
+.sdk-list-view .scroll-bar .decrement-button {
+    -fx-opacity: 0;
+    -fx-pref-height: 0;
+}
+
+/* 平滑的列表项过渡效果 */
+.sdk-list-view .list-cell .sdk-list-item {
+    -fx-transition: -fx-background-color 0.15s ease;
+}

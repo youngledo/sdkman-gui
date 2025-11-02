@@ -1,0 +1,94 @@
+{
+  "activemq": {
+    "name": "ActiveMQ",
+    "description": "Apache ActiveMQ® 是一个流行的开源、多协议、基于 Java 的消息代理。它支持业界标准协议，因此用户可以从跨越广泛的语言和平台的客户端选择中受益。从使用 JavaScript、C、C++、Python、.Net 等编写的客户端进行连接。使用无处不在的 AMQP 协议集成您的多平台应用程序。使用 STOMP over websockets 在您的 web 应用程序之间交换消息。使用 MQTT 管理您的 IoT 设备。支持您现有的 JMS 基础设施及更多。ActiveMQ 提供了支持任何消息传递用例所需的功能和灵活性。"
+  },
+  "maven": {
+    "name": "Maven",
+    "description": "Apache Maven 是一个软件项目管理和理解工具。基于项目对象模型 (POM) 的概念，Maven 可以从一个中心信息源管理项目的构建、报告和文档。"
+  },
+  "gradle": {
+    "name": "Gradle",
+    "description": "Gradle 是一个构建自动化工具，它建立在 Apache Ant 和 Apache Maven 的概念基础之上，引入了基于 Groovy 的领域特定语言 (DSL)，而不是更传统的 XML 形式来声明项目配置。Gradle 使用有向无环图 (DAG) 来确定任务的执行顺序。"
+  },
+  "java": {
+    "name": "Java",
+    "description": "Java 平台标准版（Java SE）是一个广泛使用的平台，用于在桌面和服务器环境中开发和部署可移植代码。Java SE 使用面向对象的 Java 编程语言。它是 Java 软件平台家族的一部分。Java SE 定义了广泛的通用 API——例如用于 Java 类库的 Java API——还包括 Java 语言规范和 Java 虚拟机规范。"
+  },
+  "groovy": {
+    "name": "Groovy",
+    "description": "Apache Groovy is a powerful, optionally typed and dynamic language, with static-typing and static compilation capabilities, for the Java platform."
+  },
+  "kotlin": {
+    "name": "Kotlin",
+    "description": "Kotlin is a modern, concise, and safe programming language that makes developers happier. It is fully interoperable with Java and runs on the JVM."
+  },
+  "scala": {
+    "name": "Scala",
+    "description": "Scala combines object-oriented and functional programming in one concise, high-level language. Scala's static types help avoid bugs in complex applications."
+  },
+  "springboot": {
+    "name": "Spring Boot",
+    "description": "Spring Boot makes it easy to create stand-alone, production-grade Spring based Applications that you can run. It takes an opinionated view of the Spring platform."
+  },
+  "micronaut": {
+    "name": "Micronaut",
+    "description": "Micronaut is a modern, JVM-based, full-stack framework for building modular, easily testable microservice and serverless applications."
+  },
+  "quarkus": {
+    "name": "Quarkus CLI",
+    "description": "Quarkus is a Kubernetes Native Java stack tailored for OpenJDK HotSpot and GraalVM, crafted from the best of breed Java libraries and standards."
+  },
+  "grails": {
+    "name": "Grails",
+    "description": "Grails is a powerful Groovy-based web application framework for the JVM built on top of Spring Boot."
+  },
+  "ant": {
+    "name": "Ant",
+    "description": "Apache Ant 是一个 Java 库和命令行工具，其目标是驱动在构建文件中描述的流程，这些流程被表示为相互依赖的目标和扩展点。Ant 的主要已知用途是构建 Java 应用程序。Ant 提供了许多内置任务，可用于编译、组装、测试和运行 Java 应用程序。Ant 也可以有效地用于构建非 Java 应用程序，例如 C 或 C++ 应用程序。更一般地说，Ant 可以用于控制任何可以用目标和任务描述的流程类型。"
+  },
+  "sbt": {
+    "name": "SBT",
+    "description": "SBT is an open-source build tool for Scala and Java projects, similar to Apache Maven and Gradle."
+  },
+  "jbang": {
+    "name": "JBang",
+    "description": "JBang lets you run Java programs as scripts without explicit compilation. It makes Java easy to use for scripting purposes."
+  },
+  "visualvm": {
+    "name": "VisualVM",
+    "description": "VisualVM is a visual tool integrating commandline JDK tools and lightweight profiling capabilities for monitoring and troubleshooting Java applications."
+  },
+  "jmc": {
+    "name": "JDK Mission Control",
+    "description": "JDK Mission Control is an advanced set of tools that enables efficient and detailed analysis of the extensive data collected by Java Flight Recorder."
+  },
+  "tomcat": {
+    "name": "Apache Tomcat",
+    "description": "Apache Tomcat is an open source implementation of the Jakarta Servlet, Jakarta Server Pages, Jakarta Expression Language, Jakarta WebSocket specifications."
+  },
+  "spark": {
+    "name": "Spark",
+    "description": "Apache Spark is a unified analytics engine for large-scale data processing. It provides high-level APIs in Java, Scala, Python and R."
+  },
+  "flink": {
+    "name": "Flink",
+    "description": "Apache Flink is a framework and distributed processing engine for stateful computations over unbounded and bounded data streams."
+  },
+  "hadoop": {
+    "name": "hadoop",
+    "description": "Apache Hadoop is a collection of open-source software utilities that facilitates using a network of many computers to solve problems involving massive amounts of data."
+  },
+  "leiningen": {
+    "name": "Leiningen",
+    "description": "Leiningen is a build automation and dependency management tool for the Clojure programming language."
+  },
+  "bld": {
+    "name": "Bld",
+    "description": "Bld is a build system that allows you to write your build logic in pure Java. bld was created because we're not really interested in build tools. We use them because we have to, but we'd rather just get on with coding the real stuff."
+  },
+  "temurin": {
+    "name": "Eclipse Temurin",
+    "description": "Eclipse Temurin™项目（前身为 AdoptOpenJDK）提供代码和流程，支持构建高性能、企业级、跨平台、开源许可的运行时二进制文件和相关技术，这些技术已通过 Java SE TCK 测试，可在整个 Java 生态系统中通用。"
+  }
+}

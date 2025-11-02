@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.image.ImageView?>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="io.sdkman.controller.MainController"
+            stylesheets="@../css/custom-theme.css">
+
+    <!-- 左侧边栏 -->
+    <left>
+        <VBox styleClass="sidebar" prefWidth="220" minWidth="220" maxWidth="220">
+            <!-- 应用标题区域 -->
+            <VBox styleClass="sidebar-header">
+                <padding>
+                    <Insets top="30" right="20" bottom="20" left="20"/>
+                </padding>
+                <ImageView fx:id="logoImageView" fitHeight="96" preserveRatio="true"/>
+            </VBox>
+
+            <!-- 导航菜单 -->
+            <VBox styleClass="sidebar-nav" spacing="4" VBox.vgrow="ALWAYS">
+                <padding>
+                    <Insets top="10" right="12" bottom="10" left="12"/>
+                </padding>
+
+                <!-- 首页按钮 -->
+                <Button fx:id="homeButton" styleClass="nav-button, nav-button-active"
+                        text="首页" maxWidth="Infinity"
+                        onAction="#onHomeClicked">
+                    <graphic>
+                        <Label text="🏠" styleClass="nav-icon"/>
+                    </graphic>
+                </Button>
+
+                <!-- JDK按钮 -->
+                <Button fx:id="jdkButton" styleClass="nav-button"
+                        text="JDK" maxWidth="Infinity"
+                        onAction="#onJdkClicked">
+                    <graphic>
+                        <Label text="☕️" styleClass="nav-icon"/>
+                    </graphic>
+                </Button>
+
+                <!-- SDK按钮 -->
+                <Button fx:id="sdkButton" styleClass="nav-button"
+                        text="SDK" maxWidth="Infinity"
+                        onAction="#onSdkClicked">
+                    <graphic>
+                        <Label text="📦" styleClass="nav-icon"/>
+                    </graphic>
+                </Button>
+
+                <!-- 占位空间 -->
+                <Region VBox.vgrow="ALWAYS"/>
+
+                <!-- 底部设置按钮 -->
+                <Separator styleClass="sidebar-separator">
+                    <VBox.margin>
+                        <Insets top="10" bottom="10"/>
+                    </VBox.margin>
+                </Separator>
+
+                <Button fx:id="settingsButton" styleClass="nav-button"
+                        text="设置" maxWidth="Infinity"
+                        onAction="#onSettingsClicked">
+                    <graphic>
+                        <Label text="⚙️" styleClass="nav-icon"/>
+                    </graphic>
+                </Button>
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- 右侧内容区域 -->
+    <center>
+        <StackPane fx:id="contentPane" styleClass="content-pane">
+            <!-- 内容页面将动态加载到这里 -->
+        </StackPane>
+    </center>
+
+</BorderPane>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="io.sdkman.controller.HomeController"
+      styleClass="page-content"
+      spacing="20">
+
+    <padding>
+        <Insets top="40" right="40" bottom="40" left="40"/>
+    </padding>
+
+    <!-- 页面标题 -->
+    <VBox spacing="8">
+        <Label fx:id="welcomeLabel" styleClass="page-title"/>
+        <Label fx:id="subtitleLabel" styleClass="page-subtitle"/>
+    </VBox>
+
+    <!-- 快速统计卡片 -->
+    <HBox spacing="20" styleClass="stats-container">
+        <!-- 已安装JDK数量 -->
+        <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+            <Label text="☕" styleClass="stat-icon" maxWidth="Infinity"/>
+            <Label fx:id="jdkCountLabel" text="0" styleClass="stat-number" maxWidth="Infinity"/>
+            <Label fx:id="jdkStatLabel" styleClass="stat-label" maxWidth="Infinity"/>
+        </VBox>
+
+        <!-- 已安装SDK数量 -->
+        <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+            <Label text="📦" styleClass="stat-icon" maxWidth="Infinity"/>
+            <Label fx:id="sdkCountLabel" text="0" styleClass="stat-number" maxWidth="Infinity"/>
+            <Label fx:id="sdkStatLabel" styleClass="stat-label" maxWidth="Infinity"/>
+        </VBox>
+
+        <!-- 可用更新 -->
+        <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+            <Label text="🔄" styleClass="stat-icon" maxWidth="Infinity"/>
+            <Label fx:id="updateCountLabel" text="0" styleClass="stat-number" maxWidth="Infinity"/>
+            <Label fx:id="updateStatLabel" styleClass="stat-label" maxWidth="Infinity"/>
+        </VBox>
+    </HBox>
+
+    <!-- 快速操作 -->
+    <VBox spacing="12">
+        <Label fx:id="quickActionsLabel" styleClass="section-title"/>
+
+        <HBox spacing="12">
+            <Button fx:id="browseJdkButton" styleClass="action-button"
+                    prefWidth="150" onAction="#onBrowseJdkClicked"/>
+            <Button fx:id="browseSdkButton" styleClass="action-button"
+                    prefWidth="150" onAction="#onBrowseSdkClicked"/>
+            <Button fx:id="checkUpdateButton" styleClass="action-button"
+                    prefWidth="150" onAction="#onCheckUpdateClicked"/>
+        </HBox>
+    </VBox>
+
+    <!-- 占位空间 -->
+    <Region VBox.vgrow="ALWAYS"/>
+
+    <!-- 底部提示 -->
+    <Label fx:id="hintLabel" styleClass="hint-text"/>
+
+</VBox>

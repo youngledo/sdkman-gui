@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="io.sdkman.controller.JdkController"
+      styleClass="page-content"
+      spacing="20">
+
+    <padding>
+        <Insets top="40" right="40" bottom="40" left="40"/>
+    </padding>
+
+    <!-- 页面头部 -->
+    <HBox alignment="CENTER_LEFT" spacing="20">
+        <VBox HBox.hgrow="ALWAYS" spacing="8">
+            <Label fx:id="titleLabel" styleClass="page-title"/>
+            <Label fx:id="subtitleLabel" styleClass="page-subtitle"/>
+        </VBox>
+
+        <!-- 搜索框 -->
+        <TextField fx:id="searchField" styleClass="search-field" />
+
+        <!-- 刷新按钮 -->
+        <Button fx:id="refreshButton" styleClass="action-button" onAction="#onRefreshClicked"/>
+    </HBox>
+
+    <!-- 筛选工具栏 -->
+    <HBox spacing="12" alignment="CENTER_LEFT">
+        <Label fx:id="filterLabel" styleClass="filter-label"/>
+        <ComboBox fx:id="statusFilterCombo" prefWidth="150"/>
+
+        <Label fx:id="vendorLabel" styleClass="filter-label">
+            <HBox.margin>
+                <Insets left="20"/>
+            </HBox.margin>
+        </Label>
+        <ComboBox fx:id="vendorFilterCombo" prefWidth="180"/>
+
+        <Label fx:id="categoryLabel" styleClass="filter-label">
+            <HBox.margin>
+                <Insets left="20"/>
+            </HBox.margin>
+        </Label>
+        <ComboBox fx:id="categoryFilterCombo" prefWidth="150"/>
+    </HBox>
+
+    <!-- JDK列表区域 -->
+    <StackPane VBox.vgrow="ALWAYS">
+        <!-- ListView用于展示JDK -->
+        <ListView fx:id="jdkListView" styleClass="sdk-list-view"/>
+
+        <!-- 加载中状态 -->
+        <VBox fx:id="loadingPane" alignment="CENTER" spacing="20"
+              styleClass="empty-state" visible="false" managed="false">
+            <ProgressIndicator/>
+            <Label fx:id="loadingLabel"/>
+        </VBox>
+
+        <!-- 空状态 -->
+        <VBox fx:id="emptyPane" alignment="CENTER" spacing="20"
+              styleClass="empty-state" visible="false" managed="false">
+            <Label text="☕" style="-fx-font-size: 64px;"/>
+            <Label fx:id="emptyTitleLabel"/>
+            <Label fx:id="emptySubtitleLabel"/>
+        </VBox>
+    </StackPane>
+
+</VBox>
