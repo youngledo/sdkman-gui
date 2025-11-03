@@ -2,7 +2,7 @@
 
 [English](README.md) | **中文**
 
-> 现代化的SDKMAN图形化管理工具，提供类似Applite的用户体验。
+> 现代化的[SDKMAN](https://github.com/sdkman)图形化管理工具，提供类似[Applite](https://github.com/milanvarady/Applite)的用户体验。
 
 基于JavaFX 25 + Maven 4.0开发，参考Applite设计风格，为SDKMAN提供优雅的GUI界面。
 
