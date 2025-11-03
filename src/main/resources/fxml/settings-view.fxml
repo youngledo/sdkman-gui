@@ -39,8 +39,8 @@
             <VBox spacing="12" styleClass="settings-section">
                 <Label fx:id="languageLabel" styleClass="settings-section-title"/>
                 <HBox spacing="10" alignment="CENTER_LEFT">
-                    <RadioButton fx:id="languageEnRadio"/>
                     <RadioButton fx:id="languageZhRadio"/>
+                    <RadioButton fx:id="languageEnRadio"/>
                 </HBox>
             </VBox>
 
