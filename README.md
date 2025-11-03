@@ -2,7 +2,7 @@
 
 **English** | [中文](README_ZH.md)
 
-> A modern graphical management tool for SDKMAN, providing an App Store-like user experience.
+> A modern graphical management tool for SDKMAN, providing an Applite-like user experience.
 
 Built with JavaFX 25 + Maven 4.0, inspired by Applite's design aesthetic, offering an elegant GUI interface for SDKMAN.
 
