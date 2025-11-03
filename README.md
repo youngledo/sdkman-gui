@@ -30,7 +30,7 @@ Built with JavaFX 25 + Maven 4.0, inspired by Applite's design aesthetic, offeri
 
 | Component | Version | Description |
 |-----------|---------|-------------|
-| Java | 25 | Runtime Environment |
+| Java | 25.0.1 | Runtime Environment |
 | JavaFX | 25.0.1 | UI Framework |
 | Maven | 4.0 | Build Tool |
 | AtlantaFX | 2.1.0 | UI Theme Library |
