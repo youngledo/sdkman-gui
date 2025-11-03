@@ -65,14 +65,11 @@ mvn clean compile
 mvn javafx:run
 ```
 
-### Package the Application
+### Package into an installer
 
 ```bash
-# Create executable JAR
-mvn clean package
-
-# Run the packaged JAR
-java -jar target/sdkman-gui-1.0.0.jar
+# macOS、Linux
+./package.sh
 ```
 
 ## 🌍 Internationalization
