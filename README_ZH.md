@@ -66,14 +66,11 @@ mvn clean compile
 mvn javafx:run
 ```
 
-### 打包应用
+### 打包成安装程序
 
 ```bash
-# 创建可执行JAR
-mvn clean package
-
-# 运行打包后的JAR
-java -jar target/sdkman-gui-1.0.0.jar
+# macOS、Linux
+./package.sh
 ```
 
 ## 🌍 国际化
