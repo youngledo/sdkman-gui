@@ -1,6 +1,8 @@
 package io.sdkman.controller;
 
 import io.sdkman.util.I18nManager;
+import io.sdkman.util.UrlUtils;
+import javafx.application.HostServices;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -40,6 +42,18 @@ public class MainController {
     // 当前激活的导航按钮
     private Button activeButton;
 
+    // HostServices用于打开URL
+    private HostServices hostServices;
+    private boolean initialized = false;
+
+    public void setHostServices(HostServices hostServices) {
+        this.hostServices = hostServices;
+        // 如果已经初始化，现在加载首页
+        if (initialized) {
+            loadHomePage();
+        }
+    }
+
     @FXML
     public void initialize() {
         logger.info("Initializing MainController");
@@ -50,8 +64,9 @@ public class MainController {
         // 监听语言变化
         setupLanguageChangeListener();
 
-        // 默认显示首页
-        loadHomePage();
+        // 标记为已初始化，但不立即加载首页
+        // 等待setHostServices被调用后再加载
+        initialized = true;
 
         logger.info("MainController initialized successfully");
     }
@@ -102,6 +117,15 @@ public class MainController {
             }
             logoImageView.setImage(logoImage);
         }
+    }
+
+    ///
+    /// Handles logo click event to open GitHub repository
+    /// 处理logo点击事件，打开GitHub仓库
+    ///
+    @FXML
+    private void onLogoClicked() {
+        UrlUtils.openGitHubRepository(hostServices);
     }
 
     /**
@@ -155,11 +179,12 @@ public class MainController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Node page = loader.load();
 
-            // 如果是首页，设置导航回调
+            // 如果是首页，设置导航回调和HostServices
             if (fxmlPath.contains("home-view")) {
                 HomeController homeController = loader.getController();
                 if (homeController != null) {
                     homeController.setNavigationCallback(this::navigateFromHome);
+                    homeController.setHostServices(hostServices);
                 }
             }
 

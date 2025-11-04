@@ -23,11 +23,11 @@ public final class AlertUtils {
      * 显示错误对话框
      */
     public static void showErrorAlert(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
+        showErrorAlert(title, content, ButtonType.OK, _ -> {});
+    }
+
+    public static void showErrorAlert(String title, String content, Consumer<ButtonType> action) {
+        showErrorAlert(title, content, ButtonType.OK, action);
     }
 
     public static void showErrorAlert(String title, String content, ButtonType buttonType, Consumer<ButtonType> action) {

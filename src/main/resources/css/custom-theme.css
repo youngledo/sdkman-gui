@@ -72,8 +72,61 @@
 }
 
 .nav-icon {
-    -fx-font-size: 16px;
+    -fx-font-size: 18px;
     -fx-padding: 0 8 0 0;
+}
+
+/* 导航图标彩色样式 */
+.nav-button .nav-icon {
+    -fx-icon-color: -color-fg-muted;
+}
+
+.nav-button:hover .nav-icon {
+    -fx-icon-color: -color-accent-emphasis;
+}
+
+.nav-button-active .nav-icon {
+    -fx-icon-color: -color-accent-emphasis;
+}
+
+/* 首页图标 - 蓝色 */
+#homeButton .nav-icon {
+    -fx-icon-color: #3b82f6;
+}
+
+#homeButton:hover .nav-icon,
+#homeButton.nav-button-active .nav-icon {
+    -fx-icon-color: #2563eb;
+}
+
+/* JDK图标 - Java官方橙红色 */
+#jdkButton .nav-icon {
+    -fx-icon-color: #f89820;
+}
+
+#jdkButton:hover .nav-icon,
+#jdkButton.nav-button-active .nav-icon {
+    -fx-icon-color: #e67e22;
+}
+
+/* SDK图标 - 绿色 */
+#sdkButton .nav-icon {
+    -fx-icon-color: #10b981;
+}
+
+#sdkButton:hover .nav-icon,
+#sdkButton.nav-button-active .nav-icon {
+    -fx-icon-color: #059669;
+}
+
+/* 设置图标 - 灰色 */
+#settingsButton .nav-icon {
+    -fx-icon-color: #6b7280;
+}
+
+#settingsButton:hover .nav-icon,
+#settingsButton.nav-button-active .nav-icon {
+    -fx-icon-color: #4b5563;
 }
 
 .sidebar-separator {
@@ -105,6 +158,39 @@
 .page-subtitle {
     -fx-font-size: 16px;
     -fx-text-fill: -color-fg-muted;
+}
+
+/* 应用名称链接样式 */
+.app-name-link {
+    -fx-font-size: 28px;
+    -fx-font-weight: 500;  /* 与page-title一致 */
+    -fx-text-fill: -color-accent-emphasis;
+    -fx-underline: false;
+    -fx-cursor: hand;
+    -fx-padding: 0 0 0 6;  /* 左侧添加6px间距 */
+    -fx-font-smoothing-type: gray;
+    -fx-font-family: "PingFang SC", "SF Pro Text", "Segoe UI", "Arial", sans-serif;
+}
+
+.app-name-link:hover {
+    -fx-text-fill: -color-accent-fg;
+    -fx-underline: true;
+}
+
+.app-name-link:visited {
+    -fx-text-fill: -color-accent-emphasis;
+}
+
+/* 可点击的logo样式 */
+.clickable-logo {
+    -fx-cursor: hand;
+    -fx-opacity: 1.0;
+    -fx-effect: none;
+}
+
+.clickable-logo:hover {
+    -fx-opacity: 0.8;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 8, 0.0, 0, 2);
 }
 
 /* ========== 设置页面样式 ========== */
@@ -341,8 +427,9 @@
 }
 
 .stat-icon {
-    -fx-font-size: 32px;
+    -fx-font-size: 60px;
     -fx-alignment: CENTER;  /* 图标居中 */
+    -fx-padding: 0 0 10 0;  /* 底部增加间距 */
 }
 
 .stat-number {
@@ -373,6 +460,28 @@
     -fx-alignment: CENTER;  /* 标签居中 */
     -fx-text-alignment: CENTER;  /* 文本对齐方式为居中 */
     -fx-max-width: INFINITY;  /* 允许无限宽度 */
+}
+
+/* 统计卡片图标颜色和大小 */
+/* JDK图标 - Java官方橙红色 */
+#jdkStatIcon {
+    -fx-icon-color: #f89820;
+    -fx-icon-size: 48px;
+    -fx-font-size: 48px;
+}
+
+/* SDK图标 - 绿色 */
+#sdkStatIcon {
+    -fx-icon-color: #10b981;
+    -fx-icon-size: 48px;
+    -fx-font-size: 48px;
+}
+
+/* 更新图标 - 蓝色 */
+#updateStatIcon {
+    -fx-icon-color: #3b82f6;
+    -fx-icon-size: 48px;
+    -fx-font-size: 48px;
 }
 
 .section-title {

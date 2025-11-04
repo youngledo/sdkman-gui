@@ -5,6 +5,7 @@
 <?import javafx.scene.layout.*?>
 
 <?import javafx.scene.image.ImageView?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="io.sdkman.controller.MainController"
@@ -18,7 +19,8 @@
                 <padding>
                     <Insets top="30" right="20" bottom="20" left="20"/>
                 </padding>
-                <ImageView fx:id="logoImageView" fitHeight="96" preserveRatio="true"/>
+                <ImageView fx:id="logoImageView" fitHeight="96" preserveRatio="true"
+                           styleClass="clickable-logo" onMouseClicked="#onLogoClicked"/>
             </VBox>
 
             <!-- 导航菜单 -->
@@ -32,7 +34,7 @@
                         text="首页" maxWidth="Infinity"
                         onAction="#onHomeClicked">
                     <graphic>
-                        <Label text="🏠" styleClass="nav-icon"/>
+                        <FontIcon iconLiteral="mdi2h-home" styleClass="nav-icon"/>
                     </graphic>
                 </Button>
 
@@ -41,7 +43,7 @@
                         text="JDK" maxWidth="Infinity"
                         onAction="#onJdkClicked">
                     <graphic>
-                        <Label text="☕️" styleClass="nav-icon"/>
+                        <FontIcon iconLiteral="mdi2c-coffee" styleClass="nav-icon"/>
                     </graphic>
                 </Button>
 
@@ -50,7 +52,7 @@
                         text="SDK" maxWidth="Infinity"
                         onAction="#onSdkClicked">
                     <graphic>
-                        <Label text="📦" styleClass="nav-icon"/>
+                        <FontIcon iconLiteral="mdi2p-package-variant" styleClass="nav-icon"/>
                     </graphic>
                 </Button>
 
@@ -68,7 +70,7 @@
                         text="设置" maxWidth="Infinity"
                         onAction="#onSettingsClicked">
                     <graphic>
-                        <Label text="⚙️" styleClass="nav-icon"/>
+                        <FontIcon iconLiteral="mdi2c-cog" styleClass="nav-icon"/>
                     </graphic>
                 </Button>
             </VBox>

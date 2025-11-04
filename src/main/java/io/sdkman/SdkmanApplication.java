@@ -1,12 +1,13 @@
 package io.sdkman;
 
-import io.sdkman.service.VersionUpdateService;
+import io.sdkman.controller.MainController;
+import io.sdkman.util.AlertUtils;
 import io.sdkman.util.ConfigManager;
 import io.sdkman.util.I18nManager;
 import io.sdkman.util.ThemeManager;
 import javafx.application.Application;
 import javafx.application.HostServices;
-import javafx.concurrent.Task;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -14,7 +15,7 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.Toolkit;
+import java.awt.*;
 import java.io.IOException;
 
 /**
@@ -30,11 +31,9 @@ public class SdkmanApplication extends Application {
     public static HostServices hostServices;
 
     @Override
-    public void start(Stage primaryStage) throws IOException {
+    public void start(Stage primaryStage) {
         // 字体渲染优化 - 启用更好的字体渲染
         setupFontRendering();
-        logger.info("Starting SDKMAN Application");
-
         // 应用主题
         ThemeManager.applyTheme(ConfigManager.getTheme());
 
@@ -42,7 +41,24 @@ public class SdkmanApplication extends Application {
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/fxml/main-view.fxml")
         );
-        Parent root = loader.load();
+        Parent root = null;
+        try {
+            root = loader.load();
+        } catch (IOException e) {
+            logger.error("Failed to load main view: {}", e.getMessage());
+            AlertUtils.showErrorAlert(
+                    I18nManager.get("app.title"),
+                    I18nManager.get("app.message.launcher_failed"),
+                    _ -> Platform.exit()
+            );
+            return;
+        }
+
+        // 获取MainController并设置HostServices
+        MainController mainController = loader.getController();
+        if (mainController != null) {
+            mainController.setHostServices(getHostServices());
+        }
 
         // 创建场景
         Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -62,49 +78,11 @@ public class SdkmanApplication extends Application {
         logger.info("Application started successfully");
 
         hostServices = getHostServices();
-
-        // 启动后台版本检测（异步）
-        checkForUpdatesInBackground();
-    }
-
-    ///
-    /// Checks for application updates in background
-    /// 后台检测应用更新
-    ///
-    private void checkForUpdatesInBackground() {
-        Task<VersionUpdateService.UpdateInfo> task = new Task<>() {
-            @Override
-            protected VersionUpdateService.UpdateInfo call() {
-                logger.info("Checking for application updates in background");
-                return VersionUpdateService.getInstance().checkForUpdates();
-            }
-        };
-
-        task.setOnSucceeded(_ -> {
-            var updateInfo = task.getValue();
-            if (updateInfo.isSuccess() && updateInfo.hasUpdate()) {
-                logger.info("Update available: {} -> {}",
-                        updateInfo.currentVersion(), updateInfo.latestVersion());
-                // 可以在这里显示通知或更新提示
-                // 暂时只记录日志，用户可以在设置页面查看
-            } else if (updateInfo.isSuccess()) {
-                logger.info("Application is up to date: {}", updateInfo.currentVersion());
-            } else {
-                logger.debug("Update check failed: {}", updateInfo.errorMessage());
-            }
-        });
-
-        task.setOnFailed(_ -> {
-            logger.debug("Failed to check for updates in background", task.getException());
-        });
-
-        io.sdkman.util.ThreadManager.getInstance().executeJavaFxTask(task);
     }
 
     @Override
     public void stop() {
         logger.info("Application shutting down");
-
         // 关闭线程池
         io.sdkman.util.ThreadManager.getInstance().shutdown();
     }

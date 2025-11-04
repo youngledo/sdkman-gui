@@ -3,6 +3,8 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.TextFlow?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
@@ -16,7 +18,11 @@
 
     <!-- 页面标题 -->
     <VBox spacing="8">
-        <Label fx:id="welcomeLabel" styleClass="page-title"/>
+        <TextFlow fx:id="welcomeTextFlow" styleClass="page-title">
+            <Label fx:id="welcomePrefixLabel"/>
+            <Hyperlink fx:id="appNameLink" styleClass="app-name-link" onAction="#onAppNameLinkClicked"/>
+            <Label fx:id="welcomeMark" text="！"/>
+        </TextFlow>
         <Label fx:id="subtitleLabel" styleClass="page-subtitle"/>
     </VBox>
 
@@ -27,7 +33,7 @@
             <padding>
                 <Insets top="20" right="20" bottom="20" left="20"/>
             </padding>
-            <Label text="☕" styleClass="stat-icon" maxWidth="Infinity"/>
+            <FontIcon fx:id="jdkStatIcon" iconLiteral="mdi2c-coffee" styleClass="stat-icon"/>
             <Label fx:id="jdkCountLabel" text="0" styleClass="stat-number" maxWidth="Infinity"/>
             <Label fx:id="jdkStatLabel" styleClass="stat-label" maxWidth="Infinity"/>
         </VBox>
@@ -37,7 +43,7 @@
             <padding>
                 <Insets top="20" right="20" bottom="20" left="20"/>
             </padding>
-            <Label text="📦" styleClass="stat-icon" maxWidth="Infinity"/>
+            <FontIcon fx:id="sdkStatIcon" iconLiteral="mdi2p-package-variant" styleClass="stat-icon"/>
             <Label fx:id="sdkCountLabel" text="0" styleClass="stat-number" maxWidth="Infinity"/>
             <Label fx:id="sdkStatLabel" styleClass="stat-label" maxWidth="Infinity"/>
         </VBox>
@@ -47,7 +53,7 @@
             <padding>
                 <Insets top="20" right="20" bottom="20" left="20"/>
             </padding>
-            <Label text="🔄" styleClass="stat-icon" maxWidth="Infinity"/>
+            <FontIcon fx:id="updateStatIcon" iconLiteral="mdi2r-refresh" styleClass="stat-icon"/>
             <Label fx:id="updateCountLabel" text="0" styleClass="stat-number" maxWidth="Infinity"/>
             <Label fx:id="updateStatLabel" styleClass="stat-label" maxWidth="Infinity"/>
         </VBox>

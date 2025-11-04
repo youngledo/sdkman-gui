@@ -17,6 +17,8 @@
         <java.version>25</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <app.name>SDKMAN GUI</app.name>
+
         <!-- Dependency Versions -->
         <javafx.version>25.0.1</javafx.version>
         <atlantafx.version>2.1.0</atlantafx.version>
@@ -25,6 +27,7 @@
         <slf4j.version>2.0.7</slf4j.version>
         <log4j2.version>2.21.1</log4j2.version>
         <junit.version>5.11.3</junit.version>
+        <ikonli.version>12.3.1</ikonli.version>
 
         <!-- Plugins -->
         <jpackage-maven-plugin.version>1.7.1</jpackage-maven-plugin.version>
@@ -89,6 +92,20 @@
             <version>${log4j2.version}</version>
         </dependency>
 
+        <!-- Ikonli JavaFX (Icon Library) -->
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-javafx</artifactId>
+            <version>${ikonli.version}</version>
+        </dependency>
+
+        <!-- Ikonli Material Design 2 Icon Pack -->
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-materialdesign2-pack</artifactId>
+            <version>${ikonli.version}</version>
+        </dependency>
+
         <!-- JUnit 5 (Testing) -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -99,13 +116,12 @@
     </dependencies>
 
     <profiles>
-        <!-- Windows x64打包配置 (使用jlink) -->
+        <!-- Windows打包配置 (使用jlink) -->
         <profile>
-            <id>win</id>
+            <id>windows</id>
             <activation>
                 <os>
                     <family>windows</family>
-                    <arch>amd64</arch>
                 </os>
             </activation>
             <build>
@@ -114,7 +130,6 @@
                         <groupId>org.panteleyev</groupId>
                         <artifactId>jpackage-maven-plugin</artifactId>
                         <configuration>
-                            <name>${project.name}-x64</name>
                             <icon>package/icons/Windows/launcher.ico</icon>
                             <winMenu>true</winMenu>
                             <winMenuGroup>Development</winMenuGroup>
@@ -146,13 +161,12 @@
             </build>
         </profile>
 
-        <!-- macOS Apple Silicon打包配置 (使用jlink) -->
+        <!-- macOS打包配置 (使用jlink) -->
         <profile>
-            <id>mac-aarch64</id>
+            <id>mac</id>
             <activation>
                 <os>
                     <family>mac</family>
-                    <arch>aarch64</arch>
                 </os>
             </activation>
             <build>
@@ -161,10 +175,10 @@
                         <groupId>org.panteleyev</groupId>
                         <artifactId>jpackage-maven-plugin</artifactId>
                         <configuration>
-                            <name>${project.name}-arm64</name>
                             <icon>package/icons/macOS/launcher.icns</icon>
                             <macPackageName>${project.name}</macPackageName>
                             <macAppCategory>developer-tools</macAppCategory>
+                            <destination>target/distributions</destination>
                             <addModules>
                                 <addModule>java.base</addModule>
                                 <addModule>java.desktop</addModule>
@@ -185,66 +199,18 @@
                                 <option>--no-man-pages</option>
                                 <option>--strip-native-commands</option>
                             </jLinkOptions>
-                            <destination/>
                         </configuration>
                     </plugin>
                 </plugins>
             </build>
         </profile>
 
-        <!-- macOS Intel打包配置 (使用jlink) -->
+        <!-- Linux打包配置 (不使用jlink) -->
         <profile>
-            <id>mac-x64</id>
-            <activation>
-                <os>
-                    <family>mac</family>
-                    <arch>x86_64</arch>
-                </os>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.panteleyev</groupId>
-                        <artifactId>jpackage-maven-plugin</artifactId>
-                        <configuration>
-                            <name>${project.name}-x64</name>
-                            <icon>package/icons/macOS/launcher.icns</icon>
-                            <macPackageName>${project.name}</macPackageName>
-                            <macAppCategory>developer-tools</macAppCategory>
-                            <addModules>
-                                <addModule>java.base</addModule>
-                                <addModule>java.desktop</addModule>
-                                <addModule>java.logging</addModule>
-                                <addModule>java.net.http</addModule>
-                                <addModule>java.prefs</addModule>
-                                <addModule>java.xml</addModule>
-                                <addModule>jdk.unsupported</addModule>
-                                <addModule>javafx.base</addModule>
-                                <addModule>javafx.controls</addModule>
-                                <addModule>javafx.fxml</addModule>
-                                <addModule>javafx.graphics</addModule>
-                            </addModules>
-                            <jLinkOptions>
-                                <option>--strip-debug</option>
-                                <option>--compress=zip-6</option>
-                                <option>--no-header-files</option>
-                                <option>--no-man-pages</option>
-                                <option>--strip-native-commands</option>
-                            </jLinkOptions>
-                            <destination/>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <!-- Linux x64打包配置 (不使用jlink) -->
-        <profile>
-            <id>linux-x64</id>
+            <id>linux</id>
             <activation>
                 <os>
                     <family>linux</family>
-                    <arch>amd64</arch>
                 </os>
             </activation>
             <build>
@@ -253,39 +219,12 @@
                         <groupId>org.panteleyev</groupId>
                         <artifactId>jpackage-maven-plugin</artifactId>
                         <configuration>
-                            <name>${project.name}-x64</name>
                             <icon>package/icons/Linux/launcher.png</icon>
+                            <linuxPackageName>${project.name}</linuxPackageName>
                             <linuxShortcut>true</linuxShortcut>
                             <linuxMenuGroup>Development</linuxMenuGroup>
+                            <destination>target/distributions</destination>
                             <!-- Linux不使用jlink，直接使用系统JDK -->
-                            <destination/>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <!-- Linux ARM64打包配置 (不使用jlink) -->
-        <profile>
-            <id>linux-aarch64</id>
-            <activation>
-                <os>
-                    <family>linux</family>
-                    <arch>aarch64</arch>
-                </os>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.panteleyev</groupId>
-                        <artifactId>jpackage-maven-plugin</artifactId>
-                        <configuration>
-                            <name>${project.name}-arm64</name>
-                            <icon>package/icons/Linux/launcher.png</icon>
-                            <linuxShortcut>true</linuxShortcut>
-                            <linuxMenuGroup>Development</linuxMenuGroup>
-                            <!-- Linux不使用jlink，直接使用系统JDK -->
-                            <destination/>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -329,6 +268,10 @@
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
+                                <!-- Merge ServiceLoader configuration files (fixes Ikonli loading) -->
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <!-- Set Main-Class in MANIFEST.MF -->
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>io.sdkman.SdkmanApplication</mainClass>
@@ -350,7 +293,7 @@
                 <artifactId>jpackage-maven-plugin</artifactId>
                 <version>${jpackage-maven-plugin.version}</version>
                 <configuration>
-                    <name>${project.name}</name>
+                    <name>${app.name}</name>
                     <appVersion>${project.version}</appVersion>
                     <description>
                         A modern graphical management tool for SDKMAN, providing an Applite-like user experience.

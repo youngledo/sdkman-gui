@@ -3,11 +3,14 @@ package io.sdkman.controller;
 import io.sdkman.service.SdkmanService;
 import io.sdkman.util.AlertUtils;
 import io.sdkman.util.I18nManager;
+import io.sdkman.util.UrlUtils;
+import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +22,13 @@ public class HomeController {
     private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 
     @FXML
-    private Label welcomeLabel;
+    private Label welcomePrefixLabel;
+
+    @FXML
+    private Label welcomeMark;
+
+    @FXML
+    private Hyperlink appNameLink;
 
     @FXML
     private Label subtitleLabel;
@@ -59,9 +68,20 @@ public class HomeController {
 
     private final SdkmanService sdkManagerService;
     private java.util.function.Consumer<String> navigationCallback;
+    private HostServices hostServices;
 
     public HomeController() {
         this.sdkManagerService = SdkmanService.getInstance();
+    }
+
+    ///
+    /// Sets the HostServices for opening URLs in the browser
+    /// 设置HostServices用于在浏览器中打开URL
+    ///
+    /// @param hostServices JavaFX HostServices instance
+    ///
+    public void setHostServices(HostServices hostServices) {
+        this.hostServices = hostServices;
     }
 
     /**
@@ -117,7 +137,10 @@ public class HomeController {
      * 设置国际化文本
      */
     private void setupI18n() {
-        welcomeLabel.setText(I18nManager.get("home.welcome"));
+        // 设置欢迎文本: "欢迎使用 " + "SDKMAN GUI"(可点击链接)
+        welcomePrefixLabel.setText(I18nManager.get("home.welcome_prefix"));
+        welcomeMark.setText(I18nManager.get("home.welcome_mark"));
+        appNameLink.setText(I18nManager.get("app.title"));
         subtitleLabel.setText(I18nManager.get("home.subtitle"));
         jdkStatLabel.setText(I18nManager.get("home.stat.jdk"));
         sdkStatLabel.setText(I18nManager.get("home.stat.sdk"));
@@ -282,6 +305,15 @@ public class HomeController {
      * 检查更新按钮点击事件
      * 手动刷新所有统计数据，包括SDK数量
      */
+    ///
+    /// Handles the app name link click event to open GitHub repository
+    /// 处理应用名称链接点击事件，打开GitHub仓库
+    ///
+    @FXML
+    private void onAppNameLinkClicked() {
+        UrlUtils.openGitHubRepository(hostServices);
+    }
+
     @FXML
     private void onCheckUpdateClicked() {
         logger.info("Check update button clicked - refreshing all statistics");

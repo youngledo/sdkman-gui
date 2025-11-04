@@ -23,6 +23,9 @@ public class SdkDetailController {
     private static final Logger logger = LoggerFactory.getLogger(SdkDetailController.class);
 
     @FXML
+    private Button backButton;
+
+    @FXML
     private Label titleLabel;
 
     @FXML
@@ -129,6 +132,7 @@ public class SdkDetailController {
     private void loadSdkDetails() {
         if (currentSdk == null) return;
 
+        backButton.setText(I18nManager.get("sdk.detail.back.label"));
         titleLabel.setText(currentSdk.getName());
 
         // 描述（如果有）

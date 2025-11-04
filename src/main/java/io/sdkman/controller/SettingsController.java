@@ -271,7 +271,7 @@ public class SettingsController {
 
         // 加载语言设置
         Locale savedLocale = ConfigManager.getSavedLocale();
-        if (savedLocale != null && savedLocale.equals(Locale.SIMPLIFIED_CHINESE)) {
+        if (savedLocale == null || savedLocale.equals(Locale.SIMPLIFIED_CHINESE)) {
             languageZhRadio.setSelected(true);
         } else {
             languageEnRadio.setSelected(true);
