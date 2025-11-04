@@ -22,22 +22,6 @@ import java.util.function.Consumer;
 public class VersionListCellFactory {
 
     /**
-     * 创建版本信息Cell
-     * @param version 版本对象
-     * @param onInstall 安装回调
-     * @param onUninstall 卸载回调
-     * @param onSetDefault 设为默认回调
-     * @return Cell的HBox布局
-     */
-    public static HBox createVersionCell(
-            SdkVersion version,
-            Consumer<SdkVersion> onInstall,
-            Consumer<SdkVersion> onUninstall,
-            Consumer<SdkVersion> onSetDefault) {
-        return createVersionCell(version, onInstall, onUninstall, onSetDefault, null, true);
-    }
-
-    /**
      * 创建版本信息Cell（完整版本，支持定制）
      * @param version 版本对象
      * @param onInstall 安装回调
@@ -231,9 +215,9 @@ public class VersionListCellFactory {
 
         // 使用Property绑定动态更新按钮文本和状态
         setDefaultBtn.textProperty().bind(
-                version.isDefaultProperty().map(isDefault ->
-                        isDefault ? I18nManager.get("version.action.default") : I18nManager.get("version.action.set-default")
-                )
+                version.isDefaultProperty().map(isDefault -> {
+                    return isDefault ? I18nManager.get("version.action.default") : I18nManager.get("version.action.set-default");
+                })
         );
         setDefaultBtn.disableProperty().bind(version.isDefaultProperty());
 

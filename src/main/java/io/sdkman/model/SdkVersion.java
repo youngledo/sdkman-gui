@@ -23,7 +23,8 @@ public class SdkVersion implements Installable {
     @com.fasterxml.jackson.annotation.JsonProperty("default")
     private boolean isDefaultValue;
 
-    private boolean inUse;
+    @com.fasterxml.jackson.annotation.JsonProperty("inUse")
+    private boolean inUseValue;
 
     // 用于UI绑定的Property（不序列化）
     @JsonIgnore
@@ -31,6 +32,9 @@ public class SdkVersion implements Installable {
 
     @JsonIgnore
     private BooleanProperty isDefaultProperty;
+
+    @JsonIgnore
+    private BooleanProperty inUseProperty;
 
     // 安装状态（使用Property以支持UI绑定）
     @JsonIgnore
@@ -141,12 +145,33 @@ public class SdkVersion implements Installable {
         return this.isDefaultProperty;
     }
 
+    @JsonIgnore
     public boolean isInUse() {
-        return inUse;
+        // 优先使用Property的值，如果Property未初始化则使用基本字段
+        if (inUseProperty != null) {
+            return inUseProperty.get();
+        }
+        return inUseValue;
     }
 
-    public void setInUse(boolean inUse) {
-        this.inUse = inUse;
+    @JsonIgnore
+    public void setInUse(boolean value) {
+        // 同时更新基本字段和Property
+        this.inUseValue = value;
+        if (this.inUseProperty == null) {
+            this.inUseProperty = new SimpleBooleanProperty(value);
+        } else {
+            this.inUseProperty.set(value);
+        }
+    }
+
+    @JsonIgnore
+    public BooleanProperty inUseProperty() {
+        if (this.inUseProperty == null) {
+            // 初始化Property时使用基本字段的值
+            this.inUseProperty = new SimpleBooleanProperty(inUseValue);
+        }
+        return this.inUseProperty;
     }
 
     public void setCandidate(String candidate) {
@@ -200,7 +225,7 @@ public class SdkVersion implements Installable {
                 ", vendor='" + vendor + '\'' +
                 ", installed=" + isInstalled() +
                 ", isDefault=" + isDefault() +
-                ", inUse=" + inUse +
+                ", inUse=" + isInUse() +
                 '}';
     }
 

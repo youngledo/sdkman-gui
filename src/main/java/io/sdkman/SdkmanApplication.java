@@ -1,10 +1,12 @@
 package io.sdkman;
 
+import io.sdkman.service.VersionUpdateService;
 import io.sdkman.util.ConfigManager;
 import io.sdkman.util.I18nManager;
 import io.sdkman.util.ThemeManager;
 import javafx.application.Application;
 import javafx.application.HostServices;
+import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -13,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.Toolkit;
+import java.io.IOException;
 
 /**
  * SDKMAN主应用类
@@ -23,58 +26,79 @@ public class SdkmanApplication extends Application {
 
     private static final int WINDOW_WIDTH = 1200;
     private static final int WINDOW_HEIGHT = 800;
-    private static final int WINDOW_MIN_WIDTH = 800;
-    private static final int WINDOW_MIN_HEIGHT = 600;
 
     public static HostServices hostServices;
 
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage) throws IOException {
         // 字体渲染优化 - 启用更好的字体渲染
         setupFontRendering();
-        try {
-            logger.info("Starting SDKMAN Application");
+        logger.info("Starting SDKMAN Application");
 
-            // 应用主题
-            ThemeManager.applyTheme(ConfigManager.getTheme());
+        // 应用主题
+        ThemeManager.applyTheme(ConfigManager.getTheme());
 
-            // 加载主界面
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/fxml/main-view.fxml")
-            );
-            Parent root = loader.load();
+        // 加载主界面
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/fxml/main-view.fxml")
+        );
+        Parent root = loader.load();
 
-            // 创建场景
-            Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
+        // 创建场景
+        Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-            // 设置窗口
-            primaryStage.setTitle(I18nManager.get("app.title"));
-            primaryStage.setScene(scene);
-            primaryStage.setMinWidth(WINDOW_MIN_WIDTH);
-            primaryStage.setMinHeight(WINDOW_MIN_HEIGHT);
+        // 设置窗口
+        primaryStage.setTitle(I18nManager.get("app.title"));
+        primaryStage.setScene(scene);
+        primaryStage.setMinWidth(WINDOW_WIDTH);
+        primaryStage.setMinHeight(WINDOW_HEIGHT);
 
-            // 居中显示
-            primaryStage.centerOnScreen();
+        // 居中显示
+        primaryStage.centerOnScreen();
 
-            // 显示窗口
-            primaryStage.show();
+        // 显示窗口
+        primaryStage.show();
 
-            logger.info("Application started successfully");
+        logger.info("Application started successfully");
 
-            hostServices = getHostServices();
-        } catch (Exception e) {
-            logger.error("Failed to start application", e);
-            showErrorAndExit(e);
-        }
+        hostServices = getHostServices();
+
+        // 启动后台版本检测（异步）
+        checkForUpdatesInBackground();
     }
 
-    /**
-     * 显示错误并退出
-     */
-    private void showErrorAndExit(Exception e) {
-        logger.error("Fatal error, exiting application", e);
-        System.err.println("Failed to start SDKMAN: " + e.getMessage());
-        System.exit(1);
+    ///
+    /// Checks for application updates in background
+    /// 后台检测应用更新
+    ///
+    private void checkForUpdatesInBackground() {
+        Task<VersionUpdateService.UpdateInfo> task = new Task<>() {
+            @Override
+            protected VersionUpdateService.UpdateInfo call() {
+                logger.info("Checking for application updates in background");
+                return VersionUpdateService.getInstance().checkForUpdates();
+            }
+        };
+
+        task.setOnSucceeded(_ -> {
+            var updateInfo = task.getValue();
+            if (updateInfo.isSuccess() && updateInfo.hasUpdate()) {
+                logger.info("Update available: {} -> {}",
+                        updateInfo.currentVersion(), updateInfo.latestVersion());
+                // 可以在这里显示通知或更新提示
+                // 暂时只记录日志，用户可以在设置页面查看
+            } else if (updateInfo.isSuccess()) {
+                logger.info("Application is up to date: {}", updateInfo.currentVersion());
+            } else {
+                logger.debug("Update check failed: {}", updateInfo.errorMessage());
+            }
+        });
+
+        task.setOnFailed(_ -> {
+            logger.debug("Failed to check for updates in background", task.getException());
+        });
+
+        io.sdkman.util.ThreadManager.getInstance().executeJavaFxTask(task);
     }
 
     @Override

@@ -1,11 +1,17 @@
 package io.sdkman.controller;
 
 import atlantafx.base.theme.Styles;
+import io.sdkman.SdkmanApplication;
+import io.sdkman.service.VersionUpdateService;
+import io.sdkman.util.AlertUtils;
 import io.sdkman.util.ConfigManager;
 import io.sdkman.util.I18nManager;
 import io.sdkman.util.ThemeManager;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,6 +99,68 @@ public class SettingsController {
     @FXML
     private Button saveButton;
 
+    // 版本更新相关字段
+    @FXML
+    private Label appVersionLabel;
+
+    @FXML
+    private Label currentVersionLabel;
+
+    @FXML
+    private Label currentVersionValue;
+
+    @FXML
+    private Button checkUpdateButton;
+
+    @FXML
+    private Label updateStatusLabel;
+
+    @FXML
+    private VBox updateAvailableBox;
+
+    @FXML
+    private Label newVersionLabel;
+
+    @FXML
+    private Label latestVersionLabel;
+
+    @FXML
+    private Label latestVersionValue;
+
+    @FXML
+    private Hyperlink downloadManualLink;
+
+    @FXML
+    private Button downloadButton;
+
+    @FXML
+    private Label downloadStatusLabel;
+
+    @FXML
+    private ProgressBar downloadProgressBar;
+
+    @FXML
+    private VBox downloadProgressBox;
+
+    @FXML
+    private Label downloadProgressLabel;
+
+    @FXML
+    private HBox installBox;
+
+    @FXML
+    private Button installButton;
+
+    @FXML
+    private Label installStatusLabel;
+
+    private final VersionUpdateService versionUpdateService;
+    private java.io.File downloadedInstaller;
+
+    public SettingsController() {
+        this.versionUpdateService = VersionUpdateService.getInstance();
+    }
+
     @FXML
     public void initialize() {
         logger.info("Initializing SettingsController");
@@ -123,7 +191,6 @@ public class SettingsController {
         themeDarkRadio.setToggleGroup(themeGroup);
         themeAutoRadio.setToggleGroup(themeGroup);
 
-        // 创建语��� ToggleGroup
         languageGroup = new ToggleGroup();
         languageEnRadio.setToggleGroup(languageGroup);
         languageZhRadio.setToggleGroup(languageGroup);
@@ -159,6 +226,35 @@ public class SettingsController {
         sdkmanPathLabel.setText(I18nManager.get("settings.sdkman_path"));
         browseButton.setText(I18nManager.get("settings.sdkman_browse"));
         saveButton.setText(I18nManager.get("settings.save"));
+
+        // 版本更新相关文本
+        if (appVersionLabel != null) {
+            appVersionLabel.setText(I18nManager.get("settings.app_version"));
+        }
+        if (currentVersionLabel != null) {
+            currentVersionLabel.setText(I18nManager.get("settings.current_version"));
+        }
+        if (currentVersionValue != null) {
+            currentVersionValue.setText(versionUpdateService.getCurrentVersion());
+        }
+        if (checkUpdateButton != null) {
+            checkUpdateButton.setText(I18nManager.get("settings.check_update"));
+        }
+        if (newVersionLabel != null) {
+            newVersionLabel.setText(I18nManager.get("settings.new_version"));
+        }
+        if (latestVersionLabel != null) {
+            latestVersionLabel.setText(I18nManager.get("settings.latest_version"));
+        }
+        if (downloadManualLink != null) {
+            downloadManualLink.setText(I18nManager.get("settings.download_manual"));
+        }
+        if (downloadButton != null) {
+            downloadButton.setText(I18nManager.get("settings.download_update"));
+        }
+        if (installButton != null) {
+            installButton.setText(I18nManager.get("settings.install_update"));
+        }
     }
 
     /**
@@ -287,7 +383,7 @@ public class SettingsController {
             directoryChooser.setTitle(I18nManager.get("settings.sdkman_browse_title"));
             directoryChooser.setInitialDirectory(initialDir);
 
-            // 显示���话框
+            // 显示话框
             java.io.File selectedDirectory = directoryChooser.showDialog(browseButton.getScene().getWindow());
 
             if (selectedDirectory != null) {
@@ -384,11 +480,315 @@ public class SettingsController {
             ConfigManager.setSdkmanPath(sdkmanPathField.getText().trim());
         } catch (Exception e) {
             logger.error("Failed to save settings", e);
-            InstallationHandler.showErrorAlert(
+            AlertUtils.showErrorAlert(
                     I18nManager.get("settings.save.failed"),
                     I18nManager.get("settings.save.failed")
             );
         }
+    }
+
+    ///
+    /// Handles check update button click
+    /// 处理检查更新按钮点击事件
+    ///
+    @FXML
+    private void onCheckUpdateClicked() {
+        // 禁用按钮，显示检查中状态
+        checkUpdateButton.setDisable(true);
+        updateStatusLabel.setText(I18nManager.get("settings.checking_update"));
+        updateStatusLabel.getStyleClass().removeAll("success", "danger");
+
+        // 隐藏更新提示框
+        if (updateAvailableBox != null) {
+            updateAvailableBox.setVisible(false);
+            updateAvailableBox.setManaged(false);
+        }
+
+        // 异步检查更新
+        Task<VersionUpdateService.UpdateInfo> task = getUpdateInfoTask();
+
+        io.sdkman.util.ThreadManager.getInstance().executeJavaFxTask(task);
+    }
+
+    private Task<VersionUpdateService.UpdateInfo> getUpdateInfoTask() {
+        Task<VersionUpdateService.UpdateInfo> task = new Task<>() {
+            @Override
+            protected VersionUpdateService.UpdateInfo call() {
+                return versionUpdateService.checkForUpdates();
+            }
+        };
+
+        task.setOnSucceeded(_ -> {
+            var updateInfo = task.getValue();
+            Platform.runLater(() -> {
+                checkUpdateButton.setDisable(false);
+                handleUpdateInfo(updateInfo);
+            });
+        });
+
+        task.setOnFailed(_ -> {
+            Platform.runLater(() -> {
+                checkUpdateButton.setDisable(false);
+                updateStatusLabel.setText(I18nManager.get("settings.check_update_failed"));
+                updateStatusLabel.getStyleClass().add("danger");
+                logger.error("Failed to check for updates", task.getException());
+            });
+        });
+        return task;
+    }
+
+    ///
+    /// Handles update information display
+    /// 处理更新信息显示
+    ///
+    private void handleUpdateInfo(VersionUpdateService.UpdateInfo updateInfo) {
+        if (!updateInfo.isSuccess()) {
+            updateStatusLabel.setText(I18nManager.get("settings.check_update_failed") + ": " + updateInfo.errorMessage());
+            updateStatusLabel.getStyleClass().add("danger");
+            return;
+        }
+
+        if (updateInfo.hasUpdate()) {
+            // 有新版本可用
+            updateStatusLabel.setText(I18nManager.get("settings.update_available"));
+            updateStatusLabel.getStyleClass().add("success");
+
+            // 显示新版本信息
+            if (updateAvailableBox != null) {
+                updateAvailableBox.setVisible(true);
+                updateAvailableBox.setManaged(true);
+
+                if (latestVersionValue != null) {
+                    latestVersionValue.setText(updateInfo.latestVersion());
+                }
+
+                if (downloadManualLink != null && updateInfo.releaseUrl() != null) {
+                    downloadManualLink.setOnAction(_ -> {
+                        if (SdkmanApplication.hostServices != null) {
+                            SdkmanApplication.hostServices.showDocument(updateInfo.releaseUrl());
+                        }
+                    });
+                }
+
+                // 设置下载按钮的可用性
+                if (downloadButton != null) {
+                    downloadButton.setDisable(updateInfo.downloadUrl() == null);
+                    if (updateInfo.downloadUrl() == null) {
+                        downloadButton.setText(I18nManager.get("settings.download_update") + " (不可用)");
+                    }
+                }
+
+                // 重置下载状态
+                if (downloadStatusLabel != null) {
+                    downloadStatusLabel.setText("");
+                    downloadStatusLabel.getStyleClass().removeAll("success", "danger");
+                }
+                if (downloadProgressBox != null) {
+                    downloadProgressBox.setVisible(false);
+                    downloadProgressBox.setManaged(false);
+                }
+                if (installBox != null) {
+                    installBox.setVisible(false);
+                    installBox.setManaged(false);
+                }
+                downloadedInstaller = null;
+            }
+
+            logger.info("Update available: {} -> {}", updateInfo.currentVersion(), updateInfo.latestVersion());
+        } else {
+            // 已是最新版本
+            updateStatusLabel.setText(I18nManager.get("settings.up_to_date"));
+            updateStatusLabel.getStyleClass().add("success");
+            logger.info("Application is up to date: {}", updateInfo.currentVersion());
+        }
+    }
+
+    ///
+    /// Handles download button click
+    /// 处理下载按钮点击事件
+    ///
+    @FXML
+    private void onDownloadClicked() {
+        logger.info("Download button clicked");
+
+        // 获取当前保存的更新信息
+        var currentVersion = versionUpdateService.getCurrentVersion();
+
+        // 重新检查更新以获取最新信息
+        Task<VersionUpdateService.UpdateInfo> task = new Task<>() {
+            @Override
+            protected VersionUpdateService.UpdateInfo call() {
+                return versionUpdateService.checkForUpdates();
+            }
+        };
+
+        task.setOnSucceeded(_ -> {
+            var updateInfo = task.getValue();
+            if (updateInfo.isSuccess() && updateInfo.hasUpdate() && updateInfo.downloadUrl() != null) {
+                startDownload(updateInfo.downloadUrl());
+            } else {
+                Platform.runLater(() -> {
+                    downloadStatusLabel.setText(I18nManager.get("settings.download_failed"));
+                    downloadStatusLabel.getStyleClass().add("danger");
+                });
+            }
+        });
+
+        task.setOnFailed(_ -> {
+            Platform.runLater(() -> {
+                downloadStatusLabel.setText(I18nManager.get("settings.download_failed"));
+                downloadStatusLabel.getStyleClass().add("danger");
+            });
+        });
+
+        io.sdkman.util.ThreadManager.getInstance().executeJavaFxTask(task);
+    }
+
+    ///
+    /// Starts downloading the update installer
+    /// 开始下载更新安装包
+    ///
+    private void startDownload(String downloadUrl) {
+        Platform.runLater(() -> {
+            downloadButton.setDisable(true);
+            downloadStatusLabel.setText(I18nManager.get("settings.downloading"));
+
+            // 显示进度框
+            if (downloadProgressBox != null) {
+                downloadProgressBox.setVisible(true);
+                downloadProgressBox.setManaged(true);
+            }
+
+            if (downloadProgressBar != null) {
+                downloadProgressBar.setProgress(0);
+            }
+
+            if (downloadProgressLabel != null) {
+                downloadProgressLabel.setText("0%");
+            }
+        });
+
+        versionUpdateService.downloadUpdate(downloadUrl, new VersionUpdateService.DownloadProgressCallback() {
+            @Override
+            public void onProgress(long bytesDownloaded, long totalBytes, int percentage) {
+                Platform.runLater(() -> {
+                    if (downloadProgressBar != null) {
+                        downloadProgressBar.setProgress(percentage / 100.0);
+                    }
+
+                    if (downloadProgressLabel != null) {
+                        // 格式化下载进度信息
+                        var downloadedMB = bytesDownloaded / (1024.0 * 1024.0);
+                        var totalMB = totalBytes > 0 ? totalBytes / (1024.0 * 1024.0) : 0;
+
+                        if (totalBytes > 0) {
+                            downloadProgressLabel.setText(
+                                    String.format("%.1f MB / %.1f MB (%d%%)", downloadedMB, totalMB, percentage)
+                            );
+                        } else {
+                            downloadProgressLabel.setText(
+                                    String.format("%.1f MB (%d%%)", downloadedMB, percentage)
+                            );
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onCompleted(java.io.File downloadedFile) {
+                Platform.runLater(() -> {
+                    downloadedInstaller = downloadedFile;
+                    downloadStatusLabel.setText(I18nManager.get("settings.download_completed"));
+                    downloadStatusLabel.getStyleClass().removeAll("danger");
+                    downloadStatusLabel.getStyleClass().add("success");
+
+                    // 隐藏进度框
+                    if (downloadProgressBox != null) {
+                        downloadProgressBox.setVisible(false);
+                        downloadProgressBox.setManaged(false);
+                    }
+
+                    // 显示安装按钮
+                    if (installBox != null) {
+                        installBox.setVisible(true);
+                        installBox.setManaged(true);
+                        if (installStatusLabel != null) {
+                            installStatusLabel.setText(I18nManager.get("settings.restart_required"));
+                        }
+                    }
+
+                    logger.info("Download completed: {}", downloadedFile.getAbsolutePath());
+                });
+            }
+
+            @Override
+            public void onFailed(String errorMessage) {
+                Platform.runLater(() -> {
+                    downloadStatusLabel.setText(I18nManager.get("settings.download_failed") + ": " + errorMessage);
+                    downloadStatusLabel.getStyleClass().add("danger");
+
+                    // 隐藏进度框
+                    if (downloadProgressBox != null) {
+                        downloadProgressBox.setVisible(false);
+                        downloadProgressBox.setManaged(false);
+                    }
+
+                    downloadButton.setDisable(false);
+                });
+            }
+        });
+    }
+
+    ///
+    /// Handles install button click
+    /// 处理安装按钮点击事件
+    ///
+    @FXML
+    private void onInstallClicked() {
+        if (downloadedInstaller == null || !downloadedInstaller.exists()) {
+            logger.error("No installer file available for installation");
+            return;
+        }
+
+        Platform.runLater(() -> {
+            installButton.setDisable(true);
+            installStatusLabel.setText(I18nManager.get("settings.installing"));
+        });
+
+        // 在后台线程启动安装程序
+        new Thread(() -> {
+            try {
+                var success = versionUpdateService.installUpdate(downloadedInstaller);
+                if (success) {
+                    // 显示确认对话框，然后退出应用
+                    Platform.runLater(this::showInstallConfirmation);
+                } else {
+                    Platform.runLater(() -> {
+                        installStatusLabel.setText(I18nManager.get("settings.install_failed"));
+                        installButton.setDisable(false);
+                    });
+                }
+            } catch (Exception e) {
+                logger.error("Failed to start installer", e);
+                Platform.runLater(() -> {
+                    installStatusLabel.setText(I18nManager.get("settings.install_failed"));
+                    installButton.setDisable(false);
+                });
+            }
+        }, "Install-Thread").start();
+    }
+
+    ///
+    /// Shows installation confirmation dialog
+    /// 显示安装确认对话框
+    ///
+    private void showInstallConfirmation() {
+        Platform.runLater(() -> {
+            AlertUtils.showInfoAlert(
+                    I18nManager.get("alert.info"),
+                    I18nManager.get("settings.install_confirmation"), true
+            );
+        });
     }
 
 }

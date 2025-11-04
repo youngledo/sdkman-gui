@@ -5,14 +5,14 @@ import io.sdkman.SdkmanApplication;
 import io.sdkman.model.Category;
 import io.sdkman.model.Sdk;
 import io.sdkman.service.SdkmanService;
+import io.sdkman.util.AlertUtils;
 import io.sdkman.util.I18nManager;
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.FlowPane;
@@ -66,10 +66,15 @@ public class SdkController {
     private Button serversCategoryButton;
 
     @FXML
+    private Button mqCategoryButton;
+    @FXML
     private Button toolsCategoryButton;
 
     @FXML
     private Button otherCategoryButton;
+
+    @FXML
+    private CheckBox installedOnlyCheckbox;
 
     @FXML
     private FlowPane sdkGridPane;
@@ -129,8 +134,13 @@ public class SdkController {
 
         frameworksCategoryButton.setText(I18nManager.get("sdk.category.frameworks"));
         serversCategoryButton.setText(I18nManager.get("sdk.category.servers"));
+        mqCategoryButton.setText(I18nManager.get("sdk.category.mq"));
         toolsCategoryButton.setText(I18nManager.get("sdk.category.tools"));
         otherCategoryButton.setText(I18nManager.get("sdk.category.other"));
+
+        if (installedOnlyCheckbox != null) {
+            installedOnlyCheckbox.setText(I18nManager.get("sdk.filter.installed_only"));
+        }
 
         loadingLabel.setText(I18nManager.get("list.message.loading"));
         if (emptyTitleLabel != null) emptyTitleLabel.setText(I18nManager.get("sdk.empty.title"));
@@ -142,7 +152,13 @@ public class SdkController {
      */
     private void setupSearchListener() {
         if (searchField != null) {
-            searchField.textProperty().addListener((obs, oldText, newText) -> {
+            searchField.textProperty().addListener((_, _, _) -> {
+                applyFilters();
+            });
+        }
+
+        if (installedOnlyCheckbox != null) {
+            installedOnlyCheckbox.selectedProperty().addListener((_, _, _) -> {
                 applyFilters();
             });
         }
@@ -150,40 +166,30 @@ public class SdkController {
 
     /**
      * 加载SDK列表
+     *
      */
     private void loadSdkList() {
-        loadSdkList(false);
-    }
-
-    /**
-     * 加载SDK列表
-     *
-     * @param forceRefresh 是否强制刷新（忽略缓存）
-     */
-    private void loadSdkList(boolean forceRefresh) {
         showLoading(true);
 
         Task<List<Sdk>> task = new Task<>() {
             @Override
             protected List<Sdk> call() {
-                logger.info("Loading SDK list (forceRefresh: {})...", forceRefresh);
-                return sdkmanService.getAllSdks(forceRefresh);
+                return sdkmanService.getAllSdks();
             }
         };
 
-        task.setOnSucceeded(event -> {
+        task.setOnSucceeded(_ -> {
             allSdks = task.getValue();
             logger.info("Loaded {} SDKs", allSdks.size());
             showLoading(false);
             applyFilters();
         });
 
-        task.setOnFailed(event -> {
-            logger.error("Failed to load SDK list", task.getException());
+        task.setOnFailed(_ -> {
             showLoading(false);
-            InstallationHandler.showErrorAlert(
+            AlertUtils.showErrorAlert(
                     I18nManager.get("alert.error"),
-                    "Failed to load SDK list"
+                    I18nManager.get("sdk.alert.load.failed")
             );
         });
 
@@ -197,6 +203,7 @@ public class SdkController {
         if (allSdks == null) return;
 
         var searchTerm = searchField != null ? searchField.getText().toLowerCase().trim() : "";
+        var installedOnly = installedOnlyCheckbox != null && installedOnlyCheckbox.isSelected();
 
         Predicate<Sdk> categoryFilter = sdk -> currentCategory == Category.ALL ||
                 sdk.getCategory() == currentCategory;
@@ -206,8 +213,10 @@ public class SdkController {
                 sdk.getName().toLowerCase().contains(searchTerm) ||
                 (sdk.getDescription() != null && sdk.getDescription().toLowerCase().contains(searchTerm));
 
+        Predicate<Sdk> installedFilter = sdk -> !installedOnly || sdk.isInstalled();
+
         var filteredSdks = allSdks.stream()
-                .filter(categoryFilter.and(searchFilter))
+                .filter(categoryFilter.and(searchFilter).and(installedFilter))
                 .toList();
 
         displaySdks(filteredSdks);
@@ -249,13 +258,17 @@ public class SdkController {
         item.setPadding(new javafx.geometry.Insets(12));
 
         // 设置鼠标悬停样式和点击事件
-        item.setOnMouseEntered(e -> item.setStyle("-fx-cursor: hand;"));
-        item.setOnMouseExited(e -> item.setStyle("-fx-cursor: default;"));
+        item.setOnMouseEntered(_ -> item.setStyle("-fx-cursor: hand;"));
+        item.setOnMouseExited(_ -> item.setStyle("-fx-cursor: default;"));
 
         // 点击事件 - 导航到详情页
         item.setOnMouseClicked(e -> {
             if (e.getClickCount() == 1) {
-                showSdkDetail(sdk);
+                try {
+                    showSdkDetail(sdk);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
 
@@ -268,48 +281,23 @@ public class SdkController {
         nameLabel.setWrapText(true);
         HBox.setHgrow(nameLabel, javafx.scene.layout.Priority.ALWAYS);
 
-        // 已安装标记（使用异步实时检查）
+        // 已安装标记（同步检查本地文件系统，HTTP API很快）
         var statusLabel = new Label();
         statusLabel.getStyleClass().addAll(Styles.SUCCESS);
         statusLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
 
-        // 异步检查安装状态（使用与详情页一致的检查方法）
-        logger.info("Starting installation status check for SDK: {}", sdk.getCandidate());
-        Task<Boolean> checkTask = new Task<>() {
-            @Override
-            protected Boolean call() {
-                logger.debug("Executing installation status check for SDK: {}", sdk.getCandidate());
-                return sdkmanService.isSdkInstalledViaListCommand(sdk.getCandidate());
-            }
-        };
+        // 同步检查安装状态（检查本地目录，非常快，不需要异步）
+        boolean isInstalled = sdkmanService.isCandidateInstalled(sdk.getCandidate());
+        logger.debug("Installation status for {}: {}", sdk.getCandidate(), isInstalled ? "installed" : "not installed");
 
-        checkTask.setOnSucceeded(event -> {
-            boolean isInstalled = checkTask.getValue();
-            logger.info("Installation status check completed for {}: {}", sdk.getCandidate(), isInstalled ? "installed" : "not installed");
-            if (isInstalled) {
-                statusLabel.setText("✓");
-                statusLabel.setVisible(true);
-                statusLabel.setManaged(true);
-                logger.debug("Showing installed status for {}", sdk.getCandidate());
-            } else {
-                statusLabel.setVisible(false);
-                statusLabel.setManaged(false);
-                logger.debug("Hiding installed status for {}", sdk.getCandidate());
-            }
-        });
-
-        checkTask.setOnFailed(event -> {
-            // 检查失败时隐藏标记
+        if (isInstalled) {
+            statusLabel.setText("✓");
+            statusLabel.setVisible(true);
+            statusLabel.setManaged(true);
+        } else {
             statusLabel.setVisible(false);
             statusLabel.setManaged(false);
-            logger.error("Failed to check installation status for {}", sdk.getCandidate(), checkTask.getException());
-        });
-
-        io.sdkman.util.ThreadManager.getInstance().executeJavaFxTask(checkTask);
-
-        // 初始隐藏标记，等待检查结果
-        statusLabel.setVisible(false);
-        statusLabel.setManaged(false);
+        }
 
         nameBox.getChildren().addAll(nameLabel, statusLabel);
 
@@ -334,7 +322,7 @@ public class SdkController {
         return item;
     }
 
-    
+
     /**
      * 显示/隐藏加载状态
      */
@@ -364,25 +352,11 @@ public class SdkController {
     }
 
     /**
-     * 显示错误信息
-     */
-    private void showError(String message) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText(null);
-            alert.setContentText(message);
-            alert.showAndWait();
-        });
-    }
-
-    /**
      * 刷新按钮点击事件（强制从网络刷新）
      */
     @FXML
     private void onRefreshClicked() {
-        logger.info("Refresh clicked, force refresh from network");
-        loadSdkList(true);
+        loadSdkList();
     }
 
     /**
@@ -414,6 +388,11 @@ public class SdkController {
     }
 
     @FXML
+    private void onMqCategoryClicked() {
+        setActiveCategory(Category.MQ, mqCategoryButton);
+    }
+
+    @FXML
     private void onToolsCategoryClicked() {
         setActiveCategory(Category.TOOLS, toolsCategoryButton);
     }
@@ -435,6 +414,7 @@ public class SdkController {
         buildToolsCategoryButton.getStyleClass().remove("filter-chip-active");
         frameworksCategoryButton.getStyleClass().remove("filter-chip-active");
         serversCategoryButton.getStyleClass().remove("filter-chip-active");
+        mqCategoryButton.getStyleClass().remove("filter-chip-active");
         toolsCategoryButton.getStyleClass().remove("filter-chip-active");
         otherCategoryButton.getStyleClass().remove("filter-chip-active");
 
@@ -448,41 +428,31 @@ public class SdkController {
     /**
      * 显示SDK详情页
      */
-    private void showSdkDetail(Sdk sdk) {
-        try {
-            logger.info("Navigating to SDK detail page for: {}", sdk.getCandidate());
+    private void showSdkDetail(Sdk sdk) throws IOException {
+        logger.info("Navigating to SDK detail page for: {}", sdk.getCandidate());
 
-            // 加载详情页FXML
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/sdk-detail-view.fxml"));
-            Parent detailView = loader.load();
+        // 加载详情页FXML
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/sdk-detail-view.fxml"));
+        Parent detailView = loader.load();
 
-            // 获取详情页控制器
-            SdkDetailController detailController = loader.getController();
-            // 设置SDK数据
-            detailController.setSdk(sdk);
-            // 设置返回回调
-            detailController.setOnBackCallback(_ -> {
-                showListView();
-            });
-            detailController.setHostServices(SdkmanApplication.hostServices);
+        // 获取详情页控制器
+        SdkDetailController detailController = loader.getController();
+        // 设置SDK数据
+        detailController.setSdk(sdk);
+        // 设置返回回调
+        detailController.setOnBackCallback(_ -> showListView());
+        detailController.setHostServices(SdkmanApplication.hostServices);
 
-            // 添加详情页到根容器并显示
-            if (!rootContainer.getChildren().contains(detailView)) {
-                rootContainer.getChildren().add(detailView);
-            }
-
-            // 隐藏列表视���，显示详情视图
-            listView.setVisible(false);
-            listView.setManaged(false);
-            detailView.setVisible(true);
-            detailView.setManaged(true);
-
-            logger.info("Navigated to SDK detail page successfully");
-
-        } catch (IOException e) {
-            logger.error("Failed to load SDK detail view", e);
-            showError("无法加载SDK详情页面");
+        // 添加详情页到根容器并显示
+        if (!rootContainer.getChildren().contains(detailView)) {
+            rootContainer.getChildren().add(detailView);
         }
+
+        // 隐藏列表视图，显示详情视图
+        listView.setVisible(false);
+        listView.setManaged(false);
+        detailView.setVisible(true);
+        detailView.setManaged(true);
     }
 
     /**

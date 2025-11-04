@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -68,29 +67,6 @@ public class ThreadManager {
     }
 
     /**
-     * 执行后台任务（I/O密集型，如CLI命令、网络请求）
-     *
-     * @param task 要执行的任务
-     * @return Future对象，可用于取消任务或获取结果
-     */
-    public Future<?> executeBackground(Runnable task) {
-        logger.debug("Executing background task: {}", task.getClass().getSimpleName());
-        return backgroundExecutor.submit(task);
-    }
-
-    /**
-     * 执行后台任务并返回结果
-     *
-     * @param task 要执行的任务
-     * @param <T> 任务返回类型
-     * @return Future对象，可用于获取结果
-     */
-    public <T> Future<T> executeBackground(java.util.concurrent.Callable<T> task) {
-        logger.debug("Executing background task with result: {}", task.getClass().getSimpleName());
-        return backgroundExecutor.submit(task);
-    }
-
-    /**
      * 执行JavaFX Task（推荐方法，自动处理UI线程切换）
      *
      * @param task JavaFX Task
@@ -108,29 +84,6 @@ public class ThreadManager {
         // JavaFX Task设计了特殊的线程调度机制，直接在Thread中执行最稳定
         Thread thread = new Thread(task, "SDKMAN-FXTask-" + task.getClass().getSimpleName());
         thread.start();
-    }
-
-    /**
-     * 执行轻量级UI相关任务
-     *
-     * @param task 要执行的任务
-     */
-    public void executeUiTask(Runnable task) {
-        logger.debug("Executing UI task: {}", task.getClass().getSimpleName());
-        uiExecutor.submit(task);
-    }
-
-    /**
-     * 在JavaFX应用线程中执行任务
-     *
-     * @param task 要执行的任务
-     */
-    public void runOnFxThread(Runnable task) {
-        if (javafx.application.Platform.isFxApplicationThread()) {
-            task.run();
-        } else {
-            javafx.application.Platform.runLater(task);
-        }
     }
 
     /**

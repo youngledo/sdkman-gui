@@ -4,7 +4,6 @@ import io.sdkman.model.Installable;
 import io.sdkman.service.SdkmanService;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-import javafx.scene.control.Alert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -220,15 +219,6 @@ public class InstallationHandler {
         io.sdkman.util.ThreadManager.getInstance().executeJavaFxTask(task);
     }
 
-    /**
-     * 显示错误对话框
-     */
-    public static void showErrorAlert(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
-    }
+
 
 }

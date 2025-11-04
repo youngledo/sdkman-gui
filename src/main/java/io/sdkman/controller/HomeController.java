@@ -1,11 +1,13 @@
 package io.sdkman.controller;
 
 import io.sdkman.service.SdkmanService;
+import io.sdkman.util.AlertUtils;
 import io.sdkman.util.I18nManager;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,15 +75,11 @@ public class HomeController {
 
     @FXML
     public void initialize() {
-        logger.info("Initializing HomeController");
-
         // 设置国际化文本
         setupI18n();
 
         // 异步检查SDKMAN是否安装
         checkSdkmanInstallation();
-
-        logger.info("HomeController initialized successfully");
     }
 
     /**
@@ -119,21 +117,21 @@ public class HomeController {
      * 设置国际化文本
      */
     private void setupI18n() {
-        if (welcomeLabel != null) welcomeLabel.setText(I18nManager.get("home.welcome"));
-        if (subtitleLabel != null) subtitleLabel.setText(I18nManager.get("home.subtitle"));
-        if (jdkStatLabel != null) jdkStatLabel.setText(I18nManager.get("home.stat.jdk"));
-        if (sdkStatLabel != null) sdkStatLabel.setText(I18nManager.get("home.stat.sdk"));
-        if (updateStatLabel != null) updateStatLabel.setText(I18nManager.get("home.stat.updates"));
-        if (quickActionsLabel != null) quickActionsLabel.setText(I18nManager.get("home.quick_actions"));
-        if (hintLabel != null) hintLabel.setText(I18nManager.get("home.hint"));
-        if (browseJdkButton != null) browseJdkButton.setText(I18nManager.get("home.action.browse_jdk"));
-        if (browseSdkButton != null) browseSdkButton.setText(I18nManager.get("home.action.browse_sdk"));
-        if (checkUpdateButton != null) checkUpdateButton.setText(I18nManager.get("home.action.check_update"));
+        welcomeLabel.setText(I18nManager.get("home.welcome"));
+        subtitleLabel.setText(I18nManager.get("home.subtitle"));
+        jdkStatLabel.setText(I18nManager.get("home.stat.jdk"));
+        sdkStatLabel.setText(I18nManager.get("home.stat.sdk"));
+        updateStatLabel.setText(I18nManager.get("home.stat.updates"));
+        quickActionsLabel.setText(I18nManager.get("home.quick_actions"));
+        hintLabel.setText(I18nManager.get("home.hint"));
+        browseJdkButton.setText(I18nManager.get("home.action.browse_jdk"));
+        browseSdkButton.setText(I18nManager.get("home.action.browse_sdk"));
+        checkUpdateButton.setText(I18nManager.get("home.action.check_update"));
     }
 
     /**
      * 加载统计数据
-     * 性能优化：使用缓存和本地目录扫描，快速加载统计数据
+     * 性能优化：JDK和SDK数量使用本地目录扫描，更新检测异步进行
      */
     private void loadStatistics() {
         logger.info("Loading statistics...");
@@ -141,15 +139,16 @@ public class HomeController {
         // 显示加载状态
         jdkCountLabel.setText("...");
         sdkCountLabel.setText("...");
-        updateCountLabel.setText("0"); // 更新功能未实现，显示0
+        updateCountLabel.setText("..."); // 异步检测中
 
         // 异步加载JDK数量
         loadJdkCount();
 
-        // 异步加载SDK数量（现在使用缓存，速度很快）
+        // 异步加载SDK数量
         loadSdkCount();
 
-        // 更新数量功能未实现，暂时不加载
+        // 异步检测更新数量
+        loadUpdateCount();
     }
 
     /**
@@ -236,29 +235,25 @@ public class HomeController {
             sdkCountLabel.setText("N/A");
             updateCountLabel.setText("N/A");
 
-            // 显示错误对话框
-            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
-            alert.setTitle(I18nManager.get("error.sdkman_not_installed.title"));
-            alert.setHeaderText(null);
-            alert.setContentText(I18nManager.get("error.sdkman_not_installed.content"));
-
             // 添加自定义按钮：打开SDKMAN官网
-            javafx.scene.control.ButtonType openWebsiteButton = new javafx.scene.control.ButtonType(
-                I18nManager.get("error.sdkman_not_installed.button")
+            ButtonType openWebsiteButton = new ButtonType(
+                    I18nManager.get("error.sdkman_not_installed.button")
             );
-            alert.getButtonTypes().setAll(openWebsiteButton, javafx.scene.control.ButtonType.CANCEL);
-
-            alert.showAndWait().ifPresent(response -> {
-                if (response == openWebsiteButton) {
-                    // 打开SDKMAN官网
-                    try {
-                        java.awt.Desktop.getDesktop().browse(new java.net.URI("https://sdkman.io/install"));
-                    } catch (Exception e) {
-                        logger.error("Failed to open website", e);
+            AlertUtils.showErrorAlert(
+                    I18nManager.get("error.sdkman_not_installed.title"),
+                    I18nManager.get("error.sdkman_not_installed.content"),
+                    openWebsiteButton,
+                    buttonType -> {
+                        if (buttonType == openWebsiteButton) {
+                            // 打开SDKMAN官网
+                            try {
+                                java.awt.Desktop.getDesktop().browse(new java.net.URI("https://sdkman.io/install"));
+                            } catch (Exception e) {
+                                logger.error("Failed to open website", e);
+                            }
+                        }
                     }
-                }
-            });
-
+            );
             logger.error("Please install SDKMAN first: https://sdkman.io/install");
         });
     }
@@ -294,7 +289,7 @@ public class HomeController {
         // 显示加载状态
         jdkCountLabel.setText("...");
         sdkCountLabel.setText("...");
-        updateCountLabel.setText("...");
+        updateCountLabel.setText("..."); // 检查中
 
         // 重新加载JDK数量
         loadJdkCount();

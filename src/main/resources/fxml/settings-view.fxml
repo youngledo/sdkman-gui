@@ -84,6 +84,69 @@
                 </HBox>
             </VBox>
 
+            <!-- 应用版本更新 -->
+            <VBox spacing="12" styleClass="settings-section">
+                <Label fx:id="appVersionLabel" styleClass="settings-section-title"/>
+
+                <!-- 当前版本信息 -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label fx:id="currentVersionLabel"/>
+                    <Label fx:id="currentVersionValue" styleClass="text-bold"/>
+                </HBox>
+
+                <!-- 检查更新按钮和状态 -->
+                <HBox spacing="15" alignment="CENTER_LEFT">
+                    <Button fx:id="checkUpdateButton" onAction="#onCheckUpdateClicked"/>
+                    <Label fx:id="updateStatusLabel" styleClass="text-muted"/>
+                </HBox>
+
+                <!-- 更新提示（有新版本时显示） -->
+                <VBox fx:id="updateAvailableBox" spacing="15" managed="false" visible="false"
+                      style="-fx-background-color: -color-success-bg; -fx-background-radius: 8; -fx-border-color: -color-success-emphasis; -fx-border-width: 1; -fx-border-radius: 8;">
+                    <padding>
+                        <Insets top="15" right="15" bottom="15" left="15"/>
+                    </padding>
+
+                    <!-- 新版本信息头部 -->
+                    <VBox spacing="8">
+                        <Label fx:id="newVersionLabel" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label fx:id="latestVersionLabel"/>
+                            <Label fx:id="latestVersionValue" styleClass="text-bold"
+                                   style="-fx-text-fill: -color-success-emphasis; -fx-font-size: 16px;"/>
+                            <Hyperlink fx:id="downloadManualLink" styleClass="hyperlink"/>
+                        </HBox>
+                    </VBox>
+
+                    <!-- 操作区域 -->
+                    <VBox spacing="12">
+                        <!-- 下载区域 -->
+                        <VBox spacing="8">
+                            <HBox spacing="12" alignment="CENTER_LEFT">
+                                <Button fx:id="downloadButton" onAction="#onDownloadClicked"
+                                        style="-fx-min-width: 120px;"/>
+                                <Label fx:id="downloadStatusLabel" styleClass="text-muted"/>
+                            </HBox>
+
+                            <!-- 下载进度条（下载时显示） -->
+                            <VBox fx:id="downloadProgressBox" spacing="5" managed="false" visible="false">
+                                <ProgressBar fx:id="downloadProgressBar" prefWidth="400" maxWidth="Infinity"/>
+                                <Label fx:id="downloadProgressLabel" styleClass="text-muted"
+                                       style="-fx-font-size: 11px;"/>
+                            </VBox>
+                        </VBox>
+
+                        <!-- 安装区域（下载完成后显示） -->
+                        <HBox fx:id="installBox" spacing="12" alignment="CENTER_LEFT"
+                              managed="false" visible="false">
+                            <Button fx:id="installButton" onAction="#onInstallClicked"
+                                    styleClass="accent" style="-fx-min-width: 120px;"/>
+                            <Label fx:id="installStatusLabel" styleClass="text-muted"/>
+                        </HBox>
+                    </VBox>
+                </VBox>
+            </VBox>
+
             <!-- 保存按钮 -->
             <HBox spacing="10" alignment="CENTER_LEFT">
                 <padding>

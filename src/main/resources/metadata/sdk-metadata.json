@@ -17,31 +17,31 @@
   },
   "groovy": {
     "name": "Groovy",
-    "description": "Apache Groovy is a powerful, optionally typed and dynamic language, with static-typing and static compilation capabilities, for the Java platform."
+    "description": "Groovy是一种功能强大、可选类型且动态的语言，具备静态类型和静态编译能力，专为Java平台设计，旨在通过简洁、熟悉且易学的语法成倍提升开发者的生产力。它能无缝集成到任何Java程序中，并立即为应用程序提供强大的功能，包括脚本能力、领域特定语言编写、运行时及编译时元编程以及函数式编程。"
   },
   "kotlin": {
     "name": "Kotlin",
-    "description": "Kotlin is a modern, concise, and safe programming language that makes developers happier. It is fully interoperable with Java and runs on the JVM."
+    "description": "Kotlin是一种静态类型编程语言，可在Java虚拟机上运行，也能编译为JavaScript源代码。"
   },
   "scala": {
     "name": "Scala",
-    "description": "Scala combines object-oriented and functional programming in one concise, high-level language. Scala's static types help avoid bugs in complex applications."
+    "description": "Scala是一种通用软件应用程序编程语言。它全面支持函数式编程，并拥有非常强大的静态类型系统，这使得用Scala编写的程序极为简洁，因而相比其他通用编程语言体积更小。Scala源代码设计为可编译为Java字节码，生成的执行代码运行于Java虚拟机上。Java库可直接在Scala代码中使用，反之亦然。Scala是面向对象的，采用花括号语法结构。它具备函数式编程语言的诸多特性，包括柯里化、类型推断、不可变性、惰性求值和模式匹配。其高级类型系统支持代数数据类型、协变与逆变、高阶类型及匿名类型。Scala的其他特性还包括运算符重载、可选参数、命名参数、原始字符串以及无受检异常机制。"
   },
   "springboot": {
     "name": "Spring Boot",
-    "description": "Spring Boot makes it easy to create stand-alone, production-grade Spring based Applications that you can run. It takes an opinionated view of the Spring platform."
+    "description": "Spring Boot对构建生产级Spring应用持有明确的设计理念。它推崇约定优于配置的原则，旨在让您能够快速启动并运行项目。"
   },
   "micronaut": {
     "name": "Micronaut",
-    "description": "Micronaut is a modern, JVM-based, full-stack framework for building modular, easily testable microservice and serverless applications."
+    "description": "Micronaut 是一个用于 JVM 的开源微服务框架。"
   },
   "quarkus": {
     "name": "Quarkus CLI",
-    "description": "Quarkus is a Kubernetes Native Java stack tailored for OpenJDK HotSpot and GraalVM, crafted from the best of breed Java libraries and standards."
+    "description": "Quarkus是一款专为OpenJDK HotSpot和GraalVM量身定制的Kubernetes原生Java框架，由顶尖的Java库与标准精心打造而成。"
   },
   "grails": {
     "name": "Grails",
-    "description": "Grails is a powerful Groovy-based web application framework for the JVM built on top of Spring Boot."
+    "description": "Grails是一个强大的 Java 平台 Web 框架，它通过\"约定优于配置\"原则、合理的默认值和规范化API来成倍提升开发效率。该框架与JVM无缝集成，在提供强大功能的同时让开发者能立即投入高效开发，这些功能包括集成式ORM、领域特定语言、运行时及编译时元编程以及异步编程支持。"
   },
   "ant": {
     "name": "Ant",
@@ -49,43 +49,43 @@
   },
   "sbt": {
     "name": "SBT",
-    "description": "SBT is an open-source build tool for Scala and Java projects, similar to Apache Maven and Gradle."
+    "description": "SBT是一款面向Scala和Java项目的开源构建工具，类似于Java的Maven或Ant。其主要特性包括：原生支持Scala代码编译及与多种Scala测试框架集成；采用基于Scala的领域特定语言(DSL)编写构建描述；通过Ivy实现依赖管理（兼容Maven格式仓库）；支持持续编译、测试和部署；与Scala解释器集成以实现快速迭代调试；提供对Java/Scala混合项目的支持。"
   },
   "jbang": {
     "name": "JBang",
-    "description": "JBang lets you run Java programs as scripts without explicit compilation. It makes Java easy to use for scripting purposes."
+    "description": "JBang让Java脚本化使用变得简单。它允许你通过单一文件管理代码和依赖项，并可直接运行。"
   },
   "visualvm": {
     "name": "VisualVM",
-    "description": "VisualVM is a visual tool integrating commandline JDK tools and lightweight profiling capabilities for monitoring and troubleshooting Java applications."
+    "description": "VisualVM是一款工具，它提供了一个可视化界面，用于查看运行在Java虚拟机上的Java应用程序的详细信息。"
   },
   "jmc": {
     "name": "JDK Mission Control",
-    "description": "JDK Mission Control is an advanced set of tools that enables efficient and detailed analysis of the extensive data collected by Java Flight Recorder."
+    "description": "Java飞行记录器与JDK任务控制共同构建了一套完整的工具链，可持续收集底层及详细的运行时信息，支持事后事件分析。JDK任务控制是一组高级工具集，能高效且详尽地分析Java飞行记录器采集的海量数据。该工具链使开发者和运维人员能够收集并分析本地运行或生产环境中部署的Java应用程序数据。"
   },
   "tomcat": {
     "name": "Apache Tomcat",
-    "description": "Apache Tomcat is an open source implementation of the Jakarta Servlet, Jakarta Server Pages, Jakarta Expression Language, Jakarta WebSocket specifications."
+    "description": "Apache Tomcat® 软件是 Java Servlet、JavaServer Pages、Java 表达式语言及 Java WebSocket 技术的开源实现。"
   },
   "spark": {
     "name": "Spark",
-    "description": "Apache Spark is a unified analytics engine for large-scale data processing. It provides high-level APIs in Java, Scala, Python and R."
+    "description": "Apache Spark是一个开源的集群计算框架。Spark提供了编程整个集群的接口，具备隐式数据并行性和容错能力。"
   },
   "flink": {
     "name": "Flink",
-    "description": "Apache Flink is a framework and distributed processing engine for stateful computations over unbounded and bounded data streams."
+    "description": "Apache Flink是一个开源的统一流处理与批处理框架，作为分布式处理引擎，支持对有界及无界数据流进行状态计算。其设计目标是在所有常见集群环境中运行，以内存级速度执行任意规模的计算任务。"
   },
   "hadoop": {
-    "name": "hadoop",
-    "description": "Apache Hadoop is a collection of open-source software utilities that facilitates using a network of many computers to solve problems involving massive amounts of data."
+    "name": "Hadoop",
+    "description": "Apache™ Hadoop®项目开发用于可靠、可扩展的分布式计算的开源软件。它是一个框架，允许通过简单的编程模型在计算机集群上分布式处理大规模数据集。其设计目标是从单台服务器扩展到数千台机器，每台机器都提供本地计算和存储能力。"
   },
   "leiningen": {
     "name": "Leiningen",
-    "description": "Leiningen is a build automation and dependency management tool for the Clojure programming language."
+    "description": "Leiningen是使用Clojure的最简方式。它专注于项目自动化与声明式配置，让您摆脱繁琐操作，专注于代码编写。"
   },
   "bld": {
     "name": "Bld",
-    "description": "Bld is a build system that allows you to write your build logic in pure Java. bld was created because we're not really interested in build tools. We use them because we have to, but we'd rather just get on with coding the real stuff."
+    "description": "bld是一个构建系统，允许你用纯Java编写构建逻辑。我们创建bld是因为对构建工具并不真正感兴趣。使用它们只是出于必要，而我们更愿意直接着手编写真正的代码。"
   },
   "temurin": {
     "name": "Eclipse Temurin",

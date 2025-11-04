@@ -46,15 +46,14 @@ public class ThemeManager {
      * @return "dark" 或 "light"
      */
     private static String detectSystemTheme() {
-        String os = System.getProperty("os.name").toLowerCase();
-
-        if (os.contains("mac")) {
+        if (PlatformDetector.isMac()) {
             return detectMacOSTheme();
-        } else if (os.contains("win")) {
+        } else if (PlatformDetector.isWindows()) {
             return detectWindowsTheme();
         } else {
             // Linux等其他系统默认使用亮色主题
-            logger.info("Auto theme detection not supported on {}, using light theme", os);
+            logger.info("Auto theme detection not supported on {}, using light theme",
+                       PlatformDetector.getOSName());
             return "light";
         }
     }

@@ -23,9 +23,6 @@ public class SdkDetailController {
     private static final Logger logger = LoggerFactory.getLogger(SdkDetailController.class);
 
     @FXML
-    private Button backButton;
-
-    @FXML
     private Label titleLabel;
 
     @FXML
@@ -55,9 +52,6 @@ public class SdkDetailController {
 
     @FXML
     private ListView<SdkVersion> versionsListView;
-
-    @FXML
-    private VBox versionsEmptyPane;
 
     private final SdkmanService sdkmanService;
     private final VersionListManager<SdkVersion> versionListManager;
@@ -175,24 +169,15 @@ public class SdkDetailController {
 
     /**
      * 加载版本列表
+     *
      */
     private void loadVersions() {
-        loadVersions(false);  // 默认不强制刷新
-    }
-
-    /**
-     * 加载版本列表
-     *
-     * @param forceRefresh 是否强制刷新（忽略缓存）
-     */
-    private void loadVersions(boolean forceRefresh) {
         showVersionsLoading(true);
 
         Task<List<SdkVersion>> task = new Task<>() {
             @Override
             protected List<SdkVersion> call() {
-                logger.info("Loading versions for SDK: {} (forceRefresh: {})", currentSdk.getCandidate(), forceRefresh);
-                return sdkmanService.loadSdkVersions(currentSdk.getCandidate(), forceRefresh);
+                return sdkmanService.loadSdkVersions(currentSdk.getCandidate());
             }
         };
 
@@ -270,7 +255,7 @@ public class SdkDetailController {
     @FXML
     private void onRefreshVersions() {
         logger.info("Refresh clicked, force refresh from network");
-        loadVersions(true);  // 强制刷新
+        loadVersions();  // 强制刷新
     }
 
     /**
@@ -318,20 +303,10 @@ public class SdkDetailController {
                 version,
                 versionsListView.getItems(),
                 currentSdk.getName() + " " + version.getVersion(),
-                // 成功回调：清除SDK列表缓存，确保SDK页面能看到最新状态
+                // 成功回调
                 installedVersion -> {
-                    logger.info("Successfully installed {} {}, clearing SDK list cache",
+                    logger.info("Successfully installed {} {}",
                                currentSdk.getCandidate(), installedVersion.getVersion());
-
-                    // 清除该SDK的版本缓存，确保下次重新获取最新状态
-                    io.sdkman.util.CacheManager.clearCache("sdk-versions-" + currentSdk.getCandidate());
-
-                    // 清除SDK列表缓存，确保SDK页面也能看到最新状态
-                    io.sdkman.util.CacheManager.clearCache("sdk-list");
-
-                    // 同时清除内存缓存，确保状态完全同步
-                    sdkmanService.clearSdkCache();
-                    logger.info("Cleared SDK list, version cache and memory cache to sync with SDK page");
 
                     // 检查是否是唯一版本，如果是则自动设置为默认版本
                     if (sdkmanService.isOnlyInstalledVersion(currentSdk.getCandidate(), installedVersion.getVersion())) {
@@ -351,9 +326,8 @@ public class SdkDetailController {
                                     } catch (InterruptedException e) {
                                         Thread.currentThread().interrupt();
                                     }
-                                    Platform.runLater(() -> {
-                                        loadVersions(true); // 强制刷新以获取最新的默认状态
-                                    });
+                                    // 强制刷新以获取最新的默认状态
+                                    Platform.runLater(this::loadVersions);
                                 }).start();
                             });
                         } else {
@@ -374,20 +348,10 @@ public class SdkDetailController {
                 version,
                 versionsListView.getItems(),
                 currentSdk.getName() + " " + version.getVersion(),
-                // 成功回调：清除缓存确保下次刷新时获取最新状态
+                // 成功回调
                 uninstalledVersion -> {
-                    logger.info("Successfully uninstalled {} {}, clearing cache",
+                    logger.info("Successfully uninstalled {} {}",
                                currentSdk.getCandidate(), uninstalledVersion.getVersion());
-
-                    // 清除该SDK的版本缓存，确保下次重新获取最新状态
-                    io.sdkman.util.CacheManager.clearCache("sdk-versions-" + currentSdk.getCandidate());
-
-                    // 同时清除SDK列表缓存，确保SDK页面也能看到最新状态
-                    io.sdkman.util.CacheManager.clearCache("sdk-list");
-
-                    // 同时清除内存缓存，确保状态完全同步
-                    sdkmanService.clearSdkCache();
-                    logger.info("Cleared SDK list and memory cache to sync with SDK page");
                 },
                 () -> versionsListView.refresh()
         );
@@ -397,12 +361,22 @@ public class SdkDetailController {
      * 处理设置默认版本
      */
     private void handleSetDefault(SdkVersion version) {
+        logger.info("Setting default version: {} {}", currentSdk.getCandidate(), version.getVersion());
+
         versionListManager.handleSetDefault(
                 version,
                 versionsListView.getItems(),
                 currentSdk.getName() + " " + version.getVersion(),
-                null,
-                () -> versionsListView.refresh()
+                // 成功回调：记录日志
+                _ -> {
+                    logger.info("Successfully set {} {} as default", currentSdk.getCandidate(), version.getVersion());
+                },
+                // UI刷新回调
+                () -> {
+                    // 强制刷新ListView，确保UI更新
+                    versionsListView.refresh();
+                    logger.debug("Refreshed versions list after setting default");
+                }
         );
     }
 }

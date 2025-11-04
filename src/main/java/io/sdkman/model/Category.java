@@ -13,6 +13,7 @@ public enum Category {
     FRAMEWORKS("frameworks"),
     SERVERS("servers"),
     TOOLS("tools"),
+    MQ("mq"),
     OTHER("other");
 
     private final String key;
@@ -27,28 +28,31 @@ public enum Category {
 
     // 预定义的分类映射
     private static final Set<String> LANGUAGES_CANDIDATES = Set.of(
-        "java", "kotlin", "scala", "groovy", "clojure", "jruby", "jython",
-        "ceylon", "ballerina", "crash", "sbl"
+            "java", "kotlin", "scala", "groovy", "clojure", "jruby", "jython",
+            "ceylon", "ballerina", "crash", "sbl"
     );
 
     private static final Set<String> BUILD_TOOLS_CANDIDATES = Set.of(
-        "maven", "gradle", "sbt", "ant", "leiningen", "bld", "buildr"
+            "maven", "mvnd", "gradle", "sbt", "ant", "bld"
     );
 
     private static final Set<String> FRAMEWORKS_CANDIDATES = Set.of(
-        "springboot", "micronaut", "quarkus", "vert.x", "helidon"
+            "springboot", "micronaut", "quarkus", "vertx"
     );
 
     private static final Set<String> SERVERS_CANDIDATES = Set.of(
-        "tomcat", "jetty", "payara", "wildfly", "tomee", "liberty",
-        "glowroot", "tackle", "akka"
+            "tomcat", "jetty", "payara", "wildfly", "tomee", "liberty",
+            "glowroot", "tackle", "akka"
+    );
+
+    private static final Set<String> MQ_CANDIDATES = Set.of(
+            "activemq", "kcctl"
     );
 
     private static final Set<String> TOOLS_CANDIDATES = Set.of(
-        "visualvm", "jmc", "missioncontrol", "jmeter", "gatling",
-        "selenide", "cucumber", "testng", "mockito", "asciidoctorj",
-        "jbang", "sdkman", "lombok", "cdi", "jakartaee", "activemq",
-        "apache", "kafka", "zookeeper", "consul", "etcd", "redis"
+            "visualvm", "jmc", "jmeter", "gatling", "selenide", "cucumber", "testng", "mockito", "asciidoctorj",
+            "jbang", "lombok", "cdi", "jakartaee", "leiningen", "helidon",
+            "apache", "zookeeper", "consul", "etcd", "redis"
     );
 
     /**
@@ -77,6 +81,9 @@ public enum Category {
         }
         if (TOOLS_CANDIDATES.contains(normalized)) {
             return TOOLS;
+        }
+        if (MQ_CANDIDATES.contains(normalized)) {
+            return MQ;
         }
 
         // 基于描述的关键词匹配

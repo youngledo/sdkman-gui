@@ -4,7 +4,7 @@ import io.sdkman.model.JdkListItem;
 import io.sdkman.model.JdkCategory;
 import io.sdkman.model.SdkVersion;
 import io.sdkman.service.SdkmanService;
-import io.sdkman.util.CacheManager;
+import io.sdkman.util.AlertUtils;
 import io.sdkman.util.I18nManager;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -114,16 +114,16 @@ public class JdkController {
      * 设置国际化文本
      */
     private void setupI18n() {
-        if (titleLabel != null) titleLabel.setText(I18nManager.get("jdk.title"));
-        if (subtitleLabel != null) subtitleLabel.setText(I18nManager.get("home.subtitle"));
-        if (searchField != null) searchField.setPromptText(I18nManager.get("jdk.search.placeholder"));
-        if (refreshButton != null) refreshButton.setText(I18nManager.get("jdk.action.refresh"));
-        if (filterLabel != null) filterLabel.setText(I18nManager.get("jdk.filter.label") + ":");
-        if (vendorLabel != null) vendorLabel.setText(I18nManager.get("jdk.vendor.label") + ":");
-        if (categoryLabel != null) categoryLabel.setText(I18nManager.get("jdk.category.label") + ":");
-        if (loadingLabel != null) loadingLabel.setText(I18nManager.get("list.message.loading"));
-        if (emptyTitleLabel != null) emptyTitleLabel.setText(I18nManager.get("jdk.message.no_jdk_found"));
-        if (emptySubtitleLabel != null) emptySubtitleLabel.setText(I18nManager.get("jdk.action.refresh"));
+        titleLabel.setText(I18nManager.get("jdk.title"));
+        subtitleLabel.setText(I18nManager.get("home.subtitle"));
+        searchField.setPromptText(I18nManager.get("jdk.search.placeholder"));
+        refreshButton.setText(I18nManager.get("jdk.action.refresh"));
+        filterLabel.setText(I18nManager.get("jdk.filter.label") + ":");
+        vendorLabel.setText(I18nManager.get("jdk.vendor.label") + ":");
+        categoryLabel.setText(I18nManager.get("jdk.category.label") + ":");
+        loadingLabel.setText(I18nManager.get("list.message.loading"));
+        emptyTitleLabel.setText(I18nManager.get("jdk.message.no_jdk_found"));
+        emptySubtitleLabel.setText(I18nManager.get("jdk.action.refresh"));
     }
 
     /**
@@ -297,7 +297,7 @@ public class JdkController {
 
             // 只更新JDK版本项的数据
             if (existingItem.getType() == JdkListItem.ItemType.JDK_VERSION &&
-                newItem.getType() == JdkListItem.ItemType.JDK_VERSION) {
+                    newItem.getType() == JdkListItem.ItemType.JDK_VERSION) {
 
                 // 直接替换现有的JdkListItem对象
                 displayListItems.set(i, newItem);
@@ -482,7 +482,7 @@ public class JdkController {
 
             // 按版本号降序排序（最新版本在前）
             vendorVersions.sort((v1, v2) ->
-                io.sdkman.util.VersionComparator.descending().compare(v1.getVersion(), v2.getVersion())
+                    io.sdkman.util.VersionComparator.descending().compare(v1.getVersion(), v2.getVersion())
             );
 
             // 为Eclipse Temurin版本的推荐标签做准备
@@ -656,10 +656,6 @@ public class JdkController {
                         // 统计已安装的JDK数量
                         long installedCount = allJdkVersions.stream().filter(SdkVersion::isInstalled).count();
                         logger.info("Total installed JDKs in allJdkVersions: {}", installedCount);
-
-                        // 更新缓存，保存最新状态（而不是清除缓存）
-                        CacheManager.cacheJdkVersions(new ArrayList<>(allJdkVersions));
-                        logger.info("Saved updated JDK list to cache with {} installed", installedCount);
                     }
 
                     // 重新应用筛选以更新状态标签（状态标签是静态的，需要重建Cell）
@@ -667,7 +663,7 @@ public class JdkController {
                 },
                 // 失败回调
                 _ -> {
-                    InstallationHandler.showErrorAlert(I18nManager.get("jdk.message.install_failed"),
+                    AlertUtils.showErrorAlert(I18nManager.get("jdk.message.install_failed"),
                             MessageFormat.format(I18nManager.get("jdk.message.install_failed"), jdk.getVersion()));
                 }
         );
@@ -696,8 +692,7 @@ public class JdkController {
                         logger.info("Total installed JDKs after uninstall: {}", installedCount);
 
                         // 清除JDK缓存，确保下次重新获取最新状态
-                        CacheManager.clearJdkVersionsCache();
-                        logger.info("Cleared JDK versions cache to force refresh on next load");
+                        logger.info("JDK uninstalled successfully");
                     }
                 },
                 // 刷新UI的回调
@@ -717,7 +712,13 @@ public class JdkController {
                 allJdkVersions,
                 jdk.getDisplayName(),
                 null,  // 不需要额外的成功回调
-                null   // UI会通过Property绑定自动更新，不需要额外的刷新回调
+                () -> {
+                    // 设置默认版本后需要刷新UI，因为：
+                    // 1. ListView的Cell可能被缓存，需要重新渲染
+                    // 2. 分组列表需要更新（默认状态影响排序）
+                    applyFilters();
+                    logger.debug("Applied filters after setting default JDK");
+                }
         );
     }
 
@@ -768,8 +769,8 @@ public class JdkController {
                 // 修复：总是重新创建UI以确保状态正确，或者改进缓存逻辑
                 // 使用更精确的比较：版本号+标识符
                 boolean isSameJdk = currentJdk != null &&
-                    currentJdk.getVersion().equals(jdk.getVersion()) &&
-                    Objects.equals(currentJdk.getIdentifier(), jdk.getIdentifier());
+                        currentJdk.getVersion().equals(jdk.getVersion()) &&
+                        Objects.equals(currentJdk.getIdentifier(), jdk.getIdentifier());
 
                 if (!isSameJdk) {
                     setGraphic(createJdkVersionCell(jdk));

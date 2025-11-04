@@ -27,19 +27,28 @@
             <TextField fx:id="searchField" styleClass="search-field" HBox.hgrow="NEVER"/>
 
             <!-- 刷新按钮 -->
-            <Button fx:id="refreshButton" styleClass="action-button" onAction="#onRefreshClicked"
-                    minWidth="80" maxWidth="100" HBox.hgrow="NEVER"/>
+            <Button fx:id="refreshButton" styleClass="action-button" onAction="#onRefreshClicked" HBox.hgrow="NEVER"/>
         </HBox>
 
-        <!-- 分类筛选 -->
-        <HBox spacing="8" alignment="CENTER_LEFT">
-            <Button fx:id="allCategoryButton" styleClass="filter-chip, filter-chip-active" onAction="#onAllCategoryClicked"/>
-            <Button fx:id="languagesCategoryButton" styleClass="filter-chip" onAction="#onLanguagesCategoryClicked"/>
-            <Button fx:id="buildToolsCategoryButton" styleClass="filter-chip" onAction="#onBuildToolsCategoryClicked"/>
-            <Button fx:id="frameworksCategoryButton" styleClass="filter-chip" onAction="#onFrameworksCategoryClicked"/>
-            <Button fx:id="serversCategoryButton" styleClass="filter-chip" onAction="#onServersCategoryClicked"/>
-            <Button fx:id="toolsCategoryButton" styleClass="filter-chip" onAction="#onToolsCategoryClicked"/>
-            <Button fx:id="otherCategoryButton" styleClass="filter-chip" onAction="#onOtherCategoryClicked"/>
+        <!-- 分类筛选和已安装过滤 -->
+        <HBox spacing="12" alignment="CENTER_LEFT">
+            <!-- 分类筛选 -->
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Button fx:id="allCategoryButton" styleClass="filter-chip, filter-chip-active" onAction="#onAllCategoryClicked"/>
+                <Button fx:id="languagesCategoryButton" styleClass="filter-chip" onAction="#onLanguagesCategoryClicked"/>
+                <Button fx:id="buildToolsCategoryButton" styleClass="filter-chip" onAction="#onBuildToolsCategoryClicked"/>
+                <Button fx:id="frameworksCategoryButton" styleClass="filter-chip" onAction="#onFrameworksCategoryClicked"/>
+                <Button fx:id="serversCategoryButton" styleClass="filter-chip" onAction="#onServersCategoryClicked"/>
+                <Button fx:id="mqCategoryButton" styleClass="filter-chip" onAction="#onMqCategoryClicked"/>
+                <Button fx:id="toolsCategoryButton" styleClass="filter-chip" onAction="#onToolsCategoryClicked"/>
+                <Button fx:id="otherCategoryButton" styleClass="filter-chip" onAction="#onOtherCategoryClicked"/>
+            </HBox>
+
+            <!-- 弹簧，推动复选框到右侧 -->
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <!-- 已安装过滤 -->
+            <CheckBox fx:id="installedOnlyCheckbox"/>
         </HBox>
 
         <!-- SDK网格区域 -->

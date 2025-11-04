@@ -4,6 +4,7 @@ import io.sdkman.model.Installable;
 import io.sdkman.model.Sdk;
 import io.sdkman.model.SdkVersion;
 import io.sdkman.service.SdkmanService;
+import io.sdkman.util.AlertUtils;
 import io.sdkman.util.I18nManager;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -73,7 +74,7 @@ public class VersionListManager<T extends Installable> {
                             Platform.runLater(refreshUI);
                         }
                     }
-                    InstallationHandler.showErrorAlert(
+                    AlertUtils.showErrorAlert(
                             I18nManager.get("alert.error"),
                             I18nManager.get("version.installing.failed", itemName)
                     );
@@ -121,7 +122,7 @@ public class VersionListManager<T extends Installable> {
                             Platform.runLater(refreshUI);
                         }
                     }
-                    InstallationHandler.showErrorAlert(
+                    AlertUtils.showErrorAlert(
                             I18nManager.get("alert.error"),
                             I18nManager.get("version.uninstall.failed", itemName)
                     );
@@ -176,7 +177,7 @@ public class VersionListManager<T extends Installable> {
                             Platform.runLater(refreshUI);
                         }
                     }
-                    InstallationHandler.showErrorAlert(
+                    AlertUtils.showErrorAlert(
                             I18nManager.get("alert.error"),
                             I18nManager.get("list.item.set_default.failed", itemName)
                     );
@@ -239,8 +240,13 @@ public class VersionListManager<T extends Installable> {
      */
     private void updateItemDefaultState(T item, boolean isDefault) {
         if (item instanceof SdkVersion version) {
+            logger.debug("Updating default state: {} {} -> isDefault={}, inUse={}",
+                    version.getCandidate(), version.getVersion(), isDefault, isDefault);
             version.setDefault(isDefault);
             version.setInUse(isDefault);
+            logger.debug("After update: isDefault={}, inUse={}, isDefaultProperty={}",
+                    version.isDefault(), version.isInUse(),
+                    version.isDefaultProperty() != null ? version.isDefaultProperty().get() : "null");
         }
     }
 

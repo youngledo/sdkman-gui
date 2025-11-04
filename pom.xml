@@ -25,6 +25,9 @@
         <slf4j.version>2.0.7</slf4j.version>
         <log4j2.version>2.21.1</log4j2.version>
         <junit.version>5.11.3</junit.version>
+
+        <!-- Plugins -->
+        <jpackage-maven-plugin.version>1.7.1</jpackage-maven-plugin.version>
     </properties>
 
     <dependencies>
@@ -95,6 +98,201 @@
         </dependency>
     </dependencies>
 
+    <profiles>
+        <!-- Windows x64打包配置 (使用jlink) -->
+        <profile>
+            <id>win</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                    <arch>amd64</arch>
+                </os>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.panteleyev</groupId>
+                        <artifactId>jpackage-maven-plugin</artifactId>
+                        <configuration>
+                            <name>${project.name}-x64</name>
+                            <icon>package/icons/Windows/launcher.ico</icon>
+                            <winMenu>true</winMenu>
+                            <winMenuGroup>Development</winMenuGroup>
+                            <winShortcut>true</winShortcut>
+                            <addModules>
+                                <addModule>java.base</addModule>
+                                <addModule>java.desktop</addModule>
+                                <addModule>java.logging</addModule>
+                                <addModule>java.net.http</addModule>
+                                <addModule>java.prefs</addModule>
+                                <addModule>java.xml</addModule>
+                                <addModule>jdk.unsupported</addModule>
+                                <addModule>javafx.base</addModule>
+                                <addModule>javafx.controls</addModule>
+                                <addModule>javafx.fxml</addModule>
+                                <addModule>javafx.graphics</addModule>
+                            </addModules>
+                            <jLinkOptions>
+                                <option>--strip-debug</option>
+                                <option>--compress=zip-6</option>
+                                <option>--no-header-files</option>
+                                <option>--no-man-pages</option>
+                                <option>--strip-native-commands</option>
+                            </jLinkOptions>
+                            <destination/>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- macOS Apple Silicon打包配置 (使用jlink) -->
+        <profile>
+            <id>mac-aarch64</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                    <arch>aarch64</arch>
+                </os>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.panteleyev</groupId>
+                        <artifactId>jpackage-maven-plugin</artifactId>
+                        <configuration>
+                            <name>${project.name}-arm64</name>
+                            <icon>package/icons/macOS/launcher.icns</icon>
+                            <macPackageName>${project.name}</macPackageName>
+                            <macAppCategory>developer-tools</macAppCategory>
+                            <addModules>
+                                <addModule>java.base</addModule>
+                                <addModule>java.desktop</addModule>
+                                <addModule>java.logging</addModule>
+                                <addModule>java.net.http</addModule>
+                                <addModule>java.prefs</addModule>
+                                <addModule>java.xml</addModule>
+                                <addModule>jdk.unsupported</addModule>
+                                <addModule>javafx.base</addModule>
+                                <addModule>javafx.controls</addModule>
+                                <addModule>javafx.fxml</addModule>
+                                <addModule>javafx.graphics</addModule>
+                            </addModules>
+                            <jLinkOptions>
+                                <option>--strip-debug</option>
+                                <option>--compress=zip-6</option>
+                                <option>--no-header-files</option>
+                                <option>--no-man-pages</option>
+                                <option>--strip-native-commands</option>
+                            </jLinkOptions>
+                            <destination/>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- macOS Intel打包配置 (使用jlink) -->
+        <profile>
+            <id>mac-x64</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                    <arch>x86_64</arch>
+                </os>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.panteleyev</groupId>
+                        <artifactId>jpackage-maven-plugin</artifactId>
+                        <configuration>
+                            <name>${project.name}-x64</name>
+                            <icon>package/icons/macOS/launcher.icns</icon>
+                            <macPackageName>${project.name}</macPackageName>
+                            <macAppCategory>developer-tools</macAppCategory>
+                            <addModules>
+                                <addModule>java.base</addModule>
+                                <addModule>java.desktop</addModule>
+                                <addModule>java.logging</addModule>
+                                <addModule>java.net.http</addModule>
+                                <addModule>java.prefs</addModule>
+                                <addModule>java.xml</addModule>
+                                <addModule>jdk.unsupported</addModule>
+                                <addModule>javafx.base</addModule>
+                                <addModule>javafx.controls</addModule>
+                                <addModule>javafx.fxml</addModule>
+                                <addModule>javafx.graphics</addModule>
+                            </addModules>
+                            <jLinkOptions>
+                                <option>--strip-debug</option>
+                                <option>--compress=zip-6</option>
+                                <option>--no-header-files</option>
+                                <option>--no-man-pages</option>
+                                <option>--strip-native-commands</option>
+                            </jLinkOptions>
+                            <destination/>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Linux x64打包配置 (不使用jlink) -->
+        <profile>
+            <id>linux-x64</id>
+            <activation>
+                <os>
+                    <family>linux</family>
+                    <arch>amd64</arch>
+                </os>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.panteleyev</groupId>
+                        <artifactId>jpackage-maven-plugin</artifactId>
+                        <configuration>
+                            <name>${project.name}-x64</name>
+                            <icon>package/icons/Linux/launcher.png</icon>
+                            <linuxShortcut>true</linuxShortcut>
+                            <linuxMenuGroup>Development</linuxMenuGroup>
+                            <!-- Linux不使用jlink，直接使用系统JDK -->
+                            <destination/>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Linux ARM64打包配置 (不使用jlink) -->
+        <profile>
+            <id>linux-aarch64</id>
+            <activation>
+                <os>
+                    <family>linux</family>
+                    <arch>aarch64</arch>
+                </os>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.panteleyev</groupId>
+                        <artifactId>jpackage-maven-plugin</artifactId>
+                        <configuration>
+                            <name>${project.name}-arm64</name>
+                            <icon>package/icons/Linux/launcher.png</icon>
+                            <linuxShortcut>true</linuxShortcut>
+                            <linuxMenuGroup>Development</linuxMenuGroup>
+                            <!-- Linux不使用jlink，直接使用系统JDK -->
+                            <destination/>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
     <build>
         <plugins>
             <!-- Maven Compiler Plugin -->
@@ -131,8 +329,14 @@
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>io.sdkman.SdkmanApplication</mainClass>
+                                    <manifestEntries>
+                                        <Implementation-Title>${project.name}</Implementation-Title>
+                                        <Implementation-Version>${project.version}</Implementation-Version>
+                                        <Implementation-Vendor>${project.name}</Implementation-Vendor>
+                                    </manifestEntries>
                                 </transformer>
                             </transformers>
                         </configuration>
@@ -144,21 +348,21 @@
             <plugin>
                 <groupId>org.panteleyev</groupId>
                 <artifactId>jpackage-maven-plugin</artifactId>
-                <version>1.6.5</version>
+                <version>${jpackage-maven-plugin.version}</version>
                 <configuration>
-                    <name>sdkman-gui</name>
-                    <appVersion>1.0.0</appVersion>
-                    <destination>target/dist</destination>
-                    <module>com.sdkgui/io.sdkman.SdkmanApplication</module>
-                    <runtimeImage>target/image</runtimeImage>
+                    <name>${project.name}</name>
+                    <appVersion>${project.version}</appVersion>
+                    <description>
+                        A modern graphical management tool for SDKMAN, providing an Applite-like user experience.
+                    </description>
+                    <vendor>youngledo</vendor>
+                    <destination>target/distributions</destination>
+                    <input>target</input>
+                    <mainJar>sdkman-gui-${project.version}.jar</mainJar>
+                    <mainClass>io.sdkman.SdkmanApplication</mainClass>
                     <javaOptions>
                         <option>-Dfile.encoding=UTF-8</option>
                     </javaOptions>
-                    <!-- macOS specific -->
-                    <macPackageName>sdkman-gui</macPackageName>
-                    <!-- Linux specific -->
-                    <linuxShortcut>true</linuxShortcut>
-                    <linuxMenuGroup>Development</linuxMenuGroup>
                 </configuration>
             </plugin>
         </plugins>
