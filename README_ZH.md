@@ -13,7 +13,7 @@
 <img src="docs/images/sdk.png" alt="sdk">
 <img src="docs/images/settings.png" alt="settings">
 
-**[📹 观看此视频 (sdkman-gui.webm)](sdkman-gui.webm)**
+**[📹 观看此视频 (sdkman-gui.webm)](docs/sdkman-gui.webm)**
 
 
 ## ✨ 特性
