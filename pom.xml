@@ -267,6 +267,7 @@
                         </goals>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <outputFile>target/input/${project.build.finalName}.jar</outputFile>
                             <transformers>
                                 <!-- Merge ServiceLoader configuration files (fixes Ikonli loading) -->
                                 <transformer
@@ -299,12 +300,13 @@
                         A modern graphical management tool for SDKMAN, providing an Applite-like user experience.
                     </description>
                     <vendor>youngledo</vendor>
+                    <input>target/input</input>
                     <destination>target/distributions</destination>
-                    <input>target</input>
-                    <mainJar>sdkman-gui-${project.version}.jar</mainJar>
+                    <mainJar>${project.build.finalName}.jar</mainJar>
                     <mainClass>io.sdkman.SdkmanApplication</mainClass>
                     <javaOptions>
                         <option>-Dfile.encoding=UTF-8</option>
+                        <option>-XX:+UseZGC</option>
                     </javaOptions>
                 </configuration>
             </plugin>
