@@ -146,14 +146,6 @@
                     </VBox>
                 </VBox>
             </VBox>
-
-            <!-- 保存按钮 -->
-            <HBox spacing="10" alignment="CENTER_LEFT">
-                <padding>
-                    <Insets top="20"/>
-                </padding>
-                <Button fx:id="saveButton" onAction="#onSaveClicked"/>
-            </HBox>
         </VBox>
     </ScrollPane>
 

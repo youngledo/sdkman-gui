@@ -1,6 +1,5 @@
 package io.sdkman.controller;
 
-import atlantafx.base.theme.Styles;
 import io.sdkman.SdkmanApplication;
 import io.sdkman.service.VersionUpdateService;
 import io.sdkman.util.AlertUtils;
@@ -96,9 +95,6 @@ public class SettingsController {
     @FXML
     private Button browseButton;
 
-    @FXML
-    private Button saveButton;
-
     // 版本更新相关字段
     @FXML
     private Label appVersionLabel;
@@ -176,9 +172,6 @@ public class SettingsController {
 
         // 设置代理类型切换监听
         setupProxyTypeListener();
-
-        // 设置保存按钮样式
-        saveButton.getStyleClass().add(Styles.SUCCESS);
     }
 
     /**
@@ -225,7 +218,6 @@ public class SettingsController {
         proxyPortField.setPromptText(I18nManager.get("settings.proxy.port.placeholder"));
         sdkmanPathLabel.setText(I18nManager.get("settings.sdkman_path"));
         browseButton.setText(I18nManager.get("settings.sdkman_browse"));
-        saveButton.setText(I18nManager.get("settings.save"));
 
         // 版本更新相关文本
         if (appVersionLabel != null) {
@@ -440,50 +432,6 @@ public class SettingsController {
         if (!theme.isEmpty() && !theme.equals(ConfigManager.getTheme())) {
             ConfigManager.saveTheme(theme);
             ThemeManager.applyTheme(theme);
-        }
-    }
-
-    /**
-     * 保存设置
-     */
-    @FXML
-    private void onSaveClicked() {
-        try {
-            // 保存主题设置
-            if (themeLightRadio.isSelected()) {
-                ConfigManager.saveTheme("light");
-            } else if (themeDarkRadio.isSelected()) {
-                ConfigManager.saveTheme("dark");
-            } else {
-                ConfigManager.saveTheme("auto");
-            }
-
-            // 保存语言设置
-            if (languageZhRadio.isSelected()) {
-                ConfigManager.saveLocale(Locale.SIMPLIFIED_CHINESE);
-            } else {
-                ConfigManager.saveLocale(Locale.US);
-            }
-
-            // 保存代理设置
-            if (proxyNoneRadio.isSelected()) {
-                ConfigManager.setProxyType("none");
-            } else if (proxyAutoRadio.isSelected()) {
-                ConfigManager.setProxyType("auto");
-            } else if (proxyManualRadio.isSelected()) {
-                ConfigManager.setProxyType("manual");
-                ConfigManager.setProxyHost(proxyHostField.getText().trim());
-                ConfigManager.setProxyPort(proxyPortField.getText().trim());
-            }
-
-            // 保存其他设置
-            ConfigManager.setSdkmanPath(sdkmanPathField.getText().trim());
-        } catch (Exception e) {
-            logger.error("Failed to save settings", e);
-            AlertUtils.showErrorAlert(
-                    I18nManager.get("settings.save.failed"),
-                    I18nManager.get("settings.save.failed")
-            );
         }
     }
 
