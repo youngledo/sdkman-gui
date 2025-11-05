@@ -40,40 +40,6 @@ Cross-platform, supports Windows, macOS, Ubuntu. Built with JavaFX + Maven, insp
 | Apache Commons Exec | 1.5.0   | Process Execution   |
 | Ikonli              | 12.3.1  | Icon packs          |
 
-## 📋 Prerequisites
-
-- JDK 25 or higher
-- Maven 4.0 or higher
-- SDKMAN installed (~/.sdkman directory exists)
-
-## 🚀 Quick Start
-
-### Clone the Project
-
-```bash
-git clone <repository-url>
-cd sdkman-gui
-```
-
-### Compile the Project
-
-```bash
-mvn clean compile
-```
-
-### Run the Application
-
-```bash
-mvn javafx:run
-```
-
-### Package into an installer
-
-```bash
-# macOS、Linux
-./package.sh
-```
-
 ## 🌍 Internationalization
 
 The application supports the following languages:
@@ -143,48 +109,6 @@ Configuration example:
 }
 ```
 
-## 🐛 Troubleshooting
-
-### Unable to Start Application
-
-Ensure JDK 25 is installed:
-```bash
-java -version
-```
-
-### Unable to Find SDKMAN
-
-Check if SDKMAN is installed:
-```bash
-ls ~/.sdkman
-```
-
-If not installed, please visit: https://sdkman.io/install
-
-### Maven Build Failure
-
-Ensure you're using Maven 4.0:
-```bash
-mvn -version
-```
-
-### Installation Issues
-
-If you encounter installation failures:
-1. Check the application logs for detailed error messages
-2. Ensure your internet connection is stable
-3. Verify SDKMAN CLI is working correctly:
-   ```bash
-   source ~/.sdkman/bin/sdkman-init.sh
-   sdk list
-   ```
-
-## 📚 Documentation
-
-- [JavaFX 25 Documentation](https://openjfx.io/javadoc/25/)
-- [AtlantaFX Documentation](https://mkpaz.github.io/atlantafx/)
-- [SDKMAN Documentation](https://sdkman.io/usage/)
-
 ## 📄 License
 
 MIT License
@@ -193,4 +117,5 @@ MIT License
 
 - [SDKMAN](https://sdkman.io/) - Excellent SDK management tool
 - [AtlantaFX](https://github.com/mkpaz/atlantafx) - Beautiful JavaFX theme library
+- [IKonli](https://github.com/kordamp/ikonli) - Beautiful JavaFX icon library
 - [Applite](https://github.com/milanvarady/Applite) - UI design inspiration source

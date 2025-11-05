@@ -15,7 +15,6 @@
 
 **[📹 观看此视频 (sdkman-gui.webm)](https://youtu.be/gbxEjiw3i-o)**
 
-
 ## ✨ 特性
 
 - 💻 **跨平台** - 支持Windows、macOS、Ubuntu
@@ -40,40 +39,6 @@
 | Log4j2              | 2.21.1 | 日志框架   |
 | Apache Commons Exec | 1.5.0  | 进程执行   |
 | Ikonli              | 12.3.1 | 图标包    |
-
-## 📋 前置要求
-
-- JDK 25或更高版本
-- Maven 4.0或更高版本
-- SDKMAN已安装（~/.sdkman目录存在）
-
-## 🚀 快速开始
-
-### 克隆项目
-
-```bash
-git clone <repository-url>
-cd sdkgui
-```
-
-### 编译项目
-
-```bash
-mvn clean compile
-```
-
-### 运行应用
-
-```bash
-mvn javafx:run
-```
-
-### 打包成安装程序
-
-```bash
-# macOS、Linux
-./package.sh
-```
 
 ## 🌍 国际化
 
@@ -134,37 +99,6 @@ mvn javafx:run
 }
 ```
 
-## 🐛 故障排除
-
-### 无法启动应用
-
-确保已安装JDK 25：
-```bash
-java -version
-```
-
-### 无法找到SDKMAN
-
-检查SDKMAN是否已安装：
-```bash
-ls ~/.sdkman
-```
-
-如果未安装，请访问：https://sdkman.io/install
-
-### Maven构建失败
-
-确保使用Maven 4.0：
-```bash
-mvn -version
-```
-
-## 📚 文档
-
-- [JavaFX 25文档](https://openjfx.io/javadoc/25/)
-- [AtlantaFX文档](https://mkpaz.github.io/atlantafx/)
-- [SDKMAN文档](https://sdkman.io/usage/)
-
 ## 📄 许可证
 
 MIT License
@@ -173,4 +107,5 @@ MIT License
 
 - [SDKMAN](https://sdkman.io/) - 优秀的SDK管理工具
 - [AtlantaFX](https://github.com/mkpaz/atlantafx) - 精美的JavaFX主题库
+- [IKonli](https://github.com/kordamp/ikonli) - 精美的JavaFX图标库
 - [Applite](https://github.com/milanvarady/Applite) - UI设计灵感来源
