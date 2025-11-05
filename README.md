@@ -4,7 +4,7 @@
 
 > A modern graphical management tool for [SDKMAN](https://github.com/sdkman), providing an [Applite](https://github.com/milanvarady/Applite)-like user experience.
 
-Built with JavaFX 25 + Maven 4.0, inspired by Applite's design aesthetic, offering an elegant GUI interface for SDKMAN.
+Cross-platform, supports Windows, macOS, Ubuntu. Built with JavaFX + Maven, inspired by Applite's design aesthetic, offering an elegant GUI interface for SDKMAN.
 
 ## 🎬 Demo
 
@@ -17,6 +17,7 @@ Built with JavaFX 25 + Maven 4.0, inspired by Applite's design aesthetic, offeri
 
 ## ✨ Features
 
+- 💻 **Cross-platform** - supports Windows, macOS, Ubuntu
 - 🎨 **Modern UI** - Beautiful interface design based on AtlantaFX themes
 - 🌍 **Internationalization** - Support for English and Chinese with automatic system language detection
 - 🌗 **Theme Switching** - Support for light/dark themes

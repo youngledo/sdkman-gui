@@ -4,7 +4,7 @@
 
 > 现代化的[SDKMAN](https://github.com/sdkman)图形化管理工具，提供类似[Applite](https://github.com/milanvarady/Applite)的用户体验。
 
-基于JavaFX 25 + Maven 4.0开发，参考Applite设计风格，为SDKMAN提供优雅的GUI界面。
+跨平台，支持Windows、macOS、Ubuntu。基于JavaFX + Maven开发，参考Applite设计风格，为SDKMAN提供优雅的GUI界面。
 
 ## 🎬 演示
 
@@ -18,6 +18,7 @@
 
 ## ✨ 特性
 
+- 💻 **跨平台** - 支持Windows、macOS、Ubuntu
 - 🎨 **现代化UI** - 基于AtlantaFX主题，提供精美的界面设计
 - 🌍 **国际化支持** - 支持中英文，自动检测系统语言
 - 🌗 **主题切换** - 支持亮色/暗色主题
