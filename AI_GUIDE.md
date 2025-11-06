@@ -1,87 +1,85 @@
-# SDKMAN 项目规则与指南
+# SDKMAN Project Rules & Guidelines
 
-## 项目概述
+## Project Overview
 
-这是一个基于 SDKMAN 的跨平台 GUI 应用程序，使用 JavaFX 25、Maven 4.0 和 JDK 25 构建。
+This is a cross-platform GUI application for SDKMAN, built with JavaFX 25, Maven 4.0, and JDK 25.
 
-**设计灵感**: Applite (macOS 版 Homebrew GUI)
+**Design Inspiration**: Applite (Homebrew GUI for macOS)
 
-**核心功能**:
-- 侧边栏导航：首页、JDK、SDK 页面
-- 使用 AtlantaFX 主题的现代 UI
-- 完整的国际化支持（中文和英文）
-- 基于 JavaFX Task 框架的异步操作
+**Key Features**:
+- Sidebar navigation: Home, JDK, SDK pages
+- Modern UI with AtlantaFX theme
+- Full internationalization support (Chinese & English)
+- Async operations with JavaFX Task framework
 
-## 技术栈
+## Technology Stack
 
 - **JDK**: 25
 - **JavaFX**: 25.0.1
 - **Maven**: 4.0
-- **UI 框架**: AtlantaFX 2.1.0 (Primer Light/Dark 主题)
-- **进程执行**: Apache Commons Exec 1.5.0（带 60 秒超时保护）
-- **后端**: 通过 bash 命令封装 SDKMAN CLI
-- **日志**: SLF4J + Logback
+- **UI Framework**: AtlantaFX 2.1.0 (Primer Light/Dark themes)
+- **Process Execution**: Apache Commons Exec 1.5.0 (with 60s timeout protection)
+- **Backend**: SDKMAN CLI wrapper via bash commands
+- **Logging**: SLF4J + Logback
 - **JSON**: Jackson 2.18.2
 
-## 架构
+## Architecture
 
 ```
-src/main/java/io/sdkman/
-├── App.java                    # 应用程序主入口
-├── controller/                 # FXML 控制器（MVC 模式）
-│   ├── MainController.java    # 主窗口侧边栏导航
-│   ├── HomeController.java    # 首页统计信息
-│   ├── JdkController.java     # JDK 管理页面
-│   └── SdkController.java     # SDK 浏览页面
-├── model/                      # 数据模型（Sdk、SdkVersion 等）
-├── service/                    # 业务逻辑层
-│   ├── SdkmanCliWrapper.java  # SDKMAN CLI 命令封装
-│   └── SdkManagerService.java # 带异步 Task 支持的单例服务
-└── util/                       # 工具类
-    ├── I18nManager.java        # 国际化管理器
-    ├── ConfigManager.java      # 配置管理
-    ├── PlatformDetector.java   # 平台检测工具
-    └── ThreadManager.java      # 线程管理器
+src/main/java/com/sdkgui/
+├── App.java                    # Main application entry
+├── controller/                 # FXML Controllers (MVC Pattern)
+│   ├── MainController.java    # Main window with sidebar navigation
+│   ├── HomeController.java    # Home page with statistics
+│   ├── JdkController.java     # JDK management page
+│   └── SdkController.java     # SDK browsing page
+├── model/                      # Data models (Sdk, SdkVersion, etc.)
+├── service/                    # Business logic layer
+│   ├── SdkmanCliWrapper.java  # SDKMAN CLI command wrapper
+│   └── SdkManagerService.java # Singleton service with async Task support
+└── util/                       # Utilities
+    ├── I18nManager.java        # Internationalization manager
+    └── ConfigManager.java      # Configuration management
 
 src/main/resources/
-├── fxml/                       # FXML 视图文件
-├── css/                        # 自定义样式表
-└── i18n/                       # 国际化资源
-    ├── messages.properties     # 英语（默认）
-    └── messages_zh_CN.properties  # 简体中文
+├── fxml/                       # FXML view files
+├── css/                        # Custom stylesheets
+└── i18n/                       # Internationalization resources
+    ├── messages.properties     # English (default)
+    └── messages_zh_CN.properties  # Simplified Chinese
 ```
 
-## 🚨 关键开发规则 🚨
+## 🚨 CRITICAL DEVELOPMENT RULES 🚨
 
-### 1. 国际化 (I18n) - 必须遵循
+### 1. Internationalization (I18n) - MUST FOLLOW
 
-**黄金规则：所有面向用户的文本必须使用 I18nManager。禁止硬编码字符串！**
+**Golden Rule: ALL user-facing text MUST use I18nManager. NO hardcoded strings!**
 
-#### 4 步国际化检查清单（每个新功能强制执行）
+#### 4-Step I18n Checklist (MANDATORY for every new feature)
 
-**第1步：定义 i18n 键**
+**Step 1: Define i18n keys**
 ```properties
-# messages.properties (英语)
+# messages.properties (English)
 home.welcome=Welcome to SDKMAN
 jdk.action.install=Install
 
-# messages_zh_CN.properties (中文)
+# messages_zh_CN.properties (Chinese)
 home.welcome=欢迎使用SDKMAN
 jdk.action.install=安装
 ```
 
-**第2步：FXML 必须有 fx:id，禁止硬编码文本**
+**Step 2: FXML must have fx:id, NO hardcoded text**
 ```xml
-<!-- ❌ 错误 -->
+<!-- ❌ WRONG -->
 <Label text="欢迎使用SDKMAN"/>
 <Button text="安装"/>
 
-<!-- ✅ 正确 -->
+<!-- ✅ CORRECT -->
 <Label fx:id="welcomeLabel"/>
 <Button fx:id="installButton"/>
 ```
 
-**第3步：控制器实现**
+**Step 3: Controller implementation**
 ```java
 @FXML private Label welcomeLabel;
 @FXML private Button installButton;
@@ -89,7 +87,7 @@ jdk.action.install=安装
 @FXML
 public void initialize() {
     setupI18n();
-    // 其他初始化代码
+    // other initialization
 }
 
 private void setupI18n() {
@@ -99,40 +97,40 @@ private void setupI18n() {
 }
 ```
 
-**第4步：提交前验证**
+**Step 4: Verify before commit**
 ```bash
-# 检查 FXML 中的硬编码中文
+# Check for hardcoded Chinese in FXML
 grep -r "text=\"[^\"]*[\u4e00-\u9fa5]" src/main/resources/fxml/
 
-# 检查 Java 中的硬编码中文 setText()
+# Check for hardcoded Chinese in Java setText()
 grep -r "setText(\"[^\"]*[\u4e00-\u9fa5]" src/main/java/
 
-# 如果有任何输出，立即修复！
+# If any output appears, FIX IT IMMEDIATELY!
 ```
 
-#### I18n 键命名约定
+#### I18n Key Naming Convention
 
-使用分层的点分隔结构：
+Use hierarchical dot-separated structure:
 ```
 模块.组件.功能
 
-示例:
-- home.welcome              # 首页欢迎标题
-- home.stat.jdk            # 首页 JDK 统计标签
-- home.action.browse_jdk   # 首页浏览 JDK 按钮动作
-- jdk.action.install       # JDK 页面安装动作
-- message.error            # 错误消息
-- settings.theme.dark      # 设置主题深色选项
+Examples:
+- home.welcome              # Home page welcome title
+- home.stat.jdk            # Home page JDK stat label
+- home.action.browse_jdk   # Home page browse JDK button action
+- jdk.action.install       # JDK page install action
+- message.error            # Error message
+- settings.theme.dark      # Settings theme dark option
 ```
 
-动作按钮：`模块.action.动词`
-标签：`模块.label`
-消息：`message.类型`
+Action buttons: `module.action.verb`
+Labels: `module.label`
+Messages: `message.type`
 
-#### 带占位符的动态内容
+#### Dynamic Content with Placeholders
 
 ```properties
-message.installed=成功安装 {0} {1}
+message.installed=Successfully installed {0} {1}
 ```
 
 ```java
@@ -143,31 +141,31 @@ String msg = MessageFormat.format(
 );
 ```
 
-### 2. 代码风格与约定
+### 2. Code Style & Conventions
 
-#### 使用现代 Java 25 特性
+#### Use Modern Java 25 Features
 
-**重要**：本项目目标为 JDK 25。始终使用现代语法特性，而不是旧版方法。
+**IMPORTANT**: This project targets JDK 25. Always use modern syntax features instead of legacy approaches.
 
-**✅ 使用的现代 Java 特性：**
+**✅ Modern Java Features to Use:**
 
-1. **instanceof 的模式匹配** (JDK 16+)
+1. **Pattern Matching for instanceof** (JDK 16+)
 ```java
-// ✅ 好 - 现代模式匹配
+// ✅ GOOD - Modern pattern matching
 if (obj instanceof String str) {
     return str.toUpperCase();
 }
 
-// ❌ 差 - 旧式强制转换
+// ❌ BAD - Old style cast
 if (obj instanceof String) {
     String str = (String) obj;
     return str.toUpperCase();
 }
 ```
 
-2. **Switch 表达式** (JDK 14+)
+2. **Switch Expressions** (JDK 14+)
 ```java
-// ✅ 好 - 带箭头语法的 switch 表达式
+// ✅ GOOD - Switch expression with arrow syntax
 String message = switch (status) {
     case "installed" -> I18nManager.get("jdk.status.installed");
     case "default" -> I18nManager.get("jdk.status.default");
@@ -175,7 +173,7 @@ String message = switch (status) {
     default -> I18nManager.get("jdk.status.unknown");
 };
 
-// ✅ 好 - 简单条件的简洁 if-return
+// ✅ GOOD - Concise if-return for simple conditions
 private static String detectOS(String os) {
     if (os.contains("win")) return "windows";
     if (os.contains("mac")) return "darwin";
@@ -183,7 +181,7 @@ private static String detectOS(String os) {
     return "universal";
 }
 
-// ❌ 差 - 旧式 switch 语句
+// ❌ BAD - Old switch statement
 String message;
 switch (status) {
     case "installed":
@@ -196,25 +194,25 @@ switch (status) {
 }
 ```
 
-3. **文本块** (JDK 15+)
+3. **Text Blocks** (JDK 15+)
 ```java
-// ✅ 好 - 多行字符串的文本块
+// ✅ GOOD - Text block for multi-line strings
 String command = """
     source ~/.sdkman/bin/sdkman-init.sh && \
     sdk install java %s
     """.formatted(version);
 
-// ❌ 差 - 字符串连接
+// ❌ BAD - String concatenation
 String command = "source ~/.sdkman/bin/sdkman-init.sh && " +
                  "sdk install java " + version;
 ```
 
-4. **记录** (JDK 16+)
+4. **Records** (JDK 16+)
 ```java
-// ✅ 好 - 使用记录作为不可变数据载体
+// ✅ GOOD - Use records for immutable data carriers
 public record JdkStatistics(int installed, int available, int updateable) {}
 
-// ❌ 差 - 冗长的 POJO 样板代码
+// ❌ BAD - Verbose POJO with boilerplate
 public class JdkStatistics {
     private final int installed;
     private final int available;
@@ -222,48 +220,48 @@ public class JdkStatistics {
 }
 ```
 
-5. **局部变量的 var** (JDK 10+) - **强烈推荐**
+5. **Var for Local Variables** (JDK 10+) - **STRONGLY RECOMMENDED**
 ```java
-// ✅ 好 - 类型明显时使用 var（强烈推荐）
+// ✅ GOOD - Use var when type is obvious (RECOMMENDED)
 var versions = cliWrapper.listVersions("java");
 var installedCount = sdkManagerService.getInstalledJdkCount();
 var os = System.getProperty("os.name").toLowerCase();
 
-// ✅ 好 - 复杂泛型类型使用 var
+// ✅ GOOD - Use var for complex generic types
 var map = new HashMap<String, List<SdkVersion>>();
 var future = CompletableFuture.supplyAsync(() -> calculateResult());
 
-// ❌ 差 - 冗余的类型声明
+// ❌ BAD - Redundant type declaration
 List<SdkVersion> versions = cliWrapper.listVersions("java");
 Integer installedCount = sdkManagerService.getInstalledJdkCount();
 Map<String, List<SdkVersion>> map = new HashMap<String, List<SdkVersion>>();
 ```
 
-6. **有序集合** (JDK 21+)
+6. **Sequenced Collections** (JDK 21+)
 ```java
-// ✅ 好 - 使用 reversed() 进行反向迭代
+// ✅ GOOD - Use reversed() for reverse iteration
 for (var version : versions.reversed()) {
-    // 反向处理
+    // process in reverse order
 }
 
-// ❌ 差 - 手动反转或基于索引的循环
+// ❌ BAD - Manual reversal or index-based loop
 Collections.reverse(versions);
 for (var version : versions) {
     // ...
 }
 ```
 
-7. **带现代语法的 Stream API**
+7. **Stream API with Modern Syntax**
 ```java
-// ✅ 好 - 使用 toList() (JDK 16+) 而不是 collect
+// ✅ GOOD - Use toList() (JDK 16+) instead of collect
 List<String> vendors = versions.stream()
     .map(SdkVersion::getVendor)
     .filter(v -> v != null && !v.isEmpty())
     .distinct()
     .sorted()
-    .toList();  // 更简洁
+    .toList();  // More concise
 
-// ❌ 差 - 冗长的 collect()
+// ❌ BAD - Verbose collect()
 List<String> vendors = versions.stream()
     .map(SdkVersion::getVendor)
     .filter(v -> v != null && !v.isEmpty())
@@ -272,108 +270,108 @@ List<String> vendors = versions.stream()
     .collect(Collectors.toList());
 ```
 
-8. **未命名模式和变量** (JDK 22+, 25 中预览)
+8. **Unnamed Patterns and Variables** (JDK 22+, Preview in 25)
 ```java
-// ✅ 好 - 对未使用的变量使用 _
+// ✅ GOOD - Use _ for unused variables
 try {
-    // 对未使用的变量使用 _
+    // operation
 } catch (IOException _) {
-    logger.error("IO 操作失败");
+    logger.error("IO operation failed");
 }
 
-// 带未命名模式的模式匹配
-if (obj instanceof Point(var x, _)) {  // 不关心 y
+// Pattern matching with unnamed patterns
+if (obj instanceof Point(var x, _)) {  // Don't care about y
     return x;
 }
 ```
 
-**不要使用过时的模式**：
-- ❌ 匿名内部类（使用 lambda）
-- ❌ 推断有效时的显式类型参数
-- ❌ 冗长的空值检查（适当时使用 Optional）
-- ❌ 传统 for 循环（使用增强的 for-each 或 Stream API）
+**DO NOT use outdated patterns:**
+- ❌ Anonymous inner classes (use lambdas)
+- ❌ Explicit type arguments when inference works
+- ❌ Verbose null checks (use Optional when appropriate)
+- ❌ Traditional for loops (use enhanced for-each or Stream API)
 
-#### Java 命名
-- 类：`PascalCase` (HomeController, SdkManagerService)
-- 方法：`camelCase` (loadStatistics, setupI18n)
-- 变量：`camelCase` (jdkCountLabel, sdkManagerService)
-- 常量：`UPPER_SNAKE_CASE` (DEFAULT_LOCALE, MAX_RETRY_COUNT)
+#### Java Naming
+- Classes: `PascalCase` (HomeController, SdkManagerService)
+- Methods: `camelCase` (loadStatistics, setupI18n)
+- Variables: `camelCase` (jdkCountLabel, sdkManagerService)
+- Constants: `UPPER_SNAKE_CASE` (DEFAULT_LOCALE, MAX_RETRY_COUNT)
 
-#### 中英文间距
-**中英文字符之间不要有空格**（用户的明确要求）
+#### Chinese-English Spacing
+**NO spaces between Chinese and English characters** (user's explicit requirement)
 
 ```java
-// ✅ 正确
+// ✅ CORRECT
 "欢迎使用SDKMAN"
 
-// ❌ 错误
+// ❌ WRONG
 "欢迎使用 SDKMAN"
 ```
 
-#### 异常处理
+#### Exception Handling
 
-**关键：仅在必要时使用 try-catch**
+**CRITICAL: Use try-catch only when necessary**
 
-**❌ 错误 - 对不会抛出异常的操作过度使用 try-catch：**
+**❌ BAD - Overusing try-catch for non-exceptional operations:**
 ```java
-// 避免这种情况 - 包装不会抛出受检异常的操作
+// AVOID - Wrapping operations that don't throw checked exceptions
 try {
     String result = someObject.toString();
     list.add(item);
     return true;
 } catch (Exception e) {
-    // 这是不必要的，让代码难以阅读
+    // This is unnecessary and makes code hard to read
     return false;
 }
 ```
 
-**✅ 正确 - 只捕获可能发生的异常：**
+**✅ GOOD - Only catch exceptions that can actually occur:**
 ```java
-// 正确 - 只捕获特定的、预期的异常
+// CORRECT - Only catch specific, expected exceptions
 try {
-    String content = Files.readString(path);  // 可能抛出 IOException
+    String content = Files.readString(path);  // Can throw IOException
     return content;
 } catch (IOException e) {
     logger.error("Failed to read file: {}", path, e);
     return null;
 }
 
-// 正确 - Stream 操作不需要 try-catch
+// CORRECT - Stream operations don't need try-catch
 List<String> result = list.stream()
     .filter(item -> item != null)
     .map(String::toUpperCase)
-    .toList();  // 不需要 try-catch
+    .toList();  // No try-catch needed
 ```
 
-**异常处理指南：**
+**Exception Handling Guidelines:**
 
-1. **只捕获受检异常** - 方法实际声明的异常
-2. **优先使用特定异常** - 而不是泛型 `Exception`
-3. **使用函数式流** - 更易读且更简洁
-4. **不要捕获异常** - 在你的用例中不会发生的异常
-5. **让运行时异常冒泡** - 除非你有特定的恢复策略
+1. **Only catch checked exceptions** that methods actually declare
+2. **Prefer specific exceptions** over generic `Exception`
+3. **Use functional streams** when possible - they're more readable
+4. **Don't catch exceptions** that won't actually occur in your use case
+5. **Let runtime exceptions bubble up** unless you have a specific recovery strategy
 
-**何时使用 try-catch：**
-- ✅ 文件 I/O 操作（`Files`、`FileInputStream` 等）
-- ✅ 网络操作（`HttpClient`、URL 连接）
-- ✅ 反射或动态类加载
-- ✅ 外部进程执行
-- ✅ 数据库操作
+**When to Use try-catch:**
+- ✅ File I/O operations (`Files`, `FileInputStream`, etc.)
+- ✅ Network operations (`HttpClient`, URL connections)
+- ✅ Reflection or dynamic class loading
+- ✅ External process execution
+- ✅ Database operations
 
-**何时不使用 try-catch：**
-- ❌ 简单对象操作（`toString()`、getter/setter）
-- ❌ 集合操作（`add()`、`stream()`、`toList()`）
-- ❌ 字符串操作（`substring()`、`split()`）
-- ❌ 基本算术或逻辑操作
-- ❌ 不声明受检异常的操作
+**When NOT to Use try-catch:**
+- ❌ Simple object operations (`toString()`, getters/setters)
+- ❌ Collection operations (`add()`, `stream()`, `toList()`)
+- ❌ String operations (`substring()`, `split()`)
+- ❌ Basic arithmetic or logic operations
+- ❌ Operations that don't declare checked exceptions
 
-#### JavaDoc 注释
+#### JavaDoc Comments
 
-**强制要求：使用 Java 23+ Markdown 增强版 JavaDoc 注释**
+**MANDATORY: Use Java 23+ Markdown-Enhanced JavaDoc Comments**
 
-从 Java 23 开始，JavaDoc 支持 Markdown 语法。所有文档注释必须使用 Markdown 格式，而不是 HTML 标签。
+Starting from Java 23, JavaDoc supports Markdown syntax. All documentation comments MUST use Markdown format instead of HTML tags.
 
-**✅ 正确 - 使用 Markdown (Java 23+):**
+**✅ CORRECT - Use Markdown (Java 23+):**
 ```java
 ///
 /// # PlatformDetector
@@ -409,7 +407,7 @@ public class PlatformDetector {
 }
 ```
 
-**❌ 错误 - 旧式 HTML JavaDoc:**
+**❌ WRONG - Old HTML-style JavaDoc:**
 ```java
 /**
  * Detects current platform in SDKMAN format
@@ -427,87 +425,137 @@ public static String detectPlatform() {
 }
 ```
 
-**Markdown JavaDoc 指南：**
+**Markdown JavaDoc Guidelines:**
 
-1. **所有 JavaDoc 注释使用 `///` 三斜杠**
-   - 每行以 `///` 开始
-   - 比 `/** */` 块更清晰可读
+1. **Use `///` triple-slash for all JavaDoc comments**
+   - Each line starts with `///`
+   - More readable and cleaner than `/** */` blocks
 
-2. **使用 Markdown 语法进行格式化：**
-   - `# Heading` 表示主标题
-   - `## Subheading` 表示子标题
-   - `**bold**` 表示强调
-   - `` `code` `` 表示内联代码
-   - ` ```java ` 表示代码块
-   - `- item` 表示无序列表
-   - `1. item` 表示有序列表
+2. **Use Markdown syntax for formatting:**
+   - `# Heading` for main titles
+   - `## Subheading` for sections
+   - `**bold**` for emphasis
+   - `` `code` `` for inline code
+   - ` ```java ` for code blocks
+   - `- item` for unordered lists
+   - `1. item` for ordered lists
 
-3. **标准 JavaDoc 标签仍然有效：**
-   - `@param` - 参数描述
-   - `@return` - 返回值描述
-   - `@throws` - 异常描述
-   - `@since` - 版本信息
-   - `@see` - 交叉引用
+3. **Standard JavaDoc tags still work:**
+   - `@param` - Parameter description
+   - `@return` - Return value description
+   - `@throws` - Exception description
+   - `@since` - Version information
+   - `@see` - Cross-references
 
-4. **双语注释（中文 + 英文）：**
-   - 主要描述使用英文
-   - 中文翻译在下一行
-   - 中英文字符之间不要有空格
+4. **Bilingual comments (Chinese + English):**
+   - Primary description in English
+   - Chinese translation on the next line
+   - NO spaces between Chinese and English characters
 
-### 3. 异步操作
+**Example - Method with Parameters:**
+```java
+///
+/// Installs an SDK version with progress tracking
+/// 安装指定版本的SDK并跟踪进度
+///
+/// @param candidate SDK candidate name (e.g., "java", "maven")
+/// @param version Version identifier (e.g., "21.0.0")
+/// @param progressCallback Callback for progress updates
+/// @return `true` if installation succeeded, `false` otherwise
+/// @throws IOException if download or extraction fails
+///
+public boolean install(String candidate, String version,
+                      ProgressCallback progressCallback) throws IOException {
+    // implementation
+}
+```
 
-**所有耗时操作必须使用 JavaFX Task：**
+**Example - Class Documentation:**
+```java
+///
+/// # SdkmanService
+///
+/// Core service for managing SDKs via SDKMAN
+/// SDKMAN核心服务，用于管理SDK
+///
+/// ## Features
+/// - Install/uninstall SDKs
+/// - Set default versions
+/// - Track installation progress
+/// - HTTP API integration
+///
+/// ## Thread Safety
+/// This class is **thread-safe** and uses a singleton pattern.
+///
+/// @see SdkmanClient
+/// @since 1.0
+///
+public class SdkmanService {
+    // ...
+}
+```
+
+**Why Markdown JavaDoc?**
+- ✅ More readable in source code
+- ✅ Better IDE preview rendering
+- ✅ Easier to write lists, code blocks, and formatting
+- ✅ Modern standard (Java 23+)
+- ✅ No need to escape HTML characters
+
+### 3. Async Operations
+
+**All time-consuming operations MUST use JavaFX Task:**
 
 ```java
 Task<Integer> task = new Task<>() {
     @Override
     protected Integer call() {
-        // 后台工作
+        // Background work here
         return sdkManagerService.getInstalledJdkCount();
     }
 };
 
 task.setOnSucceeded(event -> {
-    // UI 更新（在 JavaFX Application Thread 上）
+    // UI update here (on JavaFX Application Thread)
     Integer count = task.getValue();
     jdkCountLabel.setText(String.valueOf(count));
 });
 
 task.setOnFailed(event -> {
-    // 错误处理
+    // Error handling
     logger.error("Failed to load count", task.getException());
 });
 
 new Thread(task).start();
 ```
 
-**何时使用 Task：**
-- SDKMAN CLI 命令
-- 文件 I/O 操作
-- 网络请求
-- 任何超过 50ms 的操作
+**When to use Task:**
+- SDKMAN CLI commands
+- File I/O operations
+- Network requests
+- Any operation > 50ms
 
-### 4. 日志记录
+### 4. Logging
 
-使用 SLF4J Logger，不要使用 System.out.println：
+Use SLF4J Logger, NOT System.out.println:
 
 ```java
 private static final Logger logger = LoggerFactory.getLogger(ClassName.class);
 
-logger.info("Operation started");        // 正常流程
-logger.warn("Potential issue");          // 警告
-logger.error("Error occurred", e);       // 带异常的错误
+logger.info("Operation started");        // Normal flow
+logger.warn("Potential issue");          // Warnings
+logger.error("Error occurred", e);       // Errors with exception
 ```
 
-### 5. 控制器通信
+### 5. Controller Communication
 
-使用回调模式进行控制器间导航：
+Use callback pattern for inter-controller navigation:
 
 ```java
-// 在父控制器中 (MainController)
+// In parent controller (MainController)
 homeController.setNavigationCallback(this::navigateFromHome);
 
-// 在子控制器中 (HomeController)
+// In child controller (HomeController)
 private Consumer<String> navigationCallback;
 
 public void setNavigationCallback(Consumer<String> callback) {
@@ -521,112 +569,278 @@ private void navigateToJdkPage() {
 }
 ```
 
-### 6. SDKMAN CLI 命令
+### 6. SDKMAN CLI Commands
 
-所有 SDKMAN 命令必须通过 `SdkmanCliWrapper` 执行：
+All SDKMAN commands must be executed via `SdkmanCliWrapper`:
 
 ```bash
-# 命令模板
+# Command template
 source ~/.sdkman/bin/sdkman-init.sh && sdk <command>
 
-# 示例
-sdk list              # 列出所有候选
-sdk list java         # 列出 Java 版本
-sdk install java 21   # 安装 Java 21
-sdk default java 21   # 设置默认 Java
+# Examples
+sdk list              # List all candidates
+sdk list java         # List Java versions
+sdk install java 21   # Install Java 21
+sdk default java 21   # Set default Java
 ```
 
-### 7. 错误处理
+**Process Execution with Apache Commons Exec:**
 
-始终处理成功和失败情况：
+The `SdkmanCliWrapper` uses Apache Commons Exec 1.5.0 for executing bash commands:
+
+**Why Commons Exec over ProcessBuilder:**
+- ✅ Built-in timeout protection (60 seconds) prevents hanging
+- ✅ Cleaner code, less boilerplate
+- ✅ Better stream handling (stdout + stderr)
+- ✅ Watchdog mechanism for process management
+- ✅ More robust error handling
+
+**Key features in executeCommand():**
+```java
+// Timeout protection
+ExecuteWatchdog watchdog = ExecuteWatchdog.builder()
+    .setTimeout(java.time.Duration.ofSeconds(60))
+    .get();
+
+// Separate stdout and stderr capture
+ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
+PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream, errorStream);
+
+// Timeout detection
+if (watchdog.killedProcess()) {
+    throw new IOException("Command execution timed out");
+}
+```
+
+**DO NOT:**
+- Bypass SdkmanCliWrapper and use ProcessBuilder directly
+- Execute SDKMAN commands without timeout protection
+- Ignore the 60-second timeout limit (adjust if needed for large installations)
+
+### 7. Error Handling
+
+Always handle both success and failure cases:
 
 ```java
 try {
-    // 操作
+    // operation
 } catch (Exception e) {
     logger.error("Operation failed", e);
-    // 显示用户友好的错误消息
+    // Show user-friendly error message
     Platform.runLater(() -> {
-        // 更新 UI 为错误状态
+        // Update UI with error state
     });
 }
 ```
 
-## 开发工作流
+### 8. Performance Optimization
 
-### 推荐的实现顺序
+**CRITICAL: SDK Statistics Performance**
 
-1. ✅ CLI 封装器 (SdkmanCliWrapper, SdkManagerService)
-2. ✅ 带统计的首页
-3. 🚧 JDK 管理页面（当前阶段）
-4. ⏳ SDK 浏览页面
-5. ⏳ 设置页面
+SDKMAN has ~50 SDK candidates. Querying all of them on startup is too slow and resource-intensive.
 
-### 创建任何新功能前
+**Implemented Strategy (Lazy Loading + Common SDKs):**
 
-1. 在两个 `.properties` 文件中定义 i18n 键
-2. 创建带 `fx:id` 属性的 FXML（无硬编码文本）
-3. 创建带 `@FXML` 字段和 `setupI18n()` 方法的控制器
-4. 测试中文和英文环境
-5. 运行验证命令检查硬编码文本
+1. **Home Page Initial Load**: Only query JDK count
+   - SDK count displays "--" (not loaded)
+   - Update count displays "0" (feature not implemented)
 
-### 每次提交前
+2. **Manual Refresh**: User clicks "检查更新" button to load SDK statistics
+   - Only queries COMMON_SDKS list (~10 items: maven, gradle, kotlin, scala, groovy, springboot, micronaut, quarkus, ant, sbt)
+   - Avoids querying all ~50 candidates
 
-- [ ] 代码中没有硬编码中文文本
-- [ ] 所有新文本都有 i18n 键（英文 + 中文）
-- [ ] `mvn clean compile` 成功无错误
-- [ ] 手动测试功能
-- [ ] 日志语句清晰有意义
-- [ ] 代码格式正确，带有 JavaDoc
+3. **Why This Approach:**
+   ```java
+   // ❌ BAD: Queries ALL ~50 SDK candidates on startup
+   List<String> candidates = cliWrapper.listCandidates(); // ~50 items
+   for (String candidate : candidates) {
+       cliWrapper.listVersions(candidate); // 50+ commands!
+   }
 
-## 常见反模式要避免
+   // ✅ GOOD: Only queries common SDKs when user requests
+   private static final List<String> COMMON_SDKS = List.of(
+       "maven", "gradle", "kotlin", "scala", "groovy",
+       "springboot", "micronaut", "quarkus", "ant", "sbt"
+   );
+   for (String candidate : COMMON_SDKS) {
+       cliWrapper.listVersions(candidate); // Only ~10 commands
+   }
+   ```
 
-### ❌ 硬编码文本
-```xml
-<Label text="欢迎"/>  <!-- 绝对不要这样做 -->
+4. **Performance Impact:**
+   - Before: 50+ `sdk list <candidate>` commands on startup
+   - After: 1 `sdk list java` command on startup, 10 commands on manual refresh
+   - Startup time: Fast (only JDK query)
+   - User experience: Responsive, statistics available on demand
+
+**DO NOT:**
+- Query all SDK candidates on initialization
+- Block UI thread with synchronous statistics loading
+- Auto-refresh statistics without user action
+
+**Implementation Reference:**
+- `SdkManagerService.COMMON_SDKS` - List of common SDKs to check
+- `SdkManagerService.getInstalledSdkCount()` - Only checks COMMON_SDKS
+- `HomeController.loadStatistics()` - Only loads JDK count initially
+- `HomeController.onCheckUpdateClicked()` - Loads all statistics on demand
+
+**CRITICAL: JavaFX ListView Performance - Avoid Frequent Rebuilds**
+
+When updating dynamic content in ListView (like installation progress), **NEVER** repeatedly call methods that rebuild the entire list:
+
+**❌ BAD - Causes Performance Issues:**
+```java
+// Every progress update rebuilds the entire list!
+task.messageProperty().addListener((obs, oldMsg, newMsg) -> {
+    jdk.setInstallProgress(newMsg);
+    applyFilters();  // ❌ Rebuilds entire list, triggers all Cell updates!
+    // OR
+    jdkListView.refresh();  // ❌ Still refreshes all visible cells unnecessarily!
+});
 ```
 
-### ❌ 阻塞 UI 线程
+**Problem:**
+- `applyFilters()` regenerates the entire list structure (grouping, filtering) - extremely expensive
+- `jdkListView.refresh()` refreshes all visible Cells - wasteful for updating one label
+- `ListCell.updateItem()` gets called repeatedly for ALL visible items
+- Causes layout thrashing and UI stuttering
+
+**✅ GOOD - Use JavaFX Property Binding:**
 ```java
-// 错误 - 阻塞 UI
+// 1. Model: Use StringProperty instead of String
+public class SdkVersion {
+    @JsonIgnore  // Don't serialize Property itself
+    private StringProperty installProgress;
+
+    public String getInstallProgress() {
+        return installProgress == null ? null : installProgress.get();
+    }
+
+    public void setInstallProgress(String progress) {
+        if (this.installProgress == null) {
+            this.installProgress = new SimpleStringProperty(progress);
+        } else {
+            this.installProgress.set(progress);  // Only sets value, no UI refresh!
+        }
+    }
+
+    @JsonIgnore
+    public StringProperty installProgressProperty() {
+        if (this.installProgress == null) {
+            this.installProgress = new SimpleStringProperty();
+        }
+        return this.installProgress;
+    }
+}
+
+// 2. Controller: Bind Label to Property in Cell factory
+private HBox createJdkVersionCell(SdkVersion jdk) {
+    Label progressLabel = new Label();
+    // Bind Label's text to Property - auto-updates when Property changes!
+    progressLabel.textProperty().bind(jdk.installProgressProperty());
+    // ...
+}
+
+// 3. Update progress without ANY ListView refresh
+task.messageProperty().addListener((obs, oldMsg, newMsg) -> {
+    jdk.setInstallProgress(newMsg);  // ✅ Label auto-updates via binding!
+    // NO jdkListView.refresh() needed!
+    // NO applyFilters() needed!
+});
+```
+
+**Benefits of Property Binding:**
+1. **Zero UI Refresh Cost**: Only the bound Label updates, no Cell recreation
+2. **Automatic Synchronization**: Property changes immediately reflect in UI
+3. **Cell Reuse Safe**: ListView's Cell reuse mechanism handles bindings correctly
+4. **No Layout Thrashing**: Only the specific Label reflows, not entire Cell
+
+**When to Use Each Approach:**
+- ✅ Use `applyFilters()`: When filter criteria change (search text, status filter, vendor filter)
+- ✅ Use Property Binding: For dynamic content that changes frequently (progress, status text)
+- ❌ Never use `applyFilters()` or `refresh()` for rapid content updates
+
+**Implementation Reference:**
+- `SdkVersion.installProgressProperty()` - Property for installation progress
+- `JdkController.createJdkVersionCell()` - Label bound to progress property
+- `JdkController.installJdk()` - Updates progress via Property, no refresh calls
+
+## Development Workflow
+
+### Recommended Implementation Order
+
+1. ✅ CLI Wrapper (SdkmanCliWrapper, SdkManagerService)
+2. ✅ Home Page with statistics
+3. 🚧 JDK Management Page (current phase)
+4. ⏳ SDK Browsing Page
+5. ⏳ Settings Page
+
+### Before Creating Any New Feature
+
+1. Define i18n keys in both `.properties` files
+2. Create FXML with `fx:id` attributes (NO hardcoded text)
+3. Create Controller with `@FXML` fields and `setupI18n()` method
+4. Test with both Chinese and English locales
+5. Run verification commands to check for hardcoded text
+
+### Before Every Commit
+
+- [ ] No hardcoded Chinese text in code
+- [ ] All new text has i18n keys (English + Chinese)
+- [ ] `mvn clean compile` succeeds with no errors
+- [ ] Manually tested the feature
+- [ ] Logging statements are clear and meaningful
+- [ ] Code is properly formatted with JavaDoc
+
+## Common Anti-Patterns to Avoid
+
+### ❌ Hardcoding Text
+```xml
+<Label text="欢迎"/>  <!-- NEVER DO THIS -->
+```
+
+### ❌ Blocking UI Thread
+```java
+// WRONG - blocks UI
 String result = sdkmanCliWrapper.executeCommand("sdk list");
 ```
 
-### ❌ 使用 System.out
+### ❌ Using System.out
 ```java
-System.out.println("Debug info");  // 使用 logger
+System.out.println("Debug info");  // Use logger instead
 ```
 
-### ❌ 忽略空值检查
+### ❌ Ignoring Null Checks
 ```java
-welcomeLabel.setText(...);  // 添加空值检查！
+welcomeLabel.setText(...);  // Add null check!
 ```
 
-## 项目文件参考
+## Project Files Reference
 
-**关键配置文件：**
-- `pom.xml` - Maven 配置
-- `src/main/resources/i18n/messages*.properties` - I18n 资源
-- `src/main/resources/css/custom-theme.css` - 自定义样式
-- `PROJECT_DESIGN.md` - 技术设计文档
-- `DEVELOPMENT_CHECKLIST.md` - 详细开发检查清单
+**Key Configuration Files:**
+- `pom.xml` - Maven configuration
+- `src/main/resources/i18n/messages*.properties` - I18n resources
+- `src/main/resources/css/custom-theme.css` - Custom styles
+- `PROJECT_DESIGN.md` - Technical design document
+- `DEVELOPMENT_CHECKLIST.md` - Detailed development checklist
 
-**主入口点：**
-- `src/main/java/io/sdkman/App.java`
+**Main Entry Point:**
+- `src/main/java/com/sdkgui/App.java`
 
-**FXML 视图：**
-- `src/main/resources/fxml/main-view.fxml` - 主窗口布局
-- `src/main/resources/fxml/home-view.fxml` - 首页
-- `src/main/resources/fxml/jdk-view.fxml` - JDK 管理页面
-- `src/main/resources/fxml/sdk-view.fxml` - SDK 浏览页面
+**FXML Views:**
+- `src/main/resources/fxml/main-view.fxml` - Main window layout
+- `src/main/resources/fxml/home-view.fxml` - Home page
+- `src/main/resources/fxml/jdk-view.fxml` - JDK management page
+- `src/main/resources/fxml/sdk-view.fxml` - SDK browsing page
 
-## 有疑问时
+## When in Doubt
 
-1. 检查 `DEVELOPMENT_CHECKLIST.md` 获取详细指南
-2. 检查 `PROJECT_DESIGN.md` 了解架构决策
-3. 查看现有代码（例如 `HomeController.java`）获取模式
-4. 提交前运行验证 grep 命令
+1. Check `DEVELOPMENT_CHECKLIST.md` for detailed guidelines
+2. Check `PROJECT_DESIGN.md` for architectural decisions
+3. Look at existing code (e.g., `HomeController.java`) for patterns
+4. Run the verification grep commands before committing
 
 ---
 
-**记住：每次会话开始时都会自动加载此 CLAUDE.md 文件。始终遵循这些规则以保持代码质量和一致性！**
+**Remember: This CLAUDE.md file is automatically loaded at the start of every session. Always follow these rules to maintain code quality and consistency!**

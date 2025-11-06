@@ -31,6 +31,10 @@
 
         <!-- Plugins -->
         <jpackage-maven-plugin.version>1.7.1</jpackage-maven-plugin.version>
+
+        <!-- JVM Options (共享给 javafx-maven-plugin 和 jpackage-maven-plugin) -->
+        <!-- -XX:FlightRecorderOptions=stackdepth=128 -XX:StartFlightRecording=name=sdkman-gui,filename=${user.home}/.sdkman-gui/sdkman-gui.jfr,maxsize=256m,dumponexit=true,settings=profile.jfc-->
+        <java.options>-XX:+UseZGC -XX:InitialHeapSize=64m -XX:MaxHeapSize=256m -XX:NativeMemoryTracking=summary</java.options>
     </properties>
 
     <dependencies>
@@ -251,6 +255,9 @@
                 <version>0.0.8</version>
                 <configuration>
                     <mainClass>io.sdkman.SdkmanApplication</mainClass>
+                    <options>
+                        <option>${java.options}</option>
+                    </options>
                 </configuration>
             </plugin>
 
@@ -305,8 +312,10 @@
                     <mainJar>${project.build.finalName}.jar</mainJar>
                     <mainClass>io.sdkman.SdkmanApplication</mainClass>
                     <javaOptions>
-                        <option>-Dfile.encoding=UTF-8</option>
                         <option>-XX:+UseZGC</option>
+                        <option>-XX:InitialHeapSize=64m</option>
+                        <option>-XX:MaxHeapSize=256m</option>
+                        <option>-XX:NativeMemoryTracking=summary</option>
                     </javaOptions>
                 </configuration>
             </plugin>

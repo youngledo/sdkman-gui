@@ -461,13 +461,8 @@ public class SdkController {
     private void showListView() {
         logger.info("Returning to SDK list view");
 
-        // 隐藏所有详情视图
-        rootContainer.getChildren().stream()
-                .filter(node -> node != listView)
-                .forEach(node -> {
-                    node.setVisible(false);
-                    node.setManaged(false);
-                });
+        // 移除所有详情视图，释放内存（而不是仅仅隐藏）
+        rootContainer.getChildren().removeIf(node -> node != listView);
 
         // 显示列表视图
         listView.setVisible(true);
@@ -476,6 +471,6 @@ public class SdkController {
         // 重新应用过滤器以更新UI状态
         applyFilters();
 
-        logger.info("Returned to SDK list view");
+        logger.info("Returned to SDK list view, memory released");
     }
 }
