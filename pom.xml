@@ -158,7 +158,6 @@
                                 <option>--no-man-pages</option>
                                 <option>--strip-native-commands</option>
                             </jLinkOptions>
-                            <destination/>
                         </configuration>
                     </plugin>
                 </plugins>
