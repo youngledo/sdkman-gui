@@ -6,7 +6,6 @@ import io.sdkman.model.Sdk;
 import io.sdkman.model.SdkVersion;
 import io.sdkman.util.ConfigManager;
 import io.sdkman.util.I18nManager;
-import io.sdkman.util.MetadataLoader;
 import javafx.concurrent.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -447,15 +446,17 @@ public class SdkmanService {
         for (var sdk : uniqueSdks.values()) {
             String candidate = sdk.getCandidate();
 
-            // 如果从SDKMAN解析的信息不完整，从元数据文件补充
-            var metadata = MetadataLoader.getMetadata(candidate);
-            if (metadata != null) {
-                // 不为空，且为中文时才设置
-                if (metadata.description() != null
-                        && I18nManager.getCurrentLocale() == Locale.SIMPLIFIED_CHINESE) {
-                    sdk.setDescription(metadata.description());
+            // 如果是中文环境，尝试从国际化文件获取翻译的描述
+            if (I18nManager.getCurrentLocale() == Locale.SIMPLIFIED_CHINESE) {
+                String i18nKey = "sdk.description." + candidate;
+                String translatedDescription = I18nManager.get(i18nKey);
+                // 如果找到了翻译（不是返回key本身），则使用翻译
+                if (!translatedDescription.equals(i18nKey)) {
+                    sdk.setDescription(translatedDescription);
                 }
+                // 否则保持API返回的英文描述
             }
+            // 英文环境直接使用API返回的英文描述，无需处理
 
             // 设置分类（基于候选名称自动分类，使用candidate而非name）
             var category = Category.fromName(sdk.getCandidate());

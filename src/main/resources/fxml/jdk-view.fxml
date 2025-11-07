@@ -4,9 +4,12 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="io.sdkman.controller.JdkController"
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="io.sdkman.controller.JdkController"
+           fx:id="rootContainer">
+
+<VBox fx:id="listViewContainer"
       styleClass="page-content"
       spacing="20">
 
@@ -70,3 +73,5 @@
     </StackPane>
 
 </VBox>
+
+</StackPane>

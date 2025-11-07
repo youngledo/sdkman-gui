@@ -1,5 +1,6 @@
 package io.sdkman.controller;
 
+import io.sdkman.SdkmanApplication;
 import io.sdkman.model.JdkListItem;
 import io.sdkman.model.JdkCategory;
 import io.sdkman.model.SdkVersion;
@@ -12,14 +13,18 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.StackPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -30,6 +35,10 @@ import java.util.stream.Collectors;
 public class JdkController {
     private static final Logger logger = LoggerFactory.getLogger(JdkController.class);
 
+    @FXML
+    private StackPane rootContainer;
+    @FXML
+    private VBox listViewContainer;
     @FXML
     private Label titleLabel;
     @FXML
@@ -742,6 +751,56 @@ public class JdkController {
     }
 
     /**
+     * 显示供应商详情页
+     */
+    private void showVendorDetail(String vendorName) throws IOException {
+        logger.info("Showing vendor detail for: {}", vendorName);
+
+        // 获取该供应商的所有版本
+        var vendorVersions = allJdkVersions.stream()
+                .filter(v -> vendorName.equals(v.getVendor()))
+                .toList();
+
+        if (vendorVersions.isEmpty()) {
+            logger.warn("No versions found for vendor: {}", vendorName);
+            return;
+        }
+
+        // 加载详情页FXML
+        var loader = new FXMLLoader(getClass().getResource("/fxml/jdk-detail-view.fxml"));
+        Parent detailView = loader.load();
+
+        // 获取控制器并设置数据
+        JdkDetailController detailController = loader.getController();
+        detailController.setVendor(vendorName, vendorVersions);
+        detailController.setOnBackCallback(_ -> showListView());
+        detailController.setHostServices(SdkmanApplication.hostServices);
+
+        // 显示详情页
+        rootContainer.getChildren().add(detailView);
+        listViewContainer.setVisible(false);
+        detailView.setVisible(true);
+    }
+
+    /**
+     * 返回列表视图
+     */
+    private void showListView() {
+        logger.info("Returning to list view");
+
+        // 移除详情页
+        if (rootContainer.getChildren().size() > 1) {
+            rootContainer.getChildren().remove(1);
+        }
+
+        // 显示列表视图
+        listViewContainer.setVisible(true);
+
+        // 刷新JDK列表以更新安装状态
+        refreshJdkList();
+    }
+
+    /**
      * 自定义JDK列表Cell
      * 修复了Cell重用时按钮状态残留的问题
      */
@@ -804,6 +863,23 @@ public class JdkController {
             } else {
                 headerBox.getChildren().add(vendorLabel);
             }
+
+            // 添加点击事件，显示供应商详情页
+            headerBox.setOnMouseClicked(event -> {
+                try {
+                    showVendorDetail(vendorName);
+                } catch (IOException e) {
+                    logger.error("Failed to show vendor detail", e);
+                    AlertUtils.showErrorAlert(
+                            I18nManager.get("error.title"),
+                            I18nManager.get("error.load_detail_failed")
+                    );
+                }
+            });
+
+            // 添加鼠标悬停效果
+            headerBox.setOnMouseEntered(_ -> headerBox.setStyle("-fx-cursor: hand;"));
+            headerBox.setOnMouseExited(_ -> headerBox.setStyle("-fx-cursor: default;"));
 
             return headerBox;
         }
