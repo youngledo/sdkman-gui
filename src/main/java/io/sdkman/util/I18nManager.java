@@ -95,7 +95,7 @@ public class I18nManager {
         try {
             return bundle.getString(key);
         } catch (MissingResourceException e) {
-            logger.warn("Missing resource key: {}", key);
+            logger.debug("Missing resource key: {}", key);
             return key;
         }
     }

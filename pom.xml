@@ -314,8 +314,7 @@
                     <javaOptions>
                         <option>-XX:+UseZGC</option>
                         <option>-XX:InitialHeapSize=64m</option>
-                        <option>-XX:MaxHeapSize=256m</option>
-                        <option>-XX:NativeMemoryTracking=summary</option>
+                        <option>-XX:MaxHeapSize=384m</option>
                     </javaOptions>
                 </configuration>
             </plugin>
