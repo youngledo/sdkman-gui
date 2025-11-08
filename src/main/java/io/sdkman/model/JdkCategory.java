@@ -31,17 +31,14 @@ public enum JdkCategory {
         }
 
         String lowerIdentifier = identifier.toLowerCase();
-
-        // JavaFX: 包含.fx
-        if (lowerIdentifier.contains(".fx")) {
-            return JAVAFX;
-        }
-
         // NIK: 以-nik结尾
         if (lowerIdentifier.endsWith("-nik")) {
             return NIK;
         }
-
+        // JavaFX: 包含.fx
+        if (lowerIdentifier.contains(".fx")) {
+            return JAVAFX;
+        }
         // 默认为普通JDK
         return JDK;
     }
