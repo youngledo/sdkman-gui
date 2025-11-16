@@ -5,6 +5,7 @@ import io.sdkman.model.Sdk;
 import io.sdkman.model.SdkVersion;
 import io.sdkman.util.ConfigManager;
 import io.sdkman.util.PlatformDetector;
+import io.sdkman.util.ProxyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,10 +39,10 @@ public class SdkmanHttpClient implements SdkmanClient {
 
     // SDKMAN API基础URL
     private static final String API_BASE_URL = "https://api.sdkman.io/2";
-    
+
     // 常量
     private static final String VENDOR_HEADER_NAME = "Vendor";
-    
+
     // 正则表达式：解析Java版本表格（带|分隔符）
     private static final Pattern JAVA_VERSION_PATTERN = Pattern.compile("(.*?)\\|(.*?)\\|(.*?)\\|(.*?)\\|(.*?)\\|(.*)");
     // 正则表达式：解析候选列表
@@ -49,42 +50,43 @@ public class SdkmanHttpClient implements SdkmanClient {
     private static final Pattern CANDIDATE_PATTERN = Pattern.compile(
             "---\\r*\\n(.+?)\\r*\\n\\r*\\n(.*?)\\$ sdk install(.*?)\\r*\\n",
             Pattern.MULTILINE | Pattern.DOTALL);
-    
+
     private final HttpClient httpClient;
 
     public SdkmanHttpClient() {
-        this.httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(10))
-                .followRedirects(HttpClient.Redirect.NORMAL)
-                .build();
+        this.httpClient = ProxyUtil.createHttpClient("SdkmanHttpClient");
         logger.info("Initialized SDKMAN HTTP API client");
     }
 
     @Override
     public List<Sdk> listCandidates() {
         logger.info("Fetching candidates list from HTTP API");
-        
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(API_BASE_URL + "/candidates/list"))
+                .timeout(Duration.ofSeconds(30))
+                .GET()
+                .build();
+
+        HttpResponse<String> response = null;
         try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(API_BASE_URL + "/candidates/list"))
-                    .timeout(Duration.ofSeconds(30))
-                    .GET()
-                    .build();
+            response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException e) {
+            logger.warn("IOException!", e);
+            return List.of();
+        } catch (InterruptedException e) {
+            logger.warn("Interrupted!", e);
+            Thread.currentThread().interrupt();
+            return List.of();
+        }
 
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() != 200) {
-                logger.error("Failed to fetch candidates: HTTP {}", response.statusCode());
-                return new ArrayList<>();
-            }
-
-            // SDKMAN API 返回 CSV 格式，不是 JSON
-            return parseCandidates(response.body());
-
-        } catch (Exception e) {
-            logger.error("Failed to fetch candidates from API", e);
+        if (response.statusCode() != 200) {
+            logger.error("Failed to fetch candidates: HTTP {}", response.statusCode());
             return new ArrayList<>();
         }
+
+        // SDKMAN API 返回 CSV 格式，不是 JSON
+        return parseCandidates(response.body());
     }
 
     @Override
@@ -140,7 +142,7 @@ public class SdkmanHttpClient implements SdkmanClient {
             return new ArrayList<>();
         }
     }
-    
+
     /**
      * 获取本地已安装的版本列表（逗号分隔）
      * 用于传递给 API 的 ?installed= 参数
@@ -155,10 +157,10 @@ public class SdkmanHttpClient implements SdkmanClient {
             }
 
             // 获取已安装的版本目录（排除current）
-            File[] versionDirs = dir.listFiles(file -> 
-                file.isDirectory() && !"current".equals(file.getName())
+            File[] versionDirs = dir.listFiles(file ->
+                    file.isDirectory() && !"current".equals(file.getName())
             );
-            
+
             if (versionDirs == null || versionDirs.length == 0) {
                 return "";
             }
@@ -171,7 +173,7 @@ public class SdkmanHttpClient implements SdkmanClient {
                 }
                 sb.append(versionDirs[i].getName());
             }
-            
+
             String installed = sb.toString();
             logger.debug("{} installed versions: {}", candidate, installed);
             return installed;
@@ -191,7 +193,7 @@ public class SdkmanHttpClient implements SdkmanClient {
             if (progressCallback != null) {
                 progressCallback.onProgress("正在下载 " + candidate + " " + version + "...");
             }
-            
+
             Path tempFile = downloadSdk(candidate, version, progressCallback);
             if (tempFile == null) {
                 logger.error("Failed to download {} {}", candidate, version);
@@ -202,9 +204,9 @@ public class SdkmanHttpClient implements SdkmanClient {
             if (progressCallback != null) {
                 progressCallback.onProgress("正在解压安装...");
             }
-            
+
             boolean extracted = extractSdk(candidate, version, tempFile);
-            
+
             // 4. 清理临时文件
             try {
                 Files.deleteIfExists(tempFile);
@@ -369,7 +371,7 @@ public class SdkmanHttpClient implements SdkmanClient {
         // HTTP API方式不需要SDKMAN本地安装，只需要目录结构
         File sdkmanDir = new File(ConfigManager.getSdkmanPath());
         File candidatesDir = new File(sdkmanDir, "candidates");
-        
+
         // 如果目录不存在，尝试创建
         if (!candidatesDir.exists()) {
             try {
@@ -381,7 +383,7 @@ public class SdkmanHttpClient implements SdkmanClient {
                 return false;
             }
         }
-        
+
         return true;
     }
 
@@ -403,13 +405,13 @@ public class SdkmanHttpClient implements SdkmanClient {
 
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             boolean available = response.statusCode() == 200;
-            
+
             if (available) {
                 logger.info("HTTP API client is available and connected");
             } else {
                 logger.warn("HTTP API responded with status {}", response.statusCode());
             }
-            
+
             return available;
 
         } catch (Exception e) {
@@ -427,46 +429,46 @@ public class SdkmanHttpClient implements SdkmanClient {
      * <pre>
      * --------------------------------------------------------------------------------
      * Apache ActiveMQ (Classic) (5.17.1)                  https://activemq.apache.org/
-     * 
+     *
      * Apache ActiveMQ® is a popular open source...
-     * 
+     *
      *                                                   $ sdk install activemq
      * --------------------------------------------------------------------------------
      * </pre>
      */
     private List<Sdk> parseCandidates(String tableText) {
         List<Sdk> sdks = new ArrayList<>();
-        
+
         if (tableText == null || tableText.trim().isEmpty()) {
             return sdks;
         }
-        
+
         Matcher matcher = CANDIDATE_PATTERN.matcher(tableText);
-        
+
         while (matcher.find()) {
             try {
                 // group(1): 候选名称（包含版本和网址的第一行）
                 // group(2): 描述文本
                 // group(3): candidate ID（安装命令中的标识符）
-                
+
                 String firstLine = matcher.group(1).trim();
                 String description = matcher.group(2).trim().replace("\n", " ");
                 String candidateId = matcher.group(3).trim();
-                
+
                 Sdk sdk = new Sdk();
                 sdk.setCandidate(candidateId);
                 sdk.setDescription(description);
-                
+
                 // 从第一行解析名称、版本和网址
                 // 格式: 名称 (版本) [可能还有副标题]  网址
-                
+
                 // 提取网址（最后一个 http 开头的部分）
                 int httpIndex = firstLine.lastIndexOf("http");
                 if (httpIndex > 0) {
                     sdk.setWebsite(firstLine.substring(httpIndex).trim());
                     firstLine = firstLine.substring(0, httpIndex).trim();
                 }
-                
+
                 // 提取版本（最后一对括号中的内容）
                 int lastOpenParen = firstLine.lastIndexOf("(");
                 int lastCloseParen = firstLine.lastIndexOf(")");
@@ -474,12 +476,12 @@ public class SdkmanHttpClient implements SdkmanClient {
                     sdk.setLatestVersion(firstLine.substring(lastOpenParen + 1, lastCloseParen).trim());
                     firstLine = firstLine.substring(0, lastOpenParen).trim();
                 }
-                
+
                 // 剩下的就是名称
                 sdk.setName(firstLine);
-                
+
                 sdks.add(sdk);
-                
+
             } catch (Exception e) {
                 logger.debug("Failed to parse candidate section", e);
             }
@@ -495,11 +497,11 @@ public class SdkmanHttpClient implements SdkmanClient {
      */
     private List<SdkVersion> parseVersionsCsv(String tableText, String candidate) {
         List<SdkVersion> versions = new ArrayList<>();
-        
+
         if (tableText == null || tableText.trim().isEmpty()) {
             return versions;
         }
-        
+
         // 检测是Java格式还是其他格式
         Matcher javaMatcher = JAVA_VERSION_PATTERN.matcher(tableText);
         if (javaMatcher.find()) {
@@ -512,12 +514,12 @@ public class SdkmanHttpClient implements SdkmanClient {
             versions = parseOtherVersions(tableText, candidate);
         }
 
-        logger.debug("Parsed {} versions for {} (installed: {})", 
-                versions.size(), candidate, 
+        logger.debug("Parsed {} versions for {} (installed: {})",
+                versions.size(), candidate,
                 versions.stream().filter(SdkVersion::isInstalled).count());
         return versions;
     }
-    
+
     /**
      * 解析Java版本（表格格式，|分隔）
      * 格式: Vendor | Use | Version | Dist | Status | Identifier
@@ -526,7 +528,7 @@ public class SdkmanHttpClient implements SdkmanClient {
         List<SdkVersion> versions = new ArrayList<>();
         Matcher matcher = JAVA_VERSION_PATTERN.matcher(tableText);
         String lastVendor = null;
-        
+
         while (matcher.find()) {
             try {
                 String vendorCol = matcher.group(1).trim();
@@ -535,49 +537,49 @@ public class SdkmanHttpClient implements SdkmanClient {
                 String distCol = matcher.group(4).trim();
                 String statusCol = matcher.group(5).trim();
                 String identifierCol = matcher.group(6).trim();
-                
+
                 // 跳过表头
                 if (VENDOR_HEADER_NAME.equals(vendorCol)) {
                     continue;
                 }
-                
+
                 // 处理vendor（可能为空，使用上一行的vendor）
                 if (!vendorCol.isEmpty()) {
                     lastVendor = vendorCol;
                 } else {
                     vendorCol = lastVendor;
                 }
-                
+
                 // identifier 必须非空
                 if (identifierCol.isEmpty()) {
                     continue;
                 }
-                
+
                 SdkVersion sdkVersion = new SdkVersion(versionCol);
                 sdkVersion.setCandidate(candidate);
                 sdkVersion.setIdentifier(identifierCol);
                 sdkVersion.setVersion(versionCol);
                 sdkVersion.setVendor(vendorCol);
                 sdkVersion.setCategory(JdkCategory.fromIdentifier(identifierCol));
-                
+
                 // 解析状态
                 boolean isInstalled = statusCol.contains("installed") || useCol.contains("*");
                 boolean isInUse = useCol.contains(">");
-                
+
                 sdkVersion.setInstalled(isInstalled);
                 sdkVersion.setInUse(isInUse);
                 sdkVersion.setDefault(isInUse);
-                
+
                 versions.add(sdkVersion);
-                
+
             } catch (Exception e) {
                 logger.debug("Failed to parse Java version line", e);
             }
         }
-        
+
         return versions;
     }
-    
+
     /**
      * 解析其他SDK版本（空格分隔格式）
      * 参考 sdkman-ui 的实现逻辑
@@ -689,7 +691,7 @@ public class SdkmanHttpClient implements SdkmanClient {
                     .build();
 
             Path tempFile = Files.createTempFile("sdkman-download-", ".zip");
-            
+
             HttpResponse<InputStream> response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
 
             if (response.statusCode() != 200) {
@@ -699,15 +701,15 @@ public class SdkmanHttpClient implements SdkmanClient {
 
             try (InputStream in = response.body();
                  FileOutputStream out = new FileOutputStream(tempFile.toFile())) {
-                
+
                 byte[] buffer = new byte[8192];
                 int bytesRead;
                 long totalBytes = 0;
-                
+
                 while ((bytesRead = in.read(buffer)) != -1) {
                     out.write(buffer, 0, bytesRead);
                     totalBytes += bytesRead;
-                    
+
                     if (progressCallback != null && totalBytes % (1024 * 1024) == 0) {
                         progressCallback.onProgress("已下载: " + (totalBytes / 1024 / 1024) + " MB");
                     }
@@ -730,7 +732,7 @@ public class SdkmanHttpClient implements SdkmanClient {
         try {
             String installPath = ConfigManager.getSdkmanPath() + "/candidates/" + candidate + "/" + version;
             Path targetDir = Paths.get(installPath);
-            
+
             // 创建目标目录
             Files.createDirectories(targetDir);
 
@@ -739,14 +741,14 @@ public class SdkmanHttpClient implements SdkmanClient {
                 ZipEntry entry;
                 while ((entry = zis.getNextEntry()) != null) {
                     Path targetPath = targetDir.resolve(entry.getName());
-                    
+
                     if (entry.isDirectory()) {
                         Files.createDirectories(targetPath);
                     } else {
                         Files.createDirectories(targetPath.getParent());
                         Files.copy(zis, targetPath);
                     }
-                    
+
                     zis.closeEntry();
                 }
             }

@@ -66,6 +66,11 @@ public class ThreadManager {
         return instance;
     }
 
+    public void executeTask(Runnable runnable) {
+        logger.debug("Executing JavaFX Runnable: {}", runnable.getClass().getSimpleName());
+        uiExecutor.execute(runnable);
+    }
+
     /**
      * 执行JavaFX Task（推荐方法，自动处理UI线程切换）
      *

@@ -2,10 +2,13 @@ package io.sdkman.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.sdkman.util.ThreadManager;
+import javafx.concurrent.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.sdkman.util.PlatformDetector;
+import io.sdkman.util.ProxyUtil;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -69,7 +72,7 @@ public class VersionUpdateService {
 
                         logger.debug("Reading MANIFEST.MF from: {}", manifestUrl);
 
-                        try (var input = new java.net.URI(manifestUrl).toURL().openStream()) {
+                        try (var input = new URI(manifestUrl).toURL().openStream()) {
                             var manifest = new java.util.jar.Manifest(input);
                             var manifestVersion = manifest.getMainAttributes().getValue("Implementation-Version");
                             if (manifestVersion != null && !manifestVersion.trim().isEmpty()) {
@@ -100,10 +103,7 @@ public class VersionUpdateService {
     private final ObjectMapper objectMapper;
 
     private VersionUpdateService() {
-        this.httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(10))
-                .followRedirects(HttpClient.Redirect.NORMAL)
-                .build();
+        this.httpClient = ProxyUtil.createHttpClient("VersionUpdateService");
         this.objectMapper = new ObjectMapper();
     }
 
@@ -316,12 +316,10 @@ public class VersionUpdateService {
             if (name.contains("win")) {
                 score += 10;
             }
-        } else if (isLinux) {
-            // Linux特定文件名优化
-            if (name.contains("linux")) {
+        } else if (isLinux && name.contains("linux")) {
                 score += 10;
             }
-        }
+
 
         return score;
     }
@@ -399,8 +397,7 @@ public class VersionUpdateService {
             callback.onFailed("Download URL is empty");
             return;
         }
-
-        new Thread(() -> {
+        ThreadManager.getInstance().executeTask(() -> {
             try {
                 logger.info("Starting download from: {}", downloadUrl);
 
@@ -462,7 +459,7 @@ public class VersionUpdateService {
                 logger.error("Failed to download update", e);
                 callback.onFailed(e.getMessage());
             }
-        }, "Update-Download-Thread").start();
+        });
     }
 
     ///
@@ -538,4 +535,7 @@ public class VersionUpdateService {
             return errorMessage == null;
         }
     }
+
+    // ==================== 辅助方法 ====================
+
 }

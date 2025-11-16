@@ -387,8 +387,8 @@ public class SettingsController {
         } catch (Exception e) {
             logger.error("Failed to open directory chooser", e);
             // 显示错误消息
-            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
-                    javafx.scene.control.Alert.AlertType.ERROR);
+            Alert alert = new Alert(
+                    Alert.AlertType.ERROR);
             alert.setTitle(I18nManager.get("message.error"));
             alert.setHeaderText(I18nManager.get("settings.browse_error"));
             alert.setContentText(e.getMessage());
@@ -559,9 +559,6 @@ public class SettingsController {
     private void onDownloadClicked() {
         logger.info("Download button clicked");
 
-        // 获取当前保存的更新信息
-        var currentVersion = versionUpdateService.getCurrentVersion();
-
         // 重新检查更新以获取最新信息
         Task<VersionUpdateService.UpdateInfo> task = new Task<>() {
             @Override
@@ -731,12 +728,10 @@ public class SettingsController {
     /// 显示安装确认对话框
     ///
     private void showInstallConfirmation() {
-        Platform.runLater(() -> {
-            AlertUtils.showInfoAlert(
-                    I18nManager.get("alert.info"),
-                    I18nManager.get("settings.install_confirmation"), true
-            );
-        });
+        Platform.runLater(() -> AlertUtils.showInfoAlert(
+                I18nManager.get("alert.info"),
+                I18nManager.get("settings.install_confirmation"), true
+        ));
     }
 
 }
