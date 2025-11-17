@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 ///
 /// ## Usage
 /// ```java
-/// UrlUtils.openUrl(hostServices, "https://github.com/youngledo/sdkman-gui");
+/// UrlUtils.openUrl(hostServices, [sdkman-gui](https://github.com/youngledo/sdkman-gui));
 /// ```
 ///
 /// @since 1.0
@@ -29,7 +29,7 @@ public class UrlUtils {
     /// - Logs warning if HostServices is not available
     ///
     /// @param hostServices JavaFX HostServices instance (can be null)
-    /// @param url URL to open (e.g., "https://github.com/youngledo/sdkman-gui")
+    /// @param url URL to open (e.g., [sdkman-gui](https://github.com/youngledo/sdkman-gui))
     ///
     public static void openUrl(HostServices hostServices, String url) {
         logger.info("Opening URL: {}", url);

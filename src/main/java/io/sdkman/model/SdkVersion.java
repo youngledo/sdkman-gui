@@ -1,6 +1,7 @@
 package io.sdkman.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -17,13 +18,13 @@ public class SdkVersion implements Installable {
     private String candidate;  // SDK候选名称（如java、gradle、maven等）
 
     // 用于JSON序列化的boolean字段（映射到JSON的"installed"字段）
-    @com.fasterxml.jackson.annotation.JsonProperty("installed")
+    @JsonProperty("installed")
     private boolean installedValue;
 
-    @com.fasterxml.jackson.annotation.JsonProperty("default")
+    @JsonProperty("default")
     private boolean isDefaultValue;
 
-    @com.fasterxml.jackson.annotation.JsonProperty("inUse")
+    @JsonProperty("inUse")
     private boolean inUseValue;
 
     // 用于UI绑定的Property（不序列化）

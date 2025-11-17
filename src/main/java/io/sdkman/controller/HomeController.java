@@ -114,7 +114,7 @@ public class HomeController {
             }
         };
 
-        task.setOnSucceeded(event -> {
+        task.setOnSucceeded(_ -> {
             boolean installed = task.getValue();
             if (!installed) {
                 logger.error("SDKMAN is not installed!");
@@ -125,7 +125,7 @@ public class HomeController {
             }
         });
 
-        task.setOnFailed(event -> {
+        task.setOnFailed(_ -> {
             logger.error("Failed to check SDKMAN installation", task.getException());
             showSdkmanNotInstalledError();
         });
@@ -185,13 +185,13 @@ public class HomeController {
             }
         };
 
-        task.setOnSucceeded(event -> {
+        task.setOnSucceeded(_ -> {
             Integer count = task.getValue();
             jdkCountLabel.setText(String.valueOf(count));
             logger.info("Loaded JDK count: {}", count);
         });
 
-        task.setOnFailed(event -> {
+        task.setOnFailed(_ -> {
             jdkCountLabel.setText("?");
             logger.error("Failed to load JDK count", task.getException());
         });
@@ -210,13 +210,13 @@ public class HomeController {
             }
         };
 
-        task.setOnSucceeded(event -> {
+        task.setOnSucceeded(_ -> {
             Integer count = task.getValue();
             sdkCountLabel.setText(String.valueOf(count));
             logger.info("Loaded SDK count: {}", count);
         });
 
-        task.setOnFailed(event -> {
+        task.setOnFailed(_ -> {
             sdkCountLabel.setText("?");
             logger.error("Failed to load SDK count", task.getException());
         });
@@ -235,13 +235,13 @@ public class HomeController {
             }
         };
 
-        task.setOnSucceeded(event -> {
+        task.setOnSucceeded(_ -> {
             Integer count = task.getValue();
             updateCountLabel.setText(String.valueOf(count));
             logger.info("Loaded update count: {}", count);
         });
 
-        task.setOnFailed(event -> {
+        task.setOnFailed(_ -> {
             updateCountLabel.setText("?");
             logger.error("Failed to load update count", task.getException());
         });
@@ -301,10 +301,6 @@ public class HomeController {
         navigateToSdkPage();
     }
 
-    /**
-     * 检查更新按钮点击事件
-     * 手动刷新所有统计数据，包括SDK数量
-     */
     ///
     /// Handles the app name link click event to open GitHub repository
     /// 处理应用名称链接点击事件，打开GitHub仓库

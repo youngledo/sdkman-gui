@@ -21,26 +21,17 @@ import java.util.Locale;
 public class SdkmanService {
     private static final Logger logger = LoggerFactory.getLogger(SdkmanService.class);
 
-    private final SdkmanClient client;
+    private final SdkmanHttpClient client;
     private static SdkmanService instance;
 
     private SdkmanService() {
-        this.client = selectBestClient();
-    }
-
-    /**
-     * 自动选择最佳的SDKMAN客户端
-     * 优先级：用户配置 > CLI（Unix系统） > HTTP API（跨平台）
-     */
-    private SdkmanClient selectBestClient() {
-        // 如果用户明确指定了客户端类型
-        return createClientByType();
+        this.client = createClient();
     }
 
     /**
      * 根据类型创建客户端
      */
-    private SdkmanClient createClientByType() {
+    private SdkmanHttpClient createClient() {
         return new SdkmanHttpClient();
     }
 
@@ -64,10 +55,9 @@ public class SdkmanService {
     /**
      * 异步获取JDK列表
      *
-     * @param forceRefresh 是否强制刷新（忽略缓存）
      * @return Task对象
      */
-    public Task<List<SdkVersion>> loadJdkVersionsTask(boolean forceRefresh) {
+    public Task<List<SdkVersion>> loadJdkVersionsTask() {
         return new Task<>() {
             @Override
             protected List<SdkVersion> call() {
@@ -96,7 +86,7 @@ public class SdkmanService {
                 versions,
                 SdkVersion::getIdentifier,
                 SdkVersion::getVersion,
-                version -> "java",  // JDK的candidate固定为"java"
+                _ -> "java",  // JDK的candidate固定为"java"
                 (version, installing, progress) -> {
                     version.setInstalling(installing);
                     version.setInstallProgress(progress);
@@ -159,7 +149,7 @@ public class SdkmanService {
                 versions,
                 version -> candidate + "-" + version.getVersion(),  // 使用与updateSdkInstallState相同的key格式
                 SdkVersion::getVersion,
-                version -> candidate,   // 所有版本都属于同一个candidate
+                _ -> candidate,   // 所有版本都属于同一个candidate
                 (version, installing, progress) -> {
                     version.setInstalling(installing);
                     version.setInstallProgress(progress);
@@ -373,7 +363,7 @@ public class SdkmanService {
         for (String candidate : installedCandidates) {
             try {
                 // Get all available versions (with installation status from API)
-                List<SdkVersion> versions = client.listVersions(candidate, false);
+                List<SdkVersion> versions = client.listVersions(candidate);
 
                 if (versions != null && !versions.isEmpty()) {
                     // Find the latest version (first in sorted list - versions are sorted descending)
@@ -578,7 +568,7 @@ public class SdkmanService {
      */
     public boolean isOnlyInstalledVersion(String candidate, String version) {
         // 获取所有已安装版本
-        List<SdkVersion> installedVersions = client.listVersions(candidate, false).stream()
+        List<SdkVersion> installedVersions = client.listVersions(candidate).stream()
                 .filter(SdkVersion::isInstalled)
                 .toList();
 

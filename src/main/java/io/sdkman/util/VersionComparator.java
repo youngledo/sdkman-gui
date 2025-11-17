@@ -2,22 +2,19 @@ package io.sdkman.util;
 
 import java.util.Comparator;
 
-/**
- * 语义版本号比较器
- * Semantic version number comparator
- *
- * 支持常见的版本号格式：
- * - 数字版本：1.0.0, 2.3.4, 11.0.21
- * - 带后缀版本：1.0.0-alpha, 2.1.0-SNAPSHOT
- * - 特殊标识：swan-lake-p3, graalce-21.0.0+35.1
- */
+///
+/// 语义版本号比较器
+/// Semantic version number comparator
+/// 支持常见的版本号格式：
+/// - 数字版本：1.0.0, 2.3.4, 11.0.21
+/// - 带后缀版本：1.0.0-alpha, 2.1.0-SNAPSHOT
+/// - 特殊标识：swan-lake-p3, graalce-21.0.0+35.1
+///
 public class VersionComparator implements Comparator<String> {
 
     private static final VersionComparator INSTANCE = new VersionComparator();
 
-    /**
-     * 获取单例实例
-     */
+    /// 获取单例实例
     public static VersionComparator getInstance() {
         return INSTANCE;
     }
@@ -27,13 +24,6 @@ public class VersionComparator implements Comparator<String> {
      */
     public static Comparator<String> descending() {
         return INSTANCE.reversed();
-    }
-
-    /**
-     * 升序比较器（最旧版本在前）
-     */
-    public static Comparator<String> ascending() {
-        return INSTANCE;
     }
 
     @Override

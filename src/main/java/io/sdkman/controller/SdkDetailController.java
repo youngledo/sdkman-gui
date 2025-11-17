@@ -146,7 +146,7 @@ public class SdkDetailController {
         // 官方网址（如果有）
         if (currentSdk.getWebsite() != null && !currentSdk.getWebsite().isEmpty()) {
             websiteLink.setText(currentSdk.getWebsite());
-            websiteLink.setOnAction(e -> {
+            websiteLink.setOnAction(_ -> {
                 if (hostServices != null) {
                     hostServices.showDocument(currentSdk.getWebsite());
                 }
@@ -185,7 +185,7 @@ public class SdkDetailController {
             }
         };
 
-        task.setOnSucceeded(event -> {
+        task.setOnSucceeded(_ -> {
             List<SdkVersion> versions = task.getValue();
             logger.info("Loaded {} versions for {}", versions.size(), currentSdk.getCandidate());
 
@@ -196,7 +196,7 @@ public class SdkDetailController {
 
             // 按版本号降序排序（最新版本在前）
             versions.sort((v1, v2) ->
-                io.sdkman.util.VersionComparator.descending().compare(v1.getVersion(), v2.getVersion())
+                    io.sdkman.util.VersionComparator.descending().compare(v1.getVersion(), v2.getVersion())
             );
 
             Platform.runLater(() -> {
@@ -210,7 +210,7 @@ public class SdkDetailController {
             });
         });
 
-        task.setOnFailed(event -> {
+        task.setOnFailed(_ -> {
             logger.error("Failed to load versions", task.getException());
             Platform.runLater(() -> {
                 showVersionsLoading(false);
@@ -310,16 +310,16 @@ public class SdkDetailController {
                 // 成功回调
                 installedVersion -> {
                     logger.info("Successfully installed {} {}",
-                               currentSdk.getCandidate(), installedVersion.getVersion());
+                            currentSdk.getCandidate(), installedVersion.getVersion());
 
                     // 检查是否是唯一版本，如果是则自动设置为默认版本
                     if (sdkmanService.isOnlyInstalledVersion(currentSdk.getCandidate(), installedVersion.getVersion())) {
                         logger.info("Detected that {} {} is the only installed version, setting as default",
-                                   currentSdk.getCandidate(), installedVersion.getVersion());
+                                currentSdk.getCandidate(), installedVersion.getVersion());
 
                         if (sdkmanService.setDefaultForOnlyVersion(currentSdk.getCandidate(), installedVersion.getVersion())) {
                             logger.info("Successfully set {} {} as default version",
-                                       currentSdk.getCandidate(), installedVersion.getVersion());
+                                    currentSdk.getCandidate(), installedVersion.getVersion());
 
                             // 延迟一下再强制刷新，确保SDKMAN已经完全更新默认版本状态
                             Platform.runLater(() -> {
@@ -336,7 +336,7 @@ public class SdkDetailController {
                             });
                         } else {
                             logger.warn("Failed to set {} {} as default version",
-                                        currentSdk.getCandidate(), installedVersion.getVersion());
+                                    currentSdk.getCandidate(), installedVersion.getVersion());
                         }
                     }
                 },
@@ -353,10 +353,7 @@ public class SdkDetailController {
                 versionsListView.getItems(),
                 currentSdk.getName() + " " + version.getVersion(),
                 // 成功回调
-                uninstalledVersion -> {
-                    logger.info("Successfully uninstalled {} {}",
-                               currentSdk.getCandidate(), uninstalledVersion.getVersion());
-                },
+                uninstalledVersion -> logger.info("Successfully uninstalled {} {}", currentSdk.getCandidate(), uninstalledVersion.getVersion()),
                 () -> versionsListView.refresh()
         );
     }
@@ -372,9 +369,7 @@ public class SdkDetailController {
                 versionsListView.getItems(),
                 currentSdk.getName() + " " + version.getVersion(),
                 // 成功回调：记录日志
-                _ -> {
-                    logger.info("Successfully set {} {} as default", currentSdk.getCandidate(), version.getVersion());
-                },
+                _ -> logger.info("Successfully set {} {} as default", currentSdk.getCandidate(), version.getVersion()),
                 // UI刷新回调
                 () -> {
                     // 强制刷新ListView，确保UI更新

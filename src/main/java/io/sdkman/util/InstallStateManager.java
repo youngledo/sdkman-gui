@@ -1,6 +1,5 @@
 package io.sdkman.util;
 
-import io.sdkman.model.SdkVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 /**
  * 安装状态管理器
@@ -87,7 +85,7 @@ public class InstallStateManager {
                                  String version, boolean installing, String progress) {
         String key = type + "-" + identifier;
         InstallState state = installStateCache.computeIfAbsent(key,
-            k -> new InstallState(type, identifier, candidate, version));
+                _ -> new InstallState(type, identifier, candidate, version));
 
         state.setInstalling(installing);
         state.setProgress(progress);
@@ -98,7 +96,7 @@ public class InstallStateManager {
 
         // 如果安装完成或失败，一段时间后清理缓存
         if (!installing) {
-            scheduleCleanup(key, 30000); // 30秒后清理
+            scheduleCleanup(key); // 30秒后清理
         }
     }
 
@@ -144,39 +142,6 @@ public class InstallStateManager {
     }
 
     /**
-     * 清除指定类型的所有安装状态
-     */
-    public void clearStates(String type) {
-        installStateCache.entrySet().removeIf(entry ->
-            entry.getKey().startsWith(type + "-"));
-        logger.info("Cleared all install states for type: {}", type);
-    }
-
-    /**
-     * 清除过期的安装状态
-     */
-    public void cleanupExpiredStates() {
-        long now = System.currentTimeMillis();
-        long expireTime = 5 * 60 * 1000; // 5分钟过期
-
-        installStateCache.entrySet().removeIf(entry -> {
-            InstallState state = entry.getValue();
-            boolean expired = !state.isInstalling() && (now - state.getTimestamp()) > expireTime;
-            if (expired) {
-                logger.debug("Removed expired install state: {}", entry.getKey());
-            }
-            return expired;
-        });
-    }
-
-    /**
-     * 获取所有安装状态（用于调试）
-     */
-    public Map<String, InstallState> getAllStates() {
-        return new ConcurrentHashMap<>(installStateCache);
-    }
-
-    /**
      * 查找匹配的SDK状态（模糊匹配）
      */
     private InstallState findMatchingSdkState(String candidate, String version) {
@@ -191,10 +156,10 @@ public class InstallStateManager {
     /**
      * 计划清理任务
      */
-    private void scheduleCleanup(String key, long delay) {
+    private void scheduleCleanup(String key) {
         Thread cleanupThread = new Thread(() -> {
             try {
-                Thread.sleep(delay);
+                Thread.sleep((long) 30000);
                 InstallState state = installStateCache.get(key);
                 if (state != null && !state.isInstalling()) {
                     installStateCache.remove(key);

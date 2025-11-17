@@ -1,7 +1,6 @@
 package io.sdkman.controller;
 
 import io.sdkman.model.SdkVersion;
-import io.sdkman.service.SdkmanService;
 import io.sdkman.util.I18nManager;
 import javafx.application.HostServices;
 import javafx.application.Platform;
@@ -49,7 +48,6 @@ public class JdkDetailController {
     @FXML
     private VBox versionsLoadingPane;
 
-    private final SdkmanService sdkmanService;
     private final ObservableList<SdkVersion> versions;
     private final VersionListManager<SdkVersion> versionListManager;
 
@@ -59,7 +57,6 @@ public class JdkDetailController {
     private HostServices hostServices;
 
     public JdkDetailController() {
-        this.sdkmanService = SdkmanService.getInstance();
         this.versions = FXCollections.observableArrayList();
         this.versionListManager = new VersionListManager<>();
     }

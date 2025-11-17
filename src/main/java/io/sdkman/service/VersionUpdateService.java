@@ -2,13 +2,12 @@ package io.sdkman.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.sdkman.util.PlatformDetector;
+import io.sdkman.util.ProxyUtil;
 import io.sdkman.util.ThreadManager;
-import javafx.concurrent.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.sdkman.util.PlatformDetector;
-import io.sdkman.util.ProxyUtil;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -49,9 +48,9 @@ public class VersionUpdateService {
             // 方法1：从Package获取版本信息（推荐方式，读取当前类所在jar的MANIFEST.MF）
             var pkg = VersionUpdateService.class.getPackage();
             logger.debug("Package info - Name: {}, Title: {}, Version: {}",
-                pkg != null ? pkg.getName() : "null",
-                pkg != null ? pkg.getImplementationTitle() : "null",
-                pkg != null ? pkg.getImplementationVersion() : "null");
+                    pkg != null ? pkg.getName() : "null",
+                    pkg != null ? pkg.getImplementationTitle() : "null",
+                    pkg != null ? pkg.getImplementationVersion() : "null");
 
             if (pkg != null && pkg.getImplementationVersion() != null) {
                 version = pkg.getImplementationVersion();
@@ -61,14 +60,14 @@ public class VersionUpdateService {
                 logger.debug("Package.getImplementationVersion() is null, trying to read MANIFEST.MF directly");
                 try {
                     var classUrl = VersionUpdateService.class.getResource(
-                        VersionUpdateService.class.getSimpleName() + ".class"
+                            VersionUpdateService.class.getSimpleName() + ".class"
                     );
 
                     if (classUrl != null && classUrl.toString().startsWith("jar:")) {
                         // 从 jar:file:/path/to/app.jar!/com/example/Class.class 提取 jar URL
                         var jarUrl = classUrl.toString();
                         var manifestUrl = jarUrl.substring(0, jarUrl.lastIndexOf("!") + 1)
-                                         + "/META-INF/MANIFEST.MF";
+                                + "/META-INF/MANIFEST.MF";
 
                         logger.debug("Reading MANIFEST.MF from: {}", manifestUrl);
 
@@ -271,15 +270,14 @@ public class VersionUpdateService {
     /// Calculate asset matching score based on platform and architecture
     /// 根据平台和架构计算资源匹配分数
     ///
-    /// @param name Asset filename / 资源文件名
-    /// @param isMac macOS platform / macOS平台
+    /// @param name      Asset filename / 资源文件名
+    /// @param isMac     macOS platform / macOS平台
     /// @param isWindows Windows platform / Windows平台
-    /// @param isLinux Linux platform / Linux平台
-    /// @param isArm64 ARM64 architecture / ARM64架构
+    /// @param isLinux   Linux platform / Linux平台
+    /// @param isArm64   ARM64 architecture / ARM64架构
     /// @return Matching score (higher is better) / 匹配分数（越高越好）
     ///
-    private int calculateAssetScore(String name, boolean isMac, boolean isWindows,
-                                    boolean isLinux, boolean isArm64) {
+    private int calculateAssetScore(String name, boolean isMac, boolean isWindows, boolean isLinux, boolean isArm64) {
         var score = 0;
 
         // 操作系统匹配（基础分100）
@@ -288,7 +286,7 @@ public class VersionUpdateService {
         } else if (isWindows && (name.endsWith(".exe") || name.endsWith(".msi"))) {
             score = 100;
         } else if (isLinux && (name.endsWith(".deb") || name.endsWith(".rpm") ||
-                              name.endsWith(".appimage"))) {
+                name.endsWith(".appimage"))) {
             score = 100;
         } else {
             return 0; // OS不匹配，直接排除
@@ -296,11 +294,11 @@ public class VersionUpdateService {
 
         // 架构匹配（加分项50）
         if (isArm64 && (name.contains("arm64") || name.contains("aarch64") ||
-                        name.contains("m1") || name.contains("m2") || name.contains("m3"))) {
+                name.contains("m1") || name.contains("m2") || name.contains("m3"))) {
             score += 50;
             logger.debug("ARM64 architecture matched for asset: {}", name);
         } else if (!isArm64 && (name.contains("x64") || name.contains("x86_64") ||
-                                  name.contains("intel") || name.contains("amd64"))) {
+                name.contains("intel") || name.contains("amd64"))) {
             score += 40; // x64架构匹配，分数稍低但也是好的匹配
             logger.debug("x64 architecture matched for asset: {}", name);
         }
@@ -317,10 +315,8 @@ public class VersionUpdateService {
                 score += 10;
             }
         } else if (isLinux && name.contains("linux")) {
-                score += 10;
-            }
-
-
+            score += 10;
+        }
         return score;
     }
 
@@ -381,7 +377,9 @@ public class VersionUpdateService {
     ///
     public interface DownloadProgressCallback {
         void onProgress(long bytesDownloaded, long totalBytes, int percentage);
+
         void onCompleted(java.io.File downloadedFile);
+
         void onFailed(String errorMessage);
     }
 
@@ -390,7 +388,7 @@ public class VersionUpdateService {
     /// 下载更新安装包
     ///
     /// @param downloadUrl URL to download from / 下载URL
-    /// @param callback Progress callback / 进度回调
+    /// @param callback    Progress callback / 进度回调
     ///
     public void downloadUpdate(String downloadUrl, DownloadProgressCallback callback) {
         if (downloadUrl == null || downloadUrl.trim().isEmpty()) {

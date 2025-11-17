@@ -25,10 +25,10 @@ public class InstallationHandler {
     /**
      * 执行安装
      *
-     * @param item 要安装的项（JDK或SDK）
+     * @param item              要安装的项（JDK或SDK）
      * @param installingMessage 安装中的提示消息
-     * @param onSuccess 安装成功后的回调（在JavaFX线程中执行）
-     * @param onFailure 安装失败后的回调（在JavaFX线程中执行）
+     * @param onSuccess         安装成功后的回调（在JavaFX线程中执行）
+     * @param onFailure         安装失败后的回调（在JavaFX线程中执行）
      */
     public void install(
             Installable item,
@@ -50,18 +50,17 @@ public class InstallationHandler {
         Task<Boolean> task = sdkmanService.installTask(item);
 
         // 监听Task的消息变化，实时更新进度文本
-        task.messageProperty().addListener((_, _, newMsg) -> {
-            Platform.runLater(() -> {
-                if (newMsg != null && !newMsg.isEmpty()) {
-                    // 更新进度信息（Property会自动通知UI更新）
-                    item.setInstallProgress(newMsg);
-                    // 同时更新Service的缓存，这样切换页面后也能保留安装状态
-                    sdkmanService.updateInstallState(item, true, newMsg);
-                }
-            });
-        });
+        task.messageProperty().addListener((_, _, newMsg) ->
+                Platform.runLater(() -> {
+                    if (newMsg != null && !newMsg.isEmpty()) {
+                        // 更新进度信息（Property会自动通知UI更新）
+                        item.setInstallProgress(newMsg);
+                        // 同时更新Service的缓存，这样切换页面后也能保留安装状态
+                        sdkmanService.updateInstallState(item, true, newMsg);
+                    }
+                }));
 
-        task.setOnSucceeded(event -> {
+        task.setOnSucceeded(_ -> {
             boolean success = task.getValue();
             Platform.runLater(() -> {
                 // 清除安装状态
@@ -87,24 +86,22 @@ public class InstallationHandler {
             });
         });
 
-        task.setOnFailed(event -> {
-            Platform.runLater(() -> {
-                // 清除安装状态
-                item.setInstalling(false);
-                item.setInstallProgress(null);
-                // 同时清除Service缓存中的安装状态
-                sdkmanService.updateInstallState(item, false, null);
+        task.setOnFailed(_ ->
+                Platform.runLater(() -> {
+                    // 清除安装状态
+                    item.setInstalling(false);
+                    item.setInstallProgress(null);
+                    // 同时清除Service缓存中的安装状态
+                    sdkmanService.updateInstallState(item, false, null);
 
-                // 执行失败回调
-                if (onFailure != null) {
-                    onFailure.accept(item);
-                }
+                    // 执行失败回调
+                    if (onFailure != null) {
+                        onFailure.accept(item);
+                    }
 
-                logger.error("Installation task failed for {}: {}",
-                        item.getCandidate(), item.getDisplayName(), task.getException());
-            });
-        });
-
+                    logger.error("Installation task failed for {}: {}",
+                            item.getCandidate(), item.getDisplayName(), task.getException());
+                }));
         io.sdkman.util.ThreadManager.getInstance().executeJavaFxTask(task);
     }
 
@@ -125,7 +122,7 @@ public class InstallationHandler {
         // 执行卸载任务
         Task<Boolean> task = sdkmanService.uninstallSdkTask(item.getCandidate(), item.getVersionIdentifier());
 
-        task.setOnSucceeded(event -> {
+        task.setOnSucceeded(_ -> {
             boolean success = task.getValue();
             Platform.runLater(() -> {
                 item.setInstalling(false);
@@ -146,18 +143,17 @@ public class InstallationHandler {
             });
         });
 
-        task.setOnFailed(event -> {
-            Platform.runLater(() -> {
-                item.setInstalling(false);
-                item.setInstallProgress(null);
-                sdkmanService.updateInstallState(item, false, null);
+        task.setOnFailed(_ ->
+                Platform.runLater(() -> {
+                    item.setInstalling(false);
+                    item.setInstallProgress(null);
+                    sdkmanService.updateInstallState(item, false, null);
 
-                if (onFailure != null) {
-                    onFailure.accept(item);
-                }
-                logger.error("Uninstall task failed for {}: {}", item.getCandidate(), item.getDisplayName(), task.getException());
-            });
-        });
+                    if (onFailure != null) {
+                        onFailure.accept(item);
+                    }
+                    logger.error("Uninstall task failed for {}: {}", item.getCandidate(), item.getDisplayName(), task.getException());
+                }));
 
         io.sdkman.util.ThreadManager.getInstance().executeJavaFxTask(task);
     }
@@ -182,7 +178,7 @@ public class InstallationHandler {
         // 执行设置默认任务
         Task<Boolean> task = sdkmanService.setDefaultTask(item.getCandidate(), item.getVersionIdentifier());
 
-        task.setOnSucceeded(event -> {
+        task.setOnSucceeded(_ -> {
             boolean success = task.getValue();
             Platform.runLater(() -> {
                 item.setInstalling(false);
@@ -203,22 +199,20 @@ public class InstallationHandler {
             });
         });
 
-        task.setOnFailed(event -> {
-            Platform.runLater(() -> {
-                item.setInstalling(false);
-                item.setInstallProgress(null);
-                sdkmanService.updateInstallState(item, false, null);
+        task.setOnFailed(_ ->
+                Platform.runLater(() -> {
+                    item.setInstalling(false);
+                    item.setInstallProgress(null);
+                    sdkmanService.updateInstallState(item, false, null);
 
-                if (onFailure != null) {
-                    onFailure.accept(item);
-                }
-                logger.error("Set default task failed for {}: {}", item.getCandidate(), item.getDisplayName(), task.getException());
-            });
-        });
+                    if (onFailure != null) {
+                        onFailure.accept(item);
+                    }
+                    logger.error("Set default task failed for {}: {}", item.getCandidate(), item.getDisplayName(), task.getException());
+                }));
 
         io.sdkman.util.ThreadManager.getInstance().executeJavaFxTask(task);
     }
-
 
 
 }

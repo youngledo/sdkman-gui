@@ -23,12 +23,13 @@ public class VersionListCellFactory {
 
     /**
      * 创建版本信息Cell（完整版本，支持定制）
-     * @param version 版本对象
-     * @param onInstall 安装回调
-     * @param onUninstall 卸载回调
-     * @param onSetDefault 设为默认回调
+     *
+     * @param version          版本对象
+     * @param onInstall        安装回调
+     * @param onUninstall      卸载回调
+     * @param onSetDefault     设为默认回调
      * @param customStyleClass 自定义CSS样式类（可选）
-     * @param showIdentifier 是否显示identifier（默认true）
+     * @param showIdentifier   是否显示identifier（默认true）
      * @return Cell的HBox布局
      */
     public static HBox createVersionCell(
@@ -66,7 +67,8 @@ public class VersionListCellFactory {
 
     /**
      * 创建版本信息区域
-     * @param version 版本对象
+     *
+     * @param version        版本对象
      * @param showIdentifier 是否显示identifier
      */
     private static VBox createInfoBox(SdkVersion version, boolean showIdentifier) {
@@ -148,7 +150,7 @@ public class VersionListCellFactory {
 
         Button installBtn = new Button(I18nManager.get("list.item.install"));
         installBtn.getStyleClass().addAll(Styles.SUCCESS, Styles.SMALL);
-        installBtn.setOnAction(e -> {
+        installBtn.setOnAction(_ -> {
             if (onInstall != null) {
                 onInstall.accept(version);
             }
@@ -183,7 +185,7 @@ public class VersionListCellFactory {
         // 卸载按钮
         Button uninstallBtn = new Button(I18nManager.get("list.item.uninstall"));
         uninstallBtn.getStyleClass().addAll(Styles.BUTTON_OUTLINED, Styles.DANGER, Styles.SMALL);
-        uninstallBtn.setOnAction(e -> {
+        uninstallBtn.setOnAction(_ -> {
             if (onUninstall != null) {
                 onUninstall.accept(version);
             }
@@ -215,14 +217,13 @@ public class VersionListCellFactory {
 
         // 使用Property绑定动态更新按钮文本和状态
         setDefaultBtn.textProperty().bind(
-                version.isDefaultProperty().map(isDefault -> {
-                    return isDefault ? I18nManager.get("version.action.default") : I18nManager.get("version.action.set-default");
-                })
+                version.isDefaultProperty().map(isDefault ->
+                        isDefault ? I18nManager.get("version.action.default") : I18nManager.get("version.action.set-default"))
         );
         setDefaultBtn.disableProperty().bind(version.isDefaultProperty());
 
         // 动态添加/移除样式类
-        version.isDefaultProperty().addListener((obs, wasDefault, isDefault) -> {
+        version.isDefaultProperty().addListener((obs, _, isDefault) -> {
             if (isDefault) {
                 setDefaultBtn.getStyleClass().removeAll(Styles.ACCENT, Styles.SMALL);
                 setDefaultBtn.getStyleClass().add(Styles.SMALL);
@@ -240,7 +241,7 @@ public class VersionListCellFactory {
             setDefaultBtn.getStyleClass().addAll(Styles.ACCENT, Styles.SMALL);
         }
 
-        setDefaultBtn.setOnAction(e -> {
+        setDefaultBtn.setOnAction(_ -> {
             if (onSetDefault != null) {
                 onSetDefault.accept(version);
             }

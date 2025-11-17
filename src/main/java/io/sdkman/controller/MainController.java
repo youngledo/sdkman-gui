@@ -82,7 +82,7 @@ public class MainController {
      * 设置语言变化监听
      */
     private void setupLanguageChangeListener() {
-        I18nManager.addLocaleChangeListener(locale -> {
+        I18nManager.addLocaleChangeListener(_ -> {
             // 在JavaFX应用线程中更新UI
             javafx.application.Platform.runLater(this::updateUIStrings);
         });
@@ -109,7 +109,7 @@ public class MainController {
         // 加载PNG图标，保持原始大小比例
         var resource = getClass().getResource("/icons/sdkman-gui.png");
         if (resource != null) {
-            Image logoImage = null;
+            Image logoImage;
             try {
                 logoImage = new Image(resource.openStream());
             } catch (IOException e) {

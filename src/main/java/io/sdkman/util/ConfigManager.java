@@ -1,5 +1,6 @@
 package io.sdkman.util;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +74,7 @@ public class ConfigManager {
     private static void loadConfig() {
         try {
             String json = Files.readString(configPath);
-            config = objectMapper.readValue(json, Map.class);
+            config = objectMapper.readValue(json, new TypeReference<HashMap<String, Object>>() {});
             logger.info("Config loaded from: {}", configPath);
         } catch (IOException e) {
             logger.error("Failed to load config, using defaults", e);
@@ -131,17 +132,6 @@ public class ConfigManager {
     public static String getString(String key, String defaultValue) {
         Object value = config.get(key);
         return value != null ? value.toString() : defaultValue;
-    }
-
-    /**
-     * 获取布尔配置值
-     */
-    public static boolean getBoolean(String key, boolean defaultValue) {
-        Object value = config.get(key);
-        if (value instanceof Boolean) {
-            return (Boolean) value;
-        }
-        return defaultValue;
     }
 
     /**
@@ -206,13 +196,6 @@ public class ConfigManager {
      */
     public static String getSdkmanPath() {
         return getString(KEY_SDKMAN_PATH, System.getProperty("user.home") + "/.sdkman");
-    }
-
-    /**
-     * 设置 SDKMAN 安装路径
-     */
-    public static void setSdkmanPath(String path) {
-        set(KEY_SDKMAN_PATH, path);
     }
 
     /**

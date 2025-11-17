@@ -540,7 +540,7 @@ public class JdkController {
         // 显示加载状态
         showLoadingState();
 
-        Task<List<SdkVersion>> task = sdkManagerService.loadJdkVersionsTask(forceRefresh);
+        Task<List<SdkVersion>> task = sdkManagerService.loadJdkVersionsTask();
 
         task.setOnSucceeded(event -> {
             List<SdkVersion> versions = task.getValue();

@@ -41,7 +41,7 @@ public class SdkmanApplication extends Application {
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/fxml/main-view.fxml")
         );
-        Parent root = null;
+        Parent root;
         try {
             root = loader.load();
         } catch (IOException e) {

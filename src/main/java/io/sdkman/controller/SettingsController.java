@@ -292,7 +292,7 @@ public class SettingsController {
      * 设置代理类型切换监听
      */
     private void setupProxyTypeListener() {
-        proxyTypeGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+        proxyTypeGroup.selectedToggleProperty().addListener((_, _, newToggle) -> {
             if (newToggle == proxyManualRadio) {
                 proxyManualBox.setVisible(true);
                 proxyManualBox.setManaged(true);
@@ -306,18 +306,14 @@ public class SettingsController {
         });
 
         // 监听代理主机和端口变化，立即保存
-        proxyHostField.textProperty().addListener((obs, oldVal, newVal) -> saveProxySettings());
-        proxyPortField.textProperty().addListener((obs, oldVal, newVal) -> saveProxySettings());
+        proxyHostField.textProperty().addListener((_, _, _) -> saveProxySettings());
+        proxyPortField.textProperty().addListener((_, _, _) -> saveProxySettings());
 
         // 监听语言变化，立即保存并切换语言
-        languageGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
-            saveLanguage();
-        });
+        languageGroup.selectedToggleProperty().addListener((_, _, _) -> saveLanguage());
 
         // 监听主题变化，立即保存并切换主题
-        themeGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
-            saveTheme();
-        });
+        themeGroup.selectedToggleProperty().addListener((_, _, _) -> saveTheme());
     }
 
     /**
@@ -474,14 +470,12 @@ public class SettingsController {
             });
         });
 
-        task.setOnFailed(_ -> {
-            Platform.runLater(() -> {
-                checkUpdateButton.setDisable(false);
-                updateStatusLabel.setText(I18nManager.get("settings.check_update_failed"));
-                updateStatusLabel.getStyleClass().add("danger");
-                logger.error("Failed to check for updates", task.getException());
-            });
-        });
+        task.setOnFailed(_ -> Platform.runLater(() -> {
+            checkUpdateButton.setDisable(false);
+            updateStatusLabel.setText(I18nManager.get("settings.check_update_failed"));
+            updateStatusLabel.getStyleClass().add("danger");
+            logger.error("Failed to check for updates", task.getException());
+        }));
         return task;
     }
 
@@ -579,12 +573,10 @@ public class SettingsController {
             }
         });
 
-        task.setOnFailed(_ -> {
-            Platform.runLater(() -> {
-                downloadStatusLabel.setText(I18nManager.get("settings.download_failed"));
-                downloadStatusLabel.getStyleClass().add("danger");
-            });
-        });
+        task.setOnFailed(_ -> Platform.runLater(() -> {
+            downloadStatusLabel.setText(I18nManager.get("settings.download_failed"));
+            downloadStatusLabel.getStyleClass().add("danger");
+        }));
 
         io.sdkman.util.ThreadManager.getInstance().executeJavaFxTask(task);
     }

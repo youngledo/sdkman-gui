@@ -114,7 +114,7 @@ public class VersionListManager<T extends Installable> {
                     }
                 },
                 // 失败回调
-                failedItem -> {
+                _ -> {
                     T targetItem = findItem(items, item);
                     if (targetItem != null) {
                         clearInstallingState(targetItem);

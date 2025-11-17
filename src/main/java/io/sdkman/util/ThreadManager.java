@@ -116,17 +116,4 @@ public class ThreadManager {
         logger.info("ThreadManager shutdown completed");
     }
 
-    /**
-     * 获取线程池状态信息（用于调试）
-     */
-    public String getPoolStatus() {
-        return String.format(
-            "Background Pool: [Active: %d, Completed: %d, Queue: %d], UI Pool: [Active: %d, Completed: %d]",
-            ((java.util.concurrent.ThreadPoolExecutor) backgroundExecutor).getActiveCount(),
-            ((java.util.concurrent.ThreadPoolExecutor) backgroundExecutor).getCompletedTaskCount(),
-            ((java.util.concurrent.ThreadPoolExecutor) backgroundExecutor).getQueue().size(),
-            ((java.util.concurrent.ThreadPoolExecutor) uiExecutor).getActiveCount(),
-            ((java.util.concurrent.ThreadPoolExecutor) uiExecutor).getCompletedTaskCount()
-        );
-    }
 }

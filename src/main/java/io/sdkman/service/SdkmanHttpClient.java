@@ -34,19 +34,18 @@ import java.util.zip.ZipInputStream;
 /// 使用SDKMAN的REST API进行跨平台SDK管理
 /// API文档：[sdkman-state](https://github.com/sdkman/sdkman-state)
 ///
-public class SdkmanHttpClient implements SdkmanClient {
+public class SdkmanHttpClient {
     private static final Logger logger = LoggerFactory.getLogger(SdkmanHttpClient.class);
 
-    // SDKMAN API基础URL
+    /// SDKMAN API基础URL
     private static final String API_BASE_URL = "https://api.sdkman.io/2";
 
-    // 常量
     private static final String VENDOR_HEADER_NAME = "Vendor";
 
-    // 正则表达式：解析Java版本表格（带|分隔符）
+    /// 正则表达式：解析Java版本表格（带|分隔符）
     private static final Pattern JAVA_VERSION_PATTERN = Pattern.compile("(.*?)\\|(.*?)\\|(.*?)\\|(.*?)\\|(.*?)\\|(.*)");
-    // 正则表达式：解析候选列表
-    // 格式: ---\n候选名称(版本)  网址\n\n描述...\n$ sdk install candidate_id\n
+    /// 正则表达式：解析候选列表
+    /// 格式: ---\n候选名称(版本)  网址\n\n描述...\n$ sdk install candidate_id\n
     private static final Pattern CANDIDATE_PATTERN = Pattern.compile(
             "---\\r*\\n(.+?)\\r*\\n\\r*\\n(.*?)\\$ sdk install(.*?)\\r*\\n",
             Pattern.MULTILINE | Pattern.DOTALL);
@@ -58,7 +57,6 @@ public class SdkmanHttpClient implements SdkmanClient {
         logger.info("Initialized SDKMAN HTTP API client");
     }
 
-    @Override
     public List<Sdk> listCandidates() {
         logger.info("Fetching candidates list from HTTP API");
 
@@ -68,7 +66,7 @@ public class SdkmanHttpClient implements SdkmanClient {
                 .GET()
                 .build();
 
-        HttpResponse<String> response = null;
+        HttpResponse<String> response;
         try {
             response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (IOException e) {
@@ -89,13 +87,7 @@ public class SdkmanHttpClient implements SdkmanClient {
         return parseCandidates(response.body());
     }
 
-    @Override
     public List<SdkVersion> listVersions(String candidate) {
-        return listVersions(candidate, true);
-    }
-
-    @Override
-    public List<SdkVersion> listVersions(String candidate, boolean useProxy) {
         logger.info("=== listVersions CALLED for {} ===", candidate);
 
         try {
@@ -143,48 +135,6 @@ public class SdkmanHttpClient implements SdkmanClient {
         }
     }
 
-    /**
-     * 获取本地已安装的版本列表（逗号分隔）
-     * 用于传递给 API 的 ?installed= 参数
-     */
-    private String getInstalledVersionsForCandidate(String candidate) {
-        try {
-            String candidateDir = ConfigManager.getSdkmanPath() + "/candidates/" + candidate;
-            File dir = new File(candidateDir);
-
-            if (!dir.exists() || !dir.isDirectory()) {
-                return "";
-            }
-
-            // 获取已安装的版本目录（排除current）
-            File[] versionDirs = dir.listFiles(file ->
-                    file.isDirectory() && !"current".equals(file.getName())
-            );
-
-            if (versionDirs == null || versionDirs.length == 0) {
-                return "";
-            }
-
-            // 拼接成逗号分隔的字符串
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < versionDirs.length; i++) {
-                if (i > 0) {
-                    sb.append(",");
-                }
-                sb.append(versionDirs[i].getName());
-            }
-
-            String installed = sb.toString();
-            logger.debug("{} installed versions: {}", candidate, installed);
-            return installed;
-
-        } catch (Exception e) {
-            logger.debug("Failed to get installed versions for {}", candidate, e);
-            return "";
-        }
-    }
-
-    @Override
     public boolean install(String candidate, String version, ProgressCallback progressCallback) {
         logger.info("Installing {} version {} via HTTP API", candidate, version);
 
@@ -236,7 +186,6 @@ public class SdkmanHttpClient implements SdkmanClient {
         }
     }
 
-    @Override
     public boolean uninstall(String candidate, String version) {
         logger.info("Uninstalling {} version {} via HTTP API", candidate, version);
 
@@ -261,7 +210,6 @@ public class SdkmanHttpClient implements SdkmanClient {
         }
     }
 
-    @Override
     public boolean setDefault(String candidate, String version) {
         logger.info("Setting default version for {} to {}", candidate, version);
 
@@ -310,7 +258,6 @@ public class SdkmanHttpClient implements SdkmanClient {
         }
     }
 
-    @Override
     public String getCurrentVersion(String candidate) {
         logger.debug("Getting current version for {}", candidate);
 
@@ -336,46 +283,13 @@ public class SdkmanHttpClient implements SdkmanClient {
         }
     }
 
-    @Override
-    public boolean isCandidateInstalled(String candidate) {
-        try {
-            String candidateDir = ConfigManager.getSdkmanPath() + "/candidates/" + candidate;
-            File dir = new File(candidateDir);
-
-            if (!dir.exists() || !dir.isDirectory()) {
-                return false;
-            }
-
-            // 检查是否有版本安装（排除current）
-            File[] files = dir.listFiles();
-            if (files == null) {
-                return false;
-            }
-
-            for (File file : files) {
-                if (file.isDirectory() && !"current".equals(file.getName())) {
-                    return true;
-                }
-            }
-
-            return false;
-
-        } catch (Exception e) {
-            logger.debug("Failed to check if {} is installed", candidate, e);
-            return false;
-        }
-    }
-
-    @Override
     public boolean isSdkmanInstalled() {
-        // HTTP API方式不需要SDKMAN本地安装，只需要目录结构
-        File sdkmanDir = new File(ConfigManager.getSdkmanPath());
-        File candidatesDir = new File(sdkmanDir, "candidates");
-
-        // 如果目录不存在，尝试创建
-        if (!candidatesDir.exists()) {
+        Path sdkmanDir = Paths.get(ConfigManager.getSdkmanPath());
+        Path candidatesDir = sdkmanDir.resolve("candidates");
+        // 使用 Files.createDirectories() 替代 File.mkdirs()
+        if (!Files.exists(candidatesDir)) {
             try {
-                candidatesDir.mkdirs();
+                Files.createDirectories(candidatesDir);
                 logger.info("Created SDKMAN directory structure at {}", candidatesDir);
                 return true;
             } catch (Exception e) {
@@ -383,59 +297,58 @@ public class SdkmanHttpClient implements SdkmanClient {
                 return false;
             }
         }
-
         return true;
     }
 
-    @Override
-    public String getClientType() {
-        return "HTTP API";
-    }
-
-    @Override
-    public boolean isAvailable() {
-        // HTTP API方式始终可用（跨平台）
+    /// 获取本地已安装的版本列表（逗号分隔），用于传递给 API 的 ?installed= 参数
+    private String getInstalledVersionsForCandidate(String candidate) {
         try {
-            // 测试API连接
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(API_BASE_URL + "/candidates/list"))
-                    .timeout(Duration.ofSeconds(5))
-                    .GET()
-                    .build();
+            String candidateDir = ConfigManager.getSdkmanPath() + "/candidates/" + candidate;
+            File dir = new File(candidateDir);
 
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            boolean available = response.statusCode() == 200;
-
-            if (available) {
-                logger.info("HTTP API client is available and connected");
-            } else {
-                logger.warn("HTTP API responded with status {}", response.statusCode());
+            if (!dir.exists() || !dir.isDirectory()) {
+                return "";
             }
 
-            return available;
+            // 获取已安装的版本目录（排除current）
+            File[] versionDirs = dir.listFiles(file ->
+                    file.isDirectory() && !"current".equals(file.getName())
+            );
+
+            if (versionDirs == null || versionDirs.length == 0) {
+                return "";
+            }
+
+            // 拼接成逗号分隔的字符串
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < versionDirs.length; i++) {
+                if (i > 0) {
+                    sb.append(",");
+                }
+                sb.append(versionDirs[i].getName());
+            }
+
+            String installed = sb.toString();
+            logger.debug("{} installed versions: {}", candidate, installed);
+            return installed;
 
         } catch (Exception e) {
-            logger.debug("HTTP API client not available: {}", e.getMessage());
-            return false;
+            logger.debug("Failed to get installed versions for {}", candidate, e);
+            return "";
         }
     }
 
-    // ==================== 辅助方法 ====================
-
-    /**
-     * 解析候选列表响应（表格格式）
-     * 使用正则表达式解析，参考 sdkman-ui 的实现
-     * 格式示例：
-     * <pre>
-     * --------------------------------------------------------------------------------
-     * Apache ActiveMQ (Classic) (5.17.1)                  https://activemq.apache.org/
-     *
-     * Apache ActiveMQ® is a popular open source...
-     *
-     *                                                   $ sdk install activemq
-     * --------------------------------------------------------------------------------
-     * </pre>
-     */
+    ///
+    /// 解析候选列表响应（表格格式）
+    /// 使用正则表达式解析，参考 sdkman-ui 的实现
+    /// 格式示例：
+    /// ```
+    /// --------------------------------------------------------------------------------
+    /// Apache ActiveMQ (Classic) (5.17.1)                  <a href="https://activemq.apache.org/">ActiveMQ</a>
+    /// Apache ActiveMQ® is a popular open source...
+    ///                                                   $ sdk install activemq
+    /// --------------------------------------------------------------------------------
+    /// ```
     private List<Sdk> parseCandidates(String tableText) {
         List<Sdk> sdks = new ArrayList<>();
 
@@ -491,10 +404,8 @@ public class SdkmanHttpClient implements SdkmanClient {
         return sdks;
     }
 
-    /**
-     * 解析版本列表响应（表格格式）
-     * 使用正则表达式解析，参考 sdkman-ui 的实现
-     */
+    /// 解析版本列表响应（表格格式）
+    /// 使用正则表达式解析，参考 sdkman-ui 的实现
     private List<SdkVersion> parseVersionsCsv(String tableText, String candidate) {
         List<SdkVersion> versions = new ArrayList<>();
 
@@ -520,10 +431,8 @@ public class SdkmanHttpClient implements SdkmanClient {
         return versions;
     }
 
-    /**
-     * 解析Java版本（表格格式，|分隔）
-     * 格式: Vendor | Use | Version | Dist | Status | Identifier
-     */
+    /// 解析Java版本（表格格式，|分隔）
+    /// 格式: Vendor | Use | Version | Dist | Status | Identifier
     private List<SdkVersion> parseJavaVersions(String tableText, String candidate) {
         List<SdkVersion> versions = new ArrayList<>();
         Matcher matcher = JAVA_VERSION_PATTERN.matcher(tableText);
@@ -534,7 +443,6 @@ public class SdkmanHttpClient implements SdkmanClient {
                 String vendorCol = matcher.group(1).trim();
                 String useCol = matcher.group(2).trim();
                 String versionCol = matcher.group(3).trim();
-                String distCol = matcher.group(4).trim();
                 String statusCol = matcher.group(5).trim();
                 String identifierCol = matcher.group(6).trim();
 
@@ -580,10 +488,8 @@ public class SdkmanHttpClient implements SdkmanClient {
         return versions;
     }
 
-    /**
-     * 解析其他SDK版本（空格分隔格式）
-     * 参考 sdkman-ui 的实现逻辑
-     */
+    /// 解析其他SDK版本（空格分隔格式）
+    /// 参考 sdkman-ui 的实现逻辑
     private List<SdkVersion> parseOtherVersions(String tableText, String candidate) {
         List<SdkVersion> versions = new ArrayList<>();
 
@@ -676,9 +582,7 @@ public class SdkmanHttpClient implements SdkmanClient {
         return versions;
     }
 
-    /**
-     * 下载SDK
-     */
+    /// 下载SDK
     private Path downloadSdk(String candidate, String version, ProgressCallback progressCallback) {
         try {
             String platform = PlatformDetector.detectPlatform();
@@ -725,9 +629,7 @@ public class SdkmanHttpClient implements SdkmanClient {
         }
     }
 
-    /**
-     * 解压SDK到安装目录
-     */
+    /// 解压SDK到安装目录
     private boolean extractSdk(String candidate, String version, Path zipFile) {
         try {
             String installPath = ConfigManager.getSdkmanPath() + "/candidates/" + candidate + "/" + version;
@@ -762,9 +664,7 @@ public class SdkmanHttpClient implements SdkmanClient {
         }
     }
 
-    /**
-     * 递归删除目录
-     */
+    /// 递归删除目录
     private void deleteDirectory(Path path) throws IOException {
         if (Files.isDirectory(path)) {
             try (var stream = Files.list(path)) {
@@ -780,4 +680,8 @@ public class SdkmanHttpClient implements SdkmanClient {
         Files.deleteIfExists(path);
     }
 
+    /// 进度回调接口
+    public interface ProgressCallback {
+        void onProgress(String message);
+    }
 }

@@ -152,15 +152,13 @@ public class SdkController {
      */
     private void setupSearchListener() {
         if (searchField != null) {
-            searchField.textProperty().addListener((_, _, _) -> {
-                applyFilters();
-            });
+            searchField.textProperty()
+                    .addListener((_, _, _) -> applyFilters());
         }
 
         if (installedOnlyCheckbox != null) {
-            installedOnlyCheckbox.selectedProperty().addListener((_, _, _) -> {
-                applyFilters();
-            });
+            installedOnlyCheckbox.selectedProperty()
+                    .addListener((_, _, _) -> applyFilters());
         }
     }
 
