@@ -11,7 +11,7 @@ echo "project root: $PROJECT_ROOT"
 ARCH=$(uname -m)
 case "$ARCH" in
     "arm64"|"aarch64") ARCH_SUFFIX="arm64" ;;
-    "x86_64") ARCH_SUFFIX="amd64" ;;
+    "x86_64"|"amd64") ARCH_SUFFIX="x86_64" ;;
     *) ARCH_SUFFIX="unknown" ;;
 esac
 
