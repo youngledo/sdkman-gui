@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-         http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
+<project xmlns="http://maven.apache.org/POM/4.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.1.0           https://maven.apache.org/xsd/maven-4.1.0.xsd">
     <groupId>com.sdkgui</groupId>
     <artifactId>sdkman-gui</artifactId>
     <version>1.0.0</version>
@@ -276,11 +271,9 @@
                             <outputFile>target/input/${project.build.finalName}.jar</outputFile>
                             <transformers>
                                 <!-- Merge ServiceLoader configuration files (fixes Ikonli loading) -->
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                                 <!-- Set Main-Class in MANIFEST.MF -->
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>io.sdkman.SdkmanApplication</mainClass>
                                     <manifestEntries>
                                         <Implementation-Title>${project.name}</Implementation-Title>
