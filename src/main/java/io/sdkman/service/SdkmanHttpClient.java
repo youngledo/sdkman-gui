@@ -214,8 +214,8 @@ public class SdkmanHttpClient {
         logger.info("Setting default version for {} to {}", candidate, version);
 
         try {
+            // 首先检查版本是否已安装
             String candidatePath = ConfigManager.getSdkmanPath() + "/candidates/" + candidate;
-            Path currentLink = Paths.get(candidatePath, "current");
             Path versionPath = Paths.get(candidatePath, version);
 
             if (!Files.exists(versionPath)) {
@@ -223,18 +223,96 @@ public class SdkmanHttpClient {
                 return false;
             }
 
+            // 检查操作系统类型并使用相应的命令
+            String osName = System.getProperty("os.name").toLowerCase();
+            ProcessBuilder processBuilder = new ProcessBuilder();
+            List<String> command = new ArrayList<>();
+
+            if (osName.contains("win")) {
+                // Windows系统
+                // 在Windows上，SDKMAN可能使用Git Bash或其他shell环境
+                // 我们尝试使用cmd.exe执行命令
+                command.add("cmd.exe");
+                command.add("/c");
+                // 注意：Windows上的SDKMAN可能需要不同的处理方式
+                // 这里我们先尝试使用符号链接方式，但需要验证是否有效
+                logger.warn("Windows platform detected, using fallback symbolic link method");
+                return createSymbolicLinkDirectly(candidatePath, version);
+            } else {
+                // Unix-like系统（Linux/macOS）
+                command.add("bash");
+                command.add("-c");
+                command.add("source \"" + ConfigManager.getSdkmanPath() + "/bin/sdkman-init.sh\" && sdk default " + candidate + " " + version);
+            }
+
+            processBuilder.command(command);
+            processBuilder.directory(new File(System.getProperty("user.home")));
+
+            logger.debug("Executing command: {}", String.join(" ", command));
+
+            Process process = processBuilder.start();
+            int exitCode = process.waitFor();
+
+            if (exitCode == 0) {
+                logger.info("Successfully set {} {} as default via SDKMAN CLI", candidate, version);
+
+                // 验证链接是否创建成功
+                Path currentLink = Paths.get(candidatePath, "current");
+                if (Files.exists(currentLink)) {
+                    if (Files.isSymbolicLink(currentLink)) {
+                        Path actualTarget = Files.readSymbolicLink(currentLink);
+                        logger.debug("Symbolic link created: {} -> {}", currentLink, actualTarget);
+                    }
+                    return true;
+                } else {
+                    logger.warn("Default version set but current link not found");
+                    return false;
+                }
+            } else {
+                // 读取错误输出
+                String errorMsg = new String(process.getErrorStream().readAllBytes());
+                logger.error("Failed to set default for {} {} via SDKMAN CLI. Exit code: {}, Error: {}",
+                           candidate, version, exitCode, errorMsg);
+                
+                // 如果CLI命令失败，回退到直接创建符号链接的方式
+                logger.warn("Falling back to direct symbolic link creation");
+                return createSymbolicLinkDirectly(candidatePath, version);
+            }
+
+        } catch (Exception e) {
+            logger.error("Failed to set default for {} {}", candidate, version, e);
+            // 如果出现异常，回退到直接创建符号链接的方式
+            try {
+                logger.warn("Falling back to direct symbolic link creation due to exception");
+                String candidatePath = ConfigManager.getSdkmanPath() + "/candidates/" + candidate;
+                return createSymbolicLinkDirectly(candidatePath, version);
+            } catch (Exception fallbackException) {
+                logger.error("Fallback method also failed for {} {}", candidate, version, fallbackException);
+                return false;
+            }
+        }
+    }
+
+    /**
+     * 直接创建符号链接的方法（回退方案）
+     */
+    private boolean createSymbolicLinkDirectly(String candidatePath, String version) {
+        try {
+            Path currentLink = Paths.get(candidatePath, "current");
+            Path versionPath = Paths.get(candidatePath, version);
+
             // 删除旧的软链接
             if (Files.exists(currentLink)) {
                 Files.delete(currentLink);
             }
 
             // 创建新的软链接
-            // 注意：使用绝对路径作为目标，确保链接在任何位置都能正确解析
             Files.createSymbolicLink(currentLink, versionPath);
 
             // 验证链接是否创建成功
             if (!Files.exists(currentLink)) {
-                logger.error("Failed to create symbolic link for {} {}", candidate, version);
+                logger.error("Failed to create symbolic link for {} {}", 
+                           candidatePath.substring(candidatePath.lastIndexOf("/") + 1), version);
                 return false;
             }
 
@@ -244,7 +322,8 @@ public class SdkmanHttpClient {
                 logger.debug("Symbolic link created: {} -> {}", currentLink, actualTarget);
             }
 
-            logger.info("Successfully set {} {} as default", candidate, version);
+            logger.info("Successfully set {} {} as default via direct symbolic link", 
+                       candidatePath.substring(candidatePath.lastIndexOf("/") + 1), version);
             return true;
 
         } catch (UnsupportedOperationException e) {
@@ -253,7 +332,7 @@ public class SdkmanHttpClient {
                     "On Windows, please run with administrator privileges or enable Developer Mode", e);
             return false;
         } catch (Exception e) {
-            logger.error("Failed to set default for {} {}", candidate, version, e);
+            logger.error("Failed to create symbolic link directly", e);
             return false;
         }
     }
@@ -641,17 +720,38 @@ public class SdkmanHttpClient {
             // 解压zip文件
             try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipFile))) {
                 ZipEntry entry;
-                while ((entry = zis.getNextEntry()) != null) {
-                    Path targetPath = targetDir.resolve(entry.getName());
+                // 首先检查zip文件结构，确定是否需要跳过顶层目录
+                boolean shouldSkipTopLevelDir = shouldSkipTopLevelDirectory(zis, zipFile);
+                
+                // 重新打开ZipInputStream，因为上面的检查已经读取了部分数据
+                try (ZipInputStream zis2 = new ZipInputStream(Files.newInputStream(zipFile))) {
+                    while ((entry = zis2.getNextEntry()) != null) {
+                        String entryName = entry.getName();
+                        
+                        // 如果需要跳过顶层目录，则移除第一个路径段
+                        if (shouldSkipTopLevelDir) {
+                            int firstSlash = entryName.indexOf('/');
+                            if (firstSlash != -1) {
+                                entryName = entryName.substring(firstSlash + 1);
+                            }
+                            // 如果移除第一段后为空，则跳过这个目录条目
+                            if (entryName.isEmpty()) {
+                                zis2.closeEntry();
+                                continue;
+                            }
+                        }
+                        
+                        Path targetPath = targetDir.resolve(entryName);
 
-                    if (entry.isDirectory()) {
-                        Files.createDirectories(targetPath);
-                    } else {
-                        Files.createDirectories(targetPath.getParent());
-                        Files.copy(zis, targetPath);
+                        if (entry.isDirectory()) {
+                            Files.createDirectories(targetPath);
+                        } else {
+                            Files.createDirectories(targetPath.getParent());
+                            Files.copy(zis2, targetPath);
+                        }
+
+                        zis2.closeEntry();
                     }
-
-                    zis.closeEntry();
                 }
             }
 
@@ -663,7 +763,41 @@ public class SdkmanHttpClient {
             return false;
         }
     }
-
+    
+    /// 检查是否需要跳过顶层目录
+    private boolean shouldSkipTopLevelDirectory(ZipInputStream zis, Path zipFile) {
+        try {
+            List<String> topLevelEntries = new ArrayList<>();
+            ZipEntry entry;
+            
+            // 收集顶层条目
+            while ((entry = zis.getNextEntry()) != null) {
+                String name = entry.getName();
+                // 只考虑顶层条目（没有/或者只有一个/且在末尾）
+                if (name.indexOf('/') == -1 || (name.indexOf('/') == name.length() - 1)) {
+                    topLevelEntries.add(name);
+                }
+                zis.closeEntry();
+                
+                // 如果顶层条目超过1个，不需要跳过
+                if (topLevelEntries.size() > 1) {
+                    return false;
+                }
+            }
+            
+            // 如果只有一个顶层条目且是目录，则需要跳过
+            if (topLevelEntries.size() == 1) {
+                String topLevel = topLevelEntries.get(0);
+                return topLevel.endsWith("/"); // 目录条目以/结尾
+            }
+            
+            return false;
+        } catch (Exception e) {
+            logger.warn("Failed to analyze zip structure, will not skip top level directory", e);
+            return false;
+        }
+    }
+    
     /// 递归删除目录
     private void deleteDirectory(Path path) throws IOException {
         if (Files.isDirectory(path)) {
