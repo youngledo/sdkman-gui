@@ -12,7 +12,7 @@ jobs:
   build-macos:
     strategy:
       matrix:
-        os: [macos-13, macos-14] # Intel (x86_64) and Apple Silicon (arm64)
+        os: [macos-15-large, macos-latest] # Intel (x86_64) and Apple Silicon (arm64)
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -240,7 +240,7 @@ jobs:
 
             ### 📋 Supported Platforms
 
-            - **macOS**: Big Sur (11.0) or later (Intel & Apple Silicon)
+            - **macOS**: Monterey (12.0) or later (Intel & Apple Silicon)
             - **Windows**: Windows 10/11 (x64)
             - **Linux**: Ubuntu 20.04+, Fedora 35+, RHEL 8+ (x64)
 
