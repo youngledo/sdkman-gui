@@ -547,7 +547,7 @@ public class SdkmanHttpClient {
                 sdkVersion.setIdentifier(identifierCol);
                 sdkVersion.setVersion(versionCol);
                 sdkVersion.setVendor(vendorCol);
-                sdkVersion.setCategory(JdkCategory.fromIdentifier(identifierCol));
+                sdkVersion.setCategories(JdkCategory.fromIdentifier(identifierCol));
 
                 // 解析状态
                 boolean isInstalled = statusCol.contains("installed") || useCol.contains("*");

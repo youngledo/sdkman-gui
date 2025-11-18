@@ -316,18 +316,21 @@ public class JdkController {
 
     private boolean filterCategory(String categoryFilter, SdkVersion jdk) {
         if (!categoryFilter.equals(I18nManager.get("jdk.category.all"))) {
-            var category = jdk.getCategory();
-            if (category == null) {
+            var categories = jdk.getCategories();
+            if (categories == null || categories.isEmpty()) {
                 return false;
             }
 
-            if (categoryFilter.equals(I18nManager.get("jdk.category.jdk")) && category != JdkCategory.JDK) {
-                return false;
+            // 检查JDK是否包含所选分类
+            if (categoryFilter.equals(I18nManager.get("jdk.category.jdk"))) {
+                return jdk.hasCategory(JdkCategory.JDK);
             }
-            if (categoryFilter.equals(I18nManager.get("jdk.category.javafx")) && category != JdkCategory.JAVAFX) {
-                return false;
+            if (categoryFilter.equals(I18nManager.get("jdk.category.javafx"))) {
+                return jdk.hasCategory(JdkCategory.JAVAFX);
             }
-            return !categoryFilter.equals(I18nManager.get("jdk.category.nik")) || category == JdkCategory.NIK;
+            if (categoryFilter.equals(I18nManager.get("jdk.category.nik"))) {
+                return jdk.hasCategory(JdkCategory.NIK);
+            }
         }
 
         return true;
@@ -413,10 +416,9 @@ public class JdkController {
      * 更新分类筛选器选项
      */
     private void updateCategoryFilterOptions(List<SdkVersion> versions, String currentValue) {
-        // 获取当前结果中存在的分类
+        // 获取当前结果中存在的所有分类（扁平化所有JDK的分类集合）
         Set<JdkCategory> availableCategories = versions.stream()
-                .map(SdkVersion::getCategory)
-                .filter(Objects::nonNull)
+                .flatMap(v -> v.getCategories().stream())
                 .collect(java.util.stream.Collectors.toSet());
 
         ObservableList<String> categoryOptions = FXCollections.observableArrayList();

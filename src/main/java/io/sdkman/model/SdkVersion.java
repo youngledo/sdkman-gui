@@ -7,6 +7,9 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
+import java.util.Set;
+import java.util.HashSet;
+
 /**
  * SDK版本信息
  */
@@ -14,7 +17,7 @@ public class SdkVersion implements Installable {
     private String version;
     private String identifier;  // SDKMAN使用的唯一标识符（如21.0.9-amzn）
     private String vendor;
-    private JdkCategory category;  // JDK分类（JDK、JavaFX、NIK）
+    private Set<JdkCategory> categories;  // JDK分类集合（可能同时属于多个分类）
     private String candidate;  // SDK候选名称（如java、gradle、maven等）
 
     // 用于JSON序列化的boolean字段（映射到JSON的"installed"字段）
@@ -80,12 +83,23 @@ public class SdkVersion implements Installable {
         this.vendor = vendor;
     }
 
-    public JdkCategory getCategory() {
-        return category;
+    public Set<JdkCategory> getCategories() {
+        if (categories == null) {
+            categories = new HashSet<>();
+        }
+        return categories;
     }
 
-    public void setCategory(JdkCategory category) {
-        this.category = category;
+    public void setCategories(Set<JdkCategory> categories) {
+        this.categories = categories;
+    }
+
+    /**
+     * 检查是否属于指定分类
+     */
+    @JsonIgnore
+    public boolean hasCategory(JdkCategory category) {
+        return categories != null && categories.contains(category);
     }
 
     @JsonIgnore  // 不用于JSON序列化，仅用于业务逻辑

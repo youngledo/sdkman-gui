@@ -1,5 +1,8 @@
 package io.sdkman.model;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * JDK分类枚举
  */
@@ -20,27 +23,38 @@ public enum JdkCategory {
     NIK;
 
     /**
-     * 根据identifier识别JDK类别
+     * 根据identifier识别JDK类别集合
+     * 一个JDK可能同时属于多个分类(例如: 既支持JavaFX又是NIK)
      *
      * @param identifier JDK标识符
-     * @return JDK类别
+     * @return JDK类别集合
      */
-    public static JdkCategory fromIdentifier(String identifier) {
+    public static Set<JdkCategory> fromIdentifier(String identifier) {
+        Set<JdkCategory> categories = new HashSet<>();
+
         if (identifier == null || identifier.isEmpty()) {
-            return JDK;
+            categories.add(JDK);
+            return categories;
         }
 
         String lowerIdentifier = identifier.toLowerCase();
-        // NIK: 以-nik结尾
-        if (lowerIdentifier.endsWith("-nik")) {
-            return NIK;
-        }
-        // JavaFX: 包含.fx
+
+        // 检查是否包含JavaFX
         if (lowerIdentifier.contains(".fx")) {
-            return JAVAFX;
+            categories.add(JAVAFX);
         }
-        // 默认为普通JDK
-        return JDK;
+
+        // 检查是否为NIK
+        if (lowerIdentifier.endsWith("-nik")) {
+            categories.add(NIK);
+        }
+
+        // 如果没有特殊分类，则归为普通JDK
+        if (categories.isEmpty()) {
+            categories.add(JDK);
+        }
+
+        return categories;
     }
 
     /**
