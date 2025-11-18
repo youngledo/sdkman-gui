@@ -33,8 +33,7 @@
 
 **手动安装：**
 从 [Releases](https://github.com/youngledo/sdkman-gui/releases) 下载对应架构的 DMG 文件：
-- Apple Silicon (M1/M2/M3): `sdkman-gui_*_arm64.dmg`
-- Intel: `sdkman-gui_*_x86_64.dmg`
+- Apple Silicon：`sdkman-gui_*_arm64.dmg`
 
 **Homebrew：**
 ```bash

@@ -34,7 +34,6 @@ Cross-platform, supports Windows, macOS, Ubuntu. Built with JavaFX + Maven, insp
 **Manual Installation:**
 Download the DMG file for your architecture from [Releases](https://github.com/youngledo/sdkman-gui/releases):
 - Apple Silicon: `sdkman-gui_*_arm64.dmg`
-- Intel: `sdkman-gui_*_x86_64.dmg`
 
 **Homebrew:**
 ```bash
