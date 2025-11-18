@@ -274,7 +274,7 @@ public class SettingsController {
         switch (proxyType) {
             case "none" -> proxyNoneRadio.setSelected(true);
             case "auto" -> proxyAutoRadio.setSelected(true);
-            case "manual" -> {
+            default -> {
                 proxyManualRadio.setSelected(true);
                 proxyManualBox.setVisible(true);
                 proxyManualBox.setManaged(true);

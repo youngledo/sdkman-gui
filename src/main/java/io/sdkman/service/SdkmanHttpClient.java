@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -190,7 +191,7 @@ public class SdkmanHttpClient {
         logger.info("Uninstalling {} version {} via HTTP API", candidate, version);
 
         try {
-            String installPath = ConfigManager.getSdkmanPath() + "/candidates/" + candidate + "/" + version;
+            String installPath = ConfigManager.getSdkmanPath() + File.separator + "candidates" + File.separator + candidate + File.separator + version;
             Path path = Paths.get(installPath);
 
             if (!Files.exists(path)) {
@@ -215,7 +216,7 @@ public class SdkmanHttpClient {
 
         try {
             // 首先检查版本是否已安装
-            String candidatePath = ConfigManager.getSdkmanPath() + "/candidates/" + candidate;
+            String candidatePath = ConfigManager.getSdkmanPath() + File.separator + "candidates" + File.separator + candidate;
             Path versionPath = Paths.get(candidatePath, version);
 
             if (!Files.exists(versionPath)) {
@@ -284,7 +285,7 @@ public class SdkmanHttpClient {
             // 如果出现异常，回退到直接创建符号链接的方式
             try {
                 logger.warn("Falling back to direct symbolic link creation due to exception");
-                String candidatePath = ConfigManager.getSdkmanPath() + "/candidates/" + candidate;
+                String candidatePath = ConfigManager.getSdkmanPath() + File.separator + "candidates" + File.separator + candidate;
                 return createSymbolicLinkDirectly(candidatePath, version);
             } catch (Exception fallbackException) {
                 logger.error("Fallback method also failed for {} {}", candidate, version, fallbackException);
@@ -341,7 +342,7 @@ public class SdkmanHttpClient {
         logger.debug("Getting current version for {}", candidate);
 
         try {
-            String candidatePath = ConfigManager.getSdkmanPath() + "/candidates/" + candidate;
+            String candidatePath = ConfigManager.getSdkmanPath() + File.separator + "candidates" + File.separator + candidate;
             Path currentLink = Paths.get(candidatePath, "current");
 
             if (!Files.exists(currentLink)) {
@@ -382,7 +383,7 @@ public class SdkmanHttpClient {
     /// 获取本地已安装的版本列表（逗号分隔），用于传递给 API 的 ?installed= 参数
     private String getInstalledVersionsForCandidate(String candidate) {
         try {
-            String candidateDir = ConfigManager.getSdkmanPath() + "/candidates/" + candidate;
+            String candidateDir = ConfigManager.getSdkmanPath() + File.separator + "candidates" + File.separator + candidate;
             File dir = new File(candidateDir);
 
             if (!dir.exists() || !dir.isDirectory()) {
@@ -711,7 +712,7 @@ public class SdkmanHttpClient {
     /// 解压SDK到安装目录
     private boolean extractSdk(String candidate, String version, Path zipFile) {
         try {
-            String installPath = ConfigManager.getSdkmanPath() + "/candidates/" + candidate + "/" + version;
+            String installPath = ConfigManager.getSdkmanPath() + File.separator + "candidates" + File.separator + candidate + File.separator + version;
             Path targetDir = Paths.get(installPath);
 
             // 创建目标目录
@@ -721,7 +722,7 @@ public class SdkmanHttpClient {
             try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipFile))) {
                 ZipEntry entry;
                 // 首先检查zip文件结构，确定是否需要跳过顶层目录
-                boolean shouldSkipTopLevelDir = shouldSkipTopLevelDirectory(zis, zipFile);
+                boolean shouldSkipTopLevelDir = shouldSkipTopLevelDirectory(zis);
                 
                 // 重新打开ZipInputStream，因为上面的检查已经读取了部分数据
                 try (ZipInputStream zis2 = new ZipInputStream(Files.newInputStream(zipFile))) {
@@ -730,7 +731,7 @@ public class SdkmanHttpClient {
                         
                         // 如果需要跳过顶层目录，则移除第一个路径段
                         if (shouldSkipTopLevelDir) {
-                            int firstSlash = entryName.indexOf('/');
+                            int firstSlash = entryName.indexOf(File.separator);
                             if (firstSlash != -1) {
                                 entryName = entryName.substring(firstSlash + 1);
                             }
@@ -755,6 +756,9 @@ public class SdkmanHttpClient {
                 }
             }
 
+            // 设置解压后文件的权限（确保可执行文件具有执行权限）
+            setCommonExecutablePermissions(targetDir);
+
             logger.info("Extracted SDK to {}", installPath);
             return true;
 
@@ -764,8 +768,30 @@ public class SdkmanHttpClient {
         }
     }
     
+    /// 设置解压后文件的权限
+    private void setCommonExecutablePermissions(Path directory) {
+        try {
+            try(Stream<Path> stream = Files.walk(directory)) {
+                stream.filter(Files::isRegularFile)
+                        .forEach(file -> {
+                            try {
+                                // 在Unix/Linux系统中，给所有文件添加用户执行权限
+                                // 系统会根据文件内容决定是否实际可执行
+                                // 这更接近SDKMAN CLI的实际做法
+                                boolean executable = file.toFile().setExecutable(true, false);
+                                logger.info("Set executable permission for: {}, executable: {}", file, executable);
+                            } catch (Exception e) {
+                                logger.warn("Failed to set executable permission for: {}", file, e);
+                            }
+                        });
+            }
+        } catch (Exception e) {
+            logger.warn("Failed to set common executable permissions for directory: {}", directory, e);
+        }
+    }
+    
     /// 检查是否需要跳过顶层目录
-    private boolean shouldSkipTopLevelDirectory(ZipInputStream zis, Path zipFile) {
+    private boolean shouldSkipTopLevelDirectory(ZipInputStream zis) {
         try {
             List<String> topLevelEntries = new ArrayList<>();
             ZipEntry entry;
@@ -787,7 +813,7 @@ public class SdkmanHttpClient {
             
             // 如果只有一个顶层条目且是目录，则需要跳过
             if (topLevelEntries.size() == 1) {
-                String topLevel = topLevelEntries.get(0);
+                String topLevel = topLevelEntries.getFirst();
                 return topLevel.endsWith("/"); // 目录条目以/结尾
             }
             

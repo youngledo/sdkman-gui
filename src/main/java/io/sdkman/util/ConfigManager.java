@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -195,7 +196,7 @@ public class ConfigManager {
      * 获取 SDKMAN 安装路径
      */
     public static String getSdkmanPath() {
-        return getString(KEY_SDKMAN_PATH, System.getProperty("user.home") + "/.sdkman");
+        return getString(KEY_SDKMAN_PATH, System.getProperty("user.home") + File.separator + ".sdkman");
     }
 
     /**
