@@ -29,14 +29,46 @@ Cross-platform, supports Windows, macOS, Ubuntu. Built with JavaFX + Maven, insp
 
 ## 📦 Installation
 
-- **Releases:**
-   > https://github.com/youngledo/sdkman-gui/releases
+### macOS
 
-- **macOS (Homebrew):**
-   ```bash
-   brew tap youngledo/sdkman-gui
-   brew install --cask sdkman-gui
-   ```
+**Manual Installation:**
+Download the DMG file for your architecture from [Releases](https://github.com/youngledo/sdkman-gui/releases):
+- Apple Silicon: `sdkman-gui_*_arm64.dmg`
+- Intel: `sdkman-gui_*_x86_64.dmg`
+
+**Homebrew:**
+```bash
+brew tap youngledo/sdkman-gui
+brew install --cask sdkman-gui
+```
+
+### Windows
+
+Download and run the installer from [Releases](https://github.com/youngledo/sdkman-gui/releases):
+- `sdkman-gui_*_x86_64.exe`
+
+### Linux
+
+**Debian/Ubuntu:**
+```bash
+# Download the .deb package from releases
+wget https://github.com/youngledo/sdkman-gui/releases/download/v1.0.0/sdkman-gui_1.0.0_x86_64.deb
+sudo dpkg -i sdkman-gui_1.0.0_x86_64.deb
+```
+
+**Fedora/RHEL:**
+```bash
+# Download the .rpm package from releases
+wget https://github.com/youngledo/sdkman-gui/releases/download/v1.0.0/sdkman-gui_1.0.0_x86_64.rpm
+sudo rpm -i sdkman-gui_1.0.0_x86_64.rpm
+```
+
+### Prerequisites
+
+⚠️ **SDKMAN must be installed first:**
+```bash
+curl -s "https://get.sdkman.io" | bash
+```
 
 ## 🌍 Internationalization
 

@@ -4,24 +4,211 @@ on:
   push:
     tags:
       - 'v*'
-      
+
 permissions:
   contents: write
-  
+
 jobs:
-  create-release:
-    runs-on: ubuntu-latest
-    
+  build-macos:
+    strategy:
+      matrix:
+        os: [macos-13, macos-14] # Intel (x86_64) and Apple Silicon (arm64)
+    runs-on: ${{ matrix.os }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+
       - name: Get version from tag
         id: get_version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-      
+
+      - name: Build DMG package
+        run: |
+          cd package
+          chmod +x package.sh
+          ./package.sh
+
+      - name: Calculate SHA256 and prepare artifact
+        id: prepare
+        run: |
+          DMG_FILE=$(ls target/distributions/*.dmg | head -n 1)
+          SHA256=$(shasum -a 256 "$DMG_FILE" | awk '{print $1}')
+          BASENAME=$(basename "$DMG_FILE")
+          echo "sha256=$SHA256" >> $GITHUB_OUTPUT
+          echo "dmg_file=$DMG_FILE" >> $GITHUB_OUTPUT
+          echo "basename=$BASENAME" >> $GITHUB_OUTPUT
+          echo "SHA256 ($BASENAME): $SHA256"
+
+      - name: Upload DMG artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-${{ matrix.os }}
+          path: ${{ steps.prepare.outputs.dmg_file }}
+          retention-days: 1
+
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Get version from tag
+        id: get_version
+        shell: bash
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Build Windows installer
+        shell: bash
+        run: |
+          mvn clean package jpackage:jpackage -DskipTests
+
+      - name: Get architecture
+        id: arch
+        shell: bash
+        run: |
+          ARCH=$(echo $PROCESSOR_ARCHITECTURE | tr '[:upper:]' '[:lower:]')
+          case "$ARCH" in
+            "amd64") ARCH_SUFFIX="x86_64" ;;
+            "arm64") ARCH_SUFFIX="arm64" ;;
+            *) ARCH_SUFFIX="x86_64" ;;
+          esac
+          echo "arch=$ARCH_SUFFIX" >> $GITHUB_OUTPUT
+
+      - name: Rename and prepare artifact
+        id: prepare
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          ARCH="${{ steps.arch.outputs.arch }}"
+          EXE_ORIGINAL=$(ls target/distributions/*.exe | head -n 1)
+          EXE_RENAMED="target/distributions/sdkman-gui_${VERSION}_${ARCH}.exe"
+
+          mv "$EXE_ORIGINAL" "$EXE_RENAMED"
+          SHA256=$(powershell -Command "Get-FileHash -Algorithm SHA256 '$EXE_RENAMED' | Select-Object -ExpandProperty Hash" | tr '[:upper:]' '[:lower:]')
+
+          echo "exe_file=$EXE_RENAMED" >> $GITHUB_OUTPUT
+          echo "basename=sdkman-gui_${VERSION}_${ARCH}.exe" >> $GITHUB_OUTPUT
+          echo "sha256=$SHA256" >> $GITHUB_OUTPUT
+          echo "SHA256 (sdkman-gui_${VERSION}_${ARCH}.exe): $SHA256"
+
+      - name: Upload Windows installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: ${{ steps.prepare.outputs.exe_file }}
+          retention-days: 1
+
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Get version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Build Linux packages
+        run: |
+          mvn clean package jpackage:jpackage -DskipTests
+
+      - name: Get architecture
+        id: arch
+        run: |
+          ARCH=$(uname -m)
+          case "$ARCH" in
+            "x86_64"|"amd64") ARCH_SUFFIX="x86_64" ;;
+            "aarch64"|"arm64") ARCH_SUFFIX="arm64" ;;
+            *) ARCH_SUFFIX="x86_64" ;;
+          esac
+          echo "arch=$ARCH_SUFFIX" >> $GITHUB_OUTPUT
+
+      - name: Rename and prepare artifacts
+        id: prepare
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          ARCH="${{ steps.arch.outputs.arch }}"
+
+          # Find the generated package (could be .deb or .rpm)
+          if ls target/distributions/*.deb 1> /dev/null 2>&1; then
+            DEB_ORIGINAL=$(ls target/distributions/*.deb | head -n 1)
+            DEB_RENAMED="target/distributions/sdkman-gui_${VERSION}_${ARCH}.deb"
+            mv "$DEB_ORIGINAL" "$DEB_RENAMED"
+            DEB_SHA256=$(sha256sum "$DEB_RENAMED" | awk '{print $1}')
+            echo "deb_file=$DEB_RENAMED" >> $GITHUB_OUTPUT
+            echo "deb_basename=sdkman-gui_${VERSION}_${ARCH}.deb" >> $GITHUB_OUTPUT
+            echo "deb_sha256=$DEB_SHA256" >> $GITHUB_OUTPUT
+            echo "DEB SHA256 (sdkman-gui_${VERSION}_${ARCH}.deb): $DEB_SHA256"
+          fi
+
+          if ls target/distributions/*.rpm 1> /dev/null 2>&1; then
+            RPM_ORIGINAL=$(ls target/distributions/*.rpm | head -n 1)
+            RPM_RENAMED="target/distributions/sdkman-gui_${VERSION}_${ARCH}.rpm"
+            mv "$RPM_ORIGINAL" "$RPM_RENAMED"
+            RPM_SHA256=$(sha256sum "$RPM_RENAMED" | awk '{print $1}')
+            echo "rpm_file=$RPM_RENAMED" >> $GITHUB_OUTPUT
+            echo "rpm_basename=sdkman-gui_${VERSION}_${ARCH}.rpm" >> $GITHUB_OUTPUT
+            echo "rpm_sha256=$RPM_SHA256" >> $GITHUB_OUTPUT
+            echo "RPM SHA256 (sdkman-gui_${VERSION}_${ARCH}.rpm): $RPM_SHA256"
+          fi
+
+      - name: Upload Linux packages artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-packages
+          path: |
+            target/distributions/*.deb
+            target/distributions/*.rpm
+          retention-days: 1
+
+  create-release:
+    needs: [build-macos, build-windows, build-linux]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: distributions
+
+      - name: List downloaded files
+        run: |
+          echo "Downloaded files:"
+          ls -R distributions/
+
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           body: |
             ## ✨ Features
@@ -34,9 +221,9 @@ jobs:
             - 🏷️ **Category Browsing** - View SDKs by category (Java, Build Tools, Programming Languages, etc.)
             - 🔄 **Update Checking** - Automatically detect SDK updates
             - ⚙️ **Configuration Management** - Flexible application configuration
-            
+
             ## ✨ 特性
-            
+
             - 🎨 **现代化UI** - 基于AtlantaFX主题，提供精美的界面设计
             - 🌍 **国际化支持** - 支持中英文，自动检测系统语言
             - 🌗 **主题切换** - 支持亮色/暗色主题
@@ -47,18 +234,60 @@ jobs:
             - ⚙️ **配置管理** - 灵活的应用配置
 
             ---
-            
-            ### 📦 Installing
-            
-            **macOS (Homebrew):**
+
+            ### 📦 Installation
+
+            #### macOS
+
+            **Homebrew (Recommended):**
             ```bash
             brew tap youngledo/sdkman-gui
             brew install --cask sdkman-gui
             ```
-            
-            **Others:**
-            https://github.com/youngledo/sdkman-gui/releases
-            
+
+            **Manual Installation:**
+            - Apple Silicon (M1/M2/M3): `sdkman-gui_${{ steps.get_version.outputs.VERSION }}_arm64.dmg`
+            - Intel: `sdkman-gui_${{ steps.get_version.outputs.VERSION }}_x86_64.dmg`
+
+            #### Windows
+
+            Download and run the installer:
+            - `sdkman-gui_${{ steps.get_version.outputs.VERSION }}_x86_64.exe`
+
+            #### Linux
+
+            **Debian/Ubuntu:**
+            ```bash
+            wget https://github.com/youngledo/sdkman-gui/releases/download/v${{ steps.get_version.outputs.VERSION }}/sdkman-gui_${{ steps.get_version.outputs.VERSION }}_x86_64.deb
+            sudo dpkg -i sdkman-gui_${{ steps.get_version.outputs.VERSION }}_x86_64.deb
+            ```
+
+            **Fedora/RHEL:**
+            ```bash
+            wget https://github.com/youngledo/sdkman-gui/releases/download/v${{ steps.get_version.outputs.VERSION }}/sdkman-gui_${{ steps.get_version.outputs.VERSION }}_x86_64.rpm
+            sudo rpm -i sdkman-gui_${{ steps.get_version.outputs.VERSION }}_x86_64.rpm
+            ```
+
+            ---
+
+            ### ⚠️ Prerequisites
+
+            **SDKMAN must be installed first:**
+            ```bash
+            curl -s "https://get.sdkman.io" | bash
+            ```
+
+            ### 📋 Supported Platforms
+
+            - **macOS**: Big Sur (11.0) or later (Intel & Apple Silicon)
+            - **Windows**: Windows 10/11 (x64)
+            - **Linux**: Ubuntu 20.04+, Fedora 35+, RHEL 8+ (x64)
+
+          files: |
+            distributions/**/*.dmg
+            distributions/**/*.exe
+            distributions/**/*.deb
+            distributions/**/*.rpm
           draft: false
           prerelease: false
         env:

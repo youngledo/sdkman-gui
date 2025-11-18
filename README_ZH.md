@@ -29,14 +29,46 @@
 
 ## 📦 安装
 
-- **Releases：**
-  > https://github.com/youngledo/sdkman-gui/releases
+### macOS
 
-- **macOS（Homebrew）：**
-   ```bash
-   brew tap youngledo/sdkman-gui
-   brew install --cask sdkman-gui
-   ```
+**手动安装：**
+从 [Releases](https://github.com/youngledo/sdkman-gui/releases) 下载对应架构的 DMG 文件：
+- Apple Silicon (M1/M2/M3): `sdkman-gui_*_arm64.dmg`
+- Intel: `sdkman-gui_*_x86_64.dmg`
+
+**Homebrew：**
+```bash
+brew tap youngledo/sdkman-gui
+brew install --cask sdkman-gui
+```
+
+### Windows
+
+从 [Releases](https://github.com/youngledo/sdkman-gui/releases) 下载并运行安装程序：
+- `sdkman-gui_*_x86_64.exe`
+
+### Linux
+
+**Debian/Ubuntu：**
+```bash
+# 从 releases 下载 .deb 包
+wget https://github.com/youngledo/sdkman-gui/releases/download/v1.0.0/sdkman-gui_1.0.0_x86_64.deb
+sudo dpkg -i sdkman-gui_1.0.0_x86_64.deb
+```
+
+**Fedora/RHEL：**
+```bash
+# 从 releases 下载 .rpm 包
+wget https://github.com/youngledo/sdkman-gui/releases/download/v1.0.0/sdkman-gui_1.0.0_x86_64.rpm
+sudo rpm -i sdkman-gui_1.0.0_x86_64.rpm
+```
+
+### 前置要求
+
+⚠️ **必须先安装 SDKMAN：**
+```bash
+curl -s "https://get.sdkman.io" | bash
+```
 
 ## 🌍 国际化
 
