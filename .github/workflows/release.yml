@@ -12,7 +12,7 @@ jobs:
   build-macos:
     strategy:
       matrix:
-        os: [macos-15-large, macos-latest] # Intel (x86_64) and Apple Silicon (arm64)
+        os: [macos-latest] # Apple Silicon (arm64)
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -208,7 +208,6 @@ jobs:
 
             **Manual Installation:**
             - Apple Silicon: `sdkman-gui_${{ steps.get_version.outputs.VERSION }}_arm64.dmg`
-            - Intel: `sdkman-gui_${{ steps.get_version.outputs.VERSION }}_x86_64.dmg`
 
             #### Windows
 
@@ -240,7 +239,7 @@ jobs:
 
             ### 📋 Supported Platforms
 
-            - **macOS**: Monterey (12.0) or later (Intel & Apple Silicon)
+            - **macOS**: Monterey (12.0) or later (Apple Silicon)
             - **Windows**: Windows 10/11 (x64)
             - **Linux**: Ubuntu 20.04+, Fedora 35+, RHEL 8+ (x64)
 
