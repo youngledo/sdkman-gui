@@ -17,8 +17,9 @@ esac
 
 echo "architecture: $ARCH ($ARCH_SUFFIX)"
 
-VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-PROJECT_NAME=$(mvn help:evaluate -Dexpression=project.name -q -DforceStdout)
+# Extract version and project name from Maven, taking the last field to skip log prefixes
+VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | awk '{print $NF}')
+PROJECT_NAME=$(mvn help:evaluate -Dexpression=project.name -q -DforceStdout | awk '{print $NF}')
 APP_NAME="SDKMAN GUI"
 
 echo "project name: $PROJECT_NAME"
