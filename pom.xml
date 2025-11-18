@@ -2,13 +2,16 @@
 <project xmlns="http://maven.apache.org/POM/4.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.1.0           https://maven.apache.org/xsd/maven-4.1.0.xsd">
     <groupId>com.sdkgui</groupId>
     <artifactId>sdkman-gui</artifactId>
-    <version>1.0.0</version>
+    <version>${revision}</version>
     <packaging>jar</packaging>
 
     <name>sdkman-gui</name>
     <description>Modern GUI application for SDKMAN</description>
 
     <properties>
+        <!--Maven 4.x支持友好CI变量，不再使用三方插件了：https://maven.apache.org/whatsnewinmaven4.html#Full_support_of_CI-friendly_variables-->
+        <revision>1.0.0</revision>
+
         <java.version>25</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -236,7 +239,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
+                <version>4.0.0-beta-3</version>
                 <configuration>
                     <release>${java.version}</release>
                 </configuration>

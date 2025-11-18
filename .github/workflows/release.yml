@@ -19,18 +19,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 25 with JavaFX
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'liberica'
-          java-version: '25'
-          java-package: 'jdk+fx'
-          cache: 'maven'
-
-      - name: Set up Maven 4.0.0-rc-5
-        uses: stCarolas/setup-maven@v5
-        with:
-          maven-version: '4.0.0-rc-5'
+      - name: Setup build environment
+        uses: ./.github/actions/setup-build-env
 
       - name: Get version from tag
         id: get_version
@@ -40,7 +30,7 @@ jobs:
         run: |
           cd package
           chmod +x package.sh
-          ./package.sh
+          ./package.sh ${{ steps.get_version.outputs.VERSION }}
 
       - name: Calculate SHA256 and prepare artifact
         id: prepare
@@ -67,18 +57,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 25 with JavaFX
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'liberica'
-          java-version: '25'
-          java-package: 'jdk+fx'
-          cache: 'maven'
-
-      - name: Set up Maven 4.0.0-rc-5
-        uses: stCarolas/setup-maven@v5
-        with:
-          maven-version: '4.0.0-rc-5'
+      - name: Setup build environment
+        uses: ./.github/actions/setup-build-env
 
       - name: Get version from tag
         id: get_version
@@ -88,36 +68,22 @@ jobs:
       - name: Build Windows installer
         shell: bash
         run: |
-          mvn clean package jpackage:jpackage -DskipTests
+          cd package
+          chmod +x package.sh
+          ./package.sh ${{ steps.get_version.outputs.VERSION }}
 
-      - name: Get architecture
-        id: arch
-        shell: bash
-        run: |
-          ARCH=$(echo $PROCESSOR_ARCHITECTURE | tr '[:upper:]' '[:lower:]')
-          case "$ARCH" in
-            "amd64") ARCH_SUFFIX="x86_64" ;;
-            "arm64") ARCH_SUFFIX="arm64" ;;
-            *) ARCH_SUFFIX="x86_64" ;;
-          esac
-          echo "arch=$ARCH_SUFFIX" >> $GITHUB_OUTPUT
-
-      - name: Rename and prepare artifact
+      - name: Prepare artifact
         id: prepare
         shell: bash
         run: |
-          VERSION="${GITHUB_REF#refs/tags/v}"
-          ARCH="${{ steps.arch.outputs.arch }}"
-          EXE_ORIGINAL=$(ls target/distributions/*.exe | head -n 1)
-          EXE_RENAMED="target/distributions/sdkman-gui_${VERSION}_${ARCH}.exe"
+          EXE_FILE=$(ls target/distributions/*.exe | head -n 1)
+          SHA256=$(powershell -Command "Get-FileHash -Algorithm SHA256 '$EXE_FILE' | Select-Object -ExpandProperty Hash" | tr '[:upper:]' '[:lower:]')
+          BASENAME=$(basename "$EXE_FILE")
 
-          mv "$EXE_ORIGINAL" "$EXE_RENAMED"
-          SHA256=$(powershell -Command "Get-FileHash -Algorithm SHA256 '$EXE_RENAMED' | Select-Object -ExpandProperty Hash" | tr '[:upper:]' '[:lower:]')
-
-          echo "exe_file=$EXE_RENAMED" >> $GITHUB_OUTPUT
-          echo "basename=sdkman-gui_${VERSION}_${ARCH}.exe" >> $GITHUB_OUTPUT
+          echo "exe_file=$EXE_FILE" >> $GITHUB_OUTPUT
+          echo "basename=$BASENAME" >> $GITHUB_OUTPUT
           echo "sha256=$SHA256" >> $GITHUB_OUTPUT
-          echo "SHA256 (sdkman-gui_${VERSION}_${ARCH}.exe): $SHA256"
+          echo "SHA256 ($BASENAME): $SHA256"
 
       - name: Upload Windows installer artifact
         uses: actions/upload-artifact@v4
@@ -133,18 +99,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 25 with JavaFX
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'liberica'
-          java-version: '25'
-          java-package: 'jdk+fx'
-          cache: 'maven'
-
-      - name: Set up Maven 4.0.0-rc-5
-        uses: stCarolas/setup-maven@v5
-        with:
-          maven-version: '4.0.0-rc-5'
+      - name: Setup build environment
+        uses: ./.github/actions/setup-build-env
 
       - name: Get version from tag
         id: get_version
@@ -152,46 +108,33 @@ jobs:
 
       - name: Build Linux packages
         run: |
-          mvn clean package jpackage:jpackage -DskipTests
+          cd package
+          chmod +x package.sh
+          ./package.sh ${{ steps.get_version.outputs.VERSION }}
 
-      - name: Get architecture
-        id: arch
-        run: |
-          ARCH=$(uname -m)
-          case "$ARCH" in
-            "x86_64"|"amd64") ARCH_SUFFIX="x86_64" ;;
-            "aarch64"|"arm64") ARCH_SUFFIX="arm64" ;;
-            *) ARCH_SUFFIX="x86_64" ;;
-          esac
-          echo "arch=$ARCH_SUFFIX" >> $GITHUB_OUTPUT
-
-      - name: Rename and prepare artifacts
+      - name: Prepare artifacts
         id: prepare
         run: |
-          VERSION="${GITHUB_REF#refs/tags/v}"
-          ARCH="${{ steps.arch.outputs.arch }}"
-
-          # Find the generated package (could be .deb or .rpm)
+          # Prepare DEB if exists
           if ls target/distributions/*.deb 1> /dev/null 2>&1; then
-            DEB_ORIGINAL=$(ls target/distributions/*.deb | head -n 1)
-            DEB_RENAMED="target/distributions/sdkman-gui_${VERSION}_${ARCH}.deb"
-            mv "$DEB_ORIGINAL" "$DEB_RENAMED"
-            DEB_SHA256=$(sha256sum "$DEB_RENAMED" | awk '{print $1}')
-            echo "deb_file=$DEB_RENAMED" >> $GITHUB_OUTPUT
-            echo "deb_basename=sdkman-gui_${VERSION}_${ARCH}.deb" >> $GITHUB_OUTPUT
+            DEB_FILE=$(ls target/distributions/*.deb | head -n 1)
+            DEB_SHA256=$(sha256sum "$DEB_FILE" | awk '{print $1}')
+            DEB_BASENAME=$(basename "$DEB_FILE")
+            echo "deb_file=$DEB_FILE" >> $GITHUB_OUTPUT
+            echo "deb_basename=$DEB_BASENAME" >> $GITHUB_OUTPUT
             echo "deb_sha256=$DEB_SHA256" >> $GITHUB_OUTPUT
-            echo "DEB SHA256 (sdkman-gui_${VERSION}_${ARCH}.deb): $DEB_SHA256"
+            echo "DEB SHA256 ($DEB_BASENAME): $DEB_SHA256"
           fi
 
+          # Prepare RPM if exists
           if ls target/distributions/*.rpm 1> /dev/null 2>&1; then
-            RPM_ORIGINAL=$(ls target/distributions/*.rpm | head -n 1)
-            RPM_RENAMED="target/distributions/sdkman-gui_${VERSION}_${ARCH}.rpm"
-            mv "$RPM_ORIGINAL" "$RPM_RENAMED"
-            RPM_SHA256=$(sha256sum "$RPM_RENAMED" | awk '{print $1}')
-            echo "rpm_file=$RPM_RENAMED" >> $GITHUB_OUTPUT
-            echo "rpm_basename=sdkman-gui_${VERSION}_${ARCH}.rpm" >> $GITHUB_OUTPUT
+            RPM_FILE=$(ls target/distributions/*.rpm | head -n 1)
+            RPM_SHA256=$(sha256sum "$RPM_FILE" | awk '{print $1}')
+            RPM_BASENAME=$(basename "$RPM_FILE")
+            echo "rpm_file=$RPM_FILE" >> $GITHUB_OUTPUT
+            echo "rpm_basename=$RPM_BASENAME" >> $GITHUB_OUTPUT
             echo "rpm_sha256=$RPM_SHA256" >> $GITHUB_OUTPUT
-            echo "RPM SHA256 (sdkman-gui_${VERSION}_${ARCH}.rpm): $RPM_SHA256"
+            echo "RPM SHA256 ($RPM_BASENAME): $RPM_SHA256"
           fi
 
       - name: Upload Linux packages artifact
