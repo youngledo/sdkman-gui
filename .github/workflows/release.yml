@@ -207,7 +207,7 @@ jobs:
             ```
 
             **Manual Installation:**
-            - Apple Silicon (M1/M2/M3): `sdkman-gui_${{ steps.get_version.outputs.VERSION }}_arm64.dmg`
+            - Apple Silicon: `sdkman-gui_${{ steps.get_version.outputs.VERSION }}_arm64.dmg`
             - Intel: `sdkman-gui_${{ steps.get_version.outputs.VERSION }}_x86_64.dmg`
 
             #### Windows
