@@ -27,18 +27,16 @@
 - 🔄 **更新检查** - 自动检测SDK更新
 - ⚙️ **配置管理** - 灵活的应用配置
 
-## 🛠️ 技术栈
+## 📦 安装
 
-| 组件                  | 版本     | 说明     |
-|---------------------|--------|--------|
-| Java                | 25.0.1 | 运行环境   |
-| JavaFX              | 25.0.1 | UI框架   |
-| Maven               | 4.0    | 构建工具   |
-| AtlantaFX           | 2.1.0  | UI主题库  |
-| Jackson             | 2.18.2 | JSON处理 |
-| Log4j2              | 2.21.1 | 日志框架   |
-| Apache Commons Exec | 1.5.0  | 进程执行   |
-| Ikonli              | 12.3.1 | 图标包    |
+- **Releases：**
+  > https://github.com/youngledo/sdkman-gui/releases
+
+- **macOS（Homebrew）：**
+   ```bash
+   brew tap youngledo/sdkman-gui
+   brew install --cask sdkman-gui
+   ```
 
 ## 🌍 国际化
 

@@ -27,18 +27,16 @@ Cross-platform, supports Windows, macOS, Ubuntu. Built with JavaFX + Maven, insp
 - 🔄 **Update Checking** - Automatically detect SDK updates
 - ⚙️ **Configuration Management** - Flexible application configuration
 
-## 🛠️ Tech Stack
+## 📦 Installation
 
-| Component           | Version | Description         |
-|---------------------|---------|---------------------|
-| Java                | 25.0.1  | Runtime Environment |
-| JavaFX              | 25.0.1  | UI Framework        |
-| Maven               | 4.0     | Build Tool          |
-| AtlantaFX           | 2.1.0   | UI Theme Library    |
-| Jackson             | 2.18.2  | JSON Processing     |
-| Log4j2              | 2.21.1  | Logging Framework   |
-| Apache Commons Exec | 1.5.0   | Process Execution   |
-| Ikonli              | 12.3.1  | Icon packs          |
+- **Releases:**
+   > https://github.com/youngledo/sdkman-gui/releases
+
+- **macOS (Homebrew):**
+   ```bash
+   brew tap youngledo/sdkman-gui
+   brew install --cask sdkman-gui
+   ```
 
 ## 🌍 Internationalization
 
