@@ -24,9 +24,29 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           body: |
-            ## 🎉 SDKMAN GUI ${{ steps.get_version.outputs.VERSION }}
+            ## ✨ Features
+
+            - 🎨 **Modern UI** - Beautiful interface design based on AtlantaFX themes
+            - 🌍 **Internationalization** - Support for English and Chinese with automatic system language detection
+            - 🌗 **Theme Switching** - Support for light/dark themes
+            - 📦 **SDK Management** - Browse, install, uninstall, and switch SDK versions
+            - 🔍 **Search & Filter** - Quickly find the SDKs you need
+            - 🏷️ **Category Browsing** - View SDKs by category (Java, Build Tools, Programming Languages, etc.)
+            - 🔄 **Update Checking** - Automatically detect SDK updates
+            - ⚙️ **Configuration Management** - Flexible application configuration
             
-            A modern graphical management tool for SDKMAN, providing an Applite-like user experience.
+            ## ✨ 特性
+            
+            - 🎨 **现代化UI** - 基于AtlantaFX主题，提供精美的界面设计
+            - 🌍 **国际化支持** - 支持中英文，自动检测系统语言
+            - 🌗 **主题切换** - 支持亮色/暗色主题
+            - 📦 **SDK管理** - 浏览、安装、卸载、切换SDK版本
+            - 🔍 **搜索过滤** - 快速查找所需的SDK
+            - 🏷️ **分类浏览** - 按类别查看SDK（Java、构建工具、编程语言等）
+            - 🔄 **更新检查** - 自动检测SDK更新
+            - ⚙️ **配置管理** - 灵活的应用配置
+
+            ---
             
             ### 📦 Installing
             
