@@ -19,12 +19,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
+      - name: Set up JDK 25 with JavaFX
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '21'
+          distribution: 'liberica'
+          java-version: '25'
+          java-package: 'jdk+fx'
           cache: 'maven'
+
+      - name: Set up Maven 4.0.0-rc-5
+        uses: stCarolas/setup-maven@v5
+        with:
+          maven-version: '4.0.0-rc-5'
 
       - name: Get version from tag
         id: get_version
@@ -61,12 +67,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
+      - name: Set up JDK 25 with JavaFX
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '21'
+          distribution: 'liberica'
+          java-version: '25'
+          java-package: 'jdk+fx'
           cache: 'maven'
+
+      - name: Set up Maven 4.0.0-rc-5
+        uses: stCarolas/setup-maven@v5
+        with:
+          maven-version: '4.0.0-rc-5'
 
       - name: Get version from tag
         id: get_version
@@ -121,12 +133,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
+      - name: Set up JDK 25 with JavaFX
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '21'
+          distribution: 'liberica'
+          java-version: '25'
+          java-package: 'jdk+fx'
           cache: 'maven'
+
+      - name: Set up Maven 4.0.0-rc-5
+        uses: stCarolas/setup-maven@v5
+        with:
+          maven-version: '4.0.0-rc-5'
 
       - name: Get version from tag
         id: get_version
