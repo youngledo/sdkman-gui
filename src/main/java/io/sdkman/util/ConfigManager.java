@@ -100,7 +100,7 @@ public class ConfigManager {
         Map<String, Object> defaultConfig = new HashMap<>();
         defaultConfig.put(KEY_LANGUAGE, null); // null 表示自动检测
         defaultConfig.put(KEY_THEME, "auto"); // auto, light, dark
-        defaultConfig.put(KEY_SDKMAN_PATH, Paths.get(PlatformDetector.userHome(), ".sdkman"));
+        defaultConfig.put(KEY_SDKMAN_PATH, Paths.get(PlatformDetector.userHome(), ".sdkman").toString());
         defaultConfig.put(KEY_PROXY_TYPE, "none"); // none, auto, manual
         defaultConfig.put(KEY_PROXY_HOST, "");
         defaultConfig.put(KEY_PROXY_PORT, "");
