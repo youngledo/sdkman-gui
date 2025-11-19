@@ -25,6 +25,8 @@ package io.sdkman.util;
 ///
 public class PlatformDetector {
 
+    private static final String OS_NAME = "os.name";
+
     ///
     /// Detects current platform in SDKMAN format
     /// 检测当前平台（SDKMAN格式）
@@ -43,7 +45,7 @@ public class PlatformDetector {
     /// @return Platform identifier (e.g., "darwinarm64")
     ///
     public static String detectPlatform() {
-        var os = System.getProperty("os.name").toLowerCase();
+        var os = System.getProperty(OS_NAME).toLowerCase();
         var arch = System.getProperty("os.arch").toLowerCase();
 
         var osPrefix = detectOS(os);
@@ -88,7 +90,7 @@ public class PlatformDetector {
     /// @return `true` if Windows, `false` otherwise
     ///
     public static boolean isWindows() {
-        var os = System.getProperty("os.name").toLowerCase();
+        var os = System.getProperty(OS_NAME).toLowerCase();
         return os.contains("win");
     }
 
@@ -99,7 +101,7 @@ public class PlatformDetector {
     /// @return `true` if macOS, `false` otherwise
     ///
     public static boolean isMac() {
-        var os = System.getProperty("os.name").toLowerCase();
+        var os = System.getProperty(OS_NAME).toLowerCase();
         return os.contains("mac");
     }
 
@@ -110,7 +112,7 @@ public class PlatformDetector {
     /// @return `true` if Linux, `false` otherwise
     ///
     public static boolean isLinux() {
-        var os = System.getProperty("os.name").toLowerCase();
+        var os = System.getProperty(OS_NAME).toLowerCase();
         return os.contains("nux");
     }
 
@@ -121,7 +123,7 @@ public class PlatformDetector {
     /// @return OS name (e.g., "Mac OS X", "Windows 11", "Linux")
     ///
     public static String getOSName() {
-        return System.getProperty("os.name");
+        return System.getProperty(OS_NAME);
     }
 
     ///
@@ -132,5 +134,9 @@ public class PlatformDetector {
     ///
     public static String getArchName() {
         return System.getProperty("os.arch");
+    }
+
+    public static String userHome() {
+        return System.getProperty("user.home");
     }
 }

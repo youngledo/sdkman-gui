@@ -10,6 +10,7 @@ import javafx.concurrent.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -299,7 +300,7 @@ public class SdkmanService {
         try {
             // 快速扫描本地安装目录
             logger.debug("Scanning local java directory");
-            String javaDir = ConfigManager.getSdkmanPath() + "/candidates/java";
+            String javaDir = ConfigManager.getSdkmanPath() + File.separator + "candidates"+ File.separator + "java";
             java.io.File javaDirFile = new java.io.File(javaDir);
 
             if (!javaDirFile.exists() || !javaDirFile.isDirectory()) {
@@ -487,7 +488,7 @@ public class SdkmanService {
      */
     public boolean isCandidateInstalled(String candidate) {
         String candidateDir = ConfigManager.getSdkmanPath() +
-                "/candidates/" + candidate;
+                File.separator + "candidates" + File.separator + candidate;
         java.io.File dir = new java.io.File(candidateDir);
 
         if (!dir.exists() || !dir.isDirectory()) {

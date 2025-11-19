@@ -46,7 +46,7 @@ public class ConfigManager {
     private static void initConfig() {
         try {
             // 获取用户主目录
-            String userHome = System.getProperty("user.home");
+            String userHome = PlatformDetector.userHome();
             Path configDir = Paths.get(userHome, CONFIG_DIR);
             configPath = configDir.resolve(CONFIG_FILE);
 
@@ -75,7 +75,8 @@ public class ConfigManager {
     private static void loadConfig() {
         try {
             String json = Files.readString(configPath);
-            config = objectMapper.readValue(json, new TypeReference<HashMap<String, Object>>() {});
+            config = objectMapper.readValue(json, new TypeReference<HashMap<String, Object>>() {
+            });
             logger.info("Config loaded from: {}", configPath);
         } catch (IOException e) {
             logger.error("Failed to load config, using defaults", e);
@@ -99,7 +100,7 @@ public class ConfigManager {
         Map<String, Object> defaultConfig = new HashMap<>();
         defaultConfig.put(KEY_LANGUAGE, null); // null 表示自动检测
         defaultConfig.put(KEY_THEME, "auto"); // auto, light, dark
-        defaultConfig.put(KEY_SDKMAN_PATH, System.getProperty("user.home") + "/.sdkman");
+        defaultConfig.put(KEY_SDKMAN_PATH, Paths.get(PlatformDetector.userHome(), ".sdkman"));
         defaultConfig.put(KEY_PROXY_TYPE, "none"); // none, auto, manual
         defaultConfig.put(KEY_PROXY_HOST, "");
         defaultConfig.put(KEY_PROXY_PORT, "");
@@ -147,6 +148,7 @@ public class ConfigManager {
 
     /**
      * 获取保存的语言设置
+     *
      * @return Locale 或 null（表示自动检测）
      */
     public static Locale getSavedLocale() {
@@ -196,11 +198,12 @@ public class ConfigManager {
      * 获取 SDKMAN 安装路径
      */
     public static String getSdkmanPath() {
-        return getString(KEY_SDKMAN_PATH, System.getProperty("user.home") + File.separator + ".sdkman");
+        return getString(KEY_SDKMAN_PATH, Paths.get(PlatformDetector.userHome(), ".sdkman").toString());
     }
 
     /**
      * 获取代理类型
+     *
      * @return "none", "auto", "manual"
      */
     public static String getProxyType() {

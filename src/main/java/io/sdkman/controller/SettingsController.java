@@ -2,10 +2,7 @@ package io.sdkman.controller;
 
 import io.sdkman.SdkmanApplication;
 import io.sdkman.service.VersionUpdateService;
-import io.sdkman.util.AlertUtils;
-import io.sdkman.util.ConfigManager;
-import io.sdkman.util.I18nManager;
-import io.sdkman.util.ThemeManager;
+import io.sdkman.util.*;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -358,12 +355,12 @@ public class SettingsController {
             // 获取当前路径作为初始目录
             String currentPath = sdkmanPathField.getText().trim();
             if (currentPath.isEmpty()) {
-                currentPath = System.getProperty("user.home");
+                currentPath = PlatformDetector.userHome();
             }
 
             java.io.File initialDir = new java.io.File(currentPath);
             if (!initialDir.exists()) {
-                initialDir = new java.io.File(System.getProperty("user.home"));
+                initialDir = new java.io.File(PlatformDetector.userHome());
             }
 
             // 创建目录选择器
