@@ -18,36 +18,13 @@ This is a cross-platform GUI application for SDKMAN, built with JavaFX 25, Maven
 - **JavaFX**: 25.0.1
 - **Maven**: 4.0
 - **UI Framework**: AtlantaFX 2.1.0 (Primer Light/Dark themes)
-- **Process Execution**: Apache Commons Exec 1.5.0 (with 60s timeout protection)
-- **Backend**: SDKMAN CLI wrapper via bash commands
-- **Logging**: SLF4J + Logback
+- **Backend**: Retrieve data by calling the SDKMAN API via HttpClient.
+- **Logging**: SLF4J + Log4j2
 - **JSON**: Jackson 2.18.2
 
 ## Architecture
 
-```
-src/main/java/com/sdkgui/
-├── App.java                    # Main application entry
-├── controller/                 # FXML Controllers (MVC Pattern)
-│   ├── MainController.java    # Main window with sidebar navigation
-│   ├── HomeController.java    # Home page with statistics
-│   ├── JdkController.java     # JDK management page
-│   └── SdkController.java     # SDK browsing page
-├── model/                      # Data models (Sdk, SdkVersion, etc.)
-├── service/                    # Business logic layer
-│   ├── SdkmanCliWrapper.java  # SDKMAN CLI command wrapper
-│   └── SdkManagerService.java # Singleton service with async Task support
-└── util/                       # Utilities
-    ├── I18nManager.java        # Internationalization manager
-    └── ConfigManager.java      # Configuration management
-
-src/main/resources/
-├── fxml/                       # FXML view files
-├── css/                        # Custom stylesheets
-└── i18n/                       # Internationalization resources
-    ├── messages.properties     # English (default)
-    └── messages_zh_CN.properties  # Simplified Chinese
-```
+Code Structure
 
 ## 🚨 CRITICAL DEVELOPMENT RULES 🚨
 

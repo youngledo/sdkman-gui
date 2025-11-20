@@ -18,38 +18,13 @@
 - **JavaFX**: 25.0.1
 - **Maven**: 4.0
 - **UI 框架**: AtlantaFX 2.1.0 (Primer Light/Dark 主题)
-- **进程执行**: Apache Commons Exec 1.5.0（带 60 秒超时保护）
-- **后端**: 通过 bash 命令封装 SDKMAN CLI
-- **日志**: SLF4J + Logback
+- **后端**: 通过HttpClient调用SDKMAN接口获取数据。
+- **日志**: SLF4J + Log4j2
 - **JSON**: Jackson 2.18.2
 
 ## 架构
 
-```
-src/main/java/io/sdkman/
-├── App.java                    # 应用程序主入口
-├── controller/                 # FXML 控制器（MVC 模式）
-│   ├── MainController.java    # 主窗口侧边栏导航
-│   ├── HomeController.java    # 首页统计信息
-│   ├── JdkController.java     # JDK 管理页面
-│   └── SdkController.java     # SDK 浏览页面
-├── model/                      # 数据模型（Sdk、SdkVersion 等）
-├── service/                    # 业务逻辑层
-│   ├── SdkmanCliWrapper.java  # SDKMAN CLI 命令封装
-│   └── SdkManagerService.java # 带异步 Task 支持的单例服务
-└── util/                       # 工具类
-    ├── I18nManager.java        # 国际化管理器
-    ├── ConfigManager.java      # 配置管理
-    ├── PlatformDetector.java   # 平台检测工具
-    └── ThreadManager.java      # 线程管理器
-
-src/main/resources/
-├── fxml/                       # FXML 视图文件
-├── css/                        # 自定义样式表
-└── i18n/                       # 国际化资源
-    ├── messages.properties     # 英语（默认）
-    └── messages_zh_CN.properties  # 简体中文
-```
+具体看代码结构。
 
 ## 🚨 关键开发规则 🚨
 
