@@ -1,5 +1,7 @@
 # SDKMAN GUI
 
+原生版本请看：[sdkman-gui-native](https://github.com/youngledo/sdkman-gui-native)。
+
 [English](README.md) | **中文**
 
 > 现代化的[SDKMAN](https://github.com/sdkman)图形化管理工具，提供类似[Applite](https://github.com/milanvarady/Applite)的用户体验。
