@@ -45,7 +45,14 @@ public enum JdkCategory {
         }
 
         // 检查是否为NIK
-        if (lowerIdentifier.endsWith("-nik")) {
+        // 包含 GraalVM 相关产品：
+        // - Liberica NIK: 标识符以 -nik 结尾（已包含在 contains("-nik") 中）
+        // - Mandrel: 标识符包含 -mandrel
+        // - GraalVM: 标识符包含 -graal 或 -graalvm
+        if (lowerIdentifier.contains("-nik")
+                || lowerIdentifier.contains("-mandrel")
+                || lowerIdentifier.contains("-graal")
+                || lowerIdentifier.contains("-graalvm")) {
             categories.add(NIK);
         }
 
