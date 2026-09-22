@@ -172,27 +172,41 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           body: |
-            ## ✨ Features
+            ## 🐛 Bug Fixes
 
-            - 🎨 **Modern UI** - Beautiful interface design based on AtlantaFX themes
-            - 🌍 **Internationalization** - Support for English and Chinese with automatic system language detection
-            - 🌗 **Theme Switching** - Support for light/dark themes
-            - 📦 **SDK Management** - Browse, install, uninstall, and switch SDK versions
-            - 🔍 **Search & Filter** - Quickly find the SDKs you need
-            - 🏷️ **Category Browsing** - View SDKs by category (Java, Build Tools, Programming Languages, etc.)
-            - 🔄 **Update Checking** - Automatically detect SDK updates
-            - ⚙️ **Configuration Management** - Flexible application configuration
+            - **JDK page showed garbled data** - SDKMAN's version list API dropped the `Dist` and `Status` columns; the parser now adapts to the new 4-column table, restoring vendor grouping and JDK categories (JavaFX / NIK)
+            - Recognize the new `-fx` JavaFX identifiers (e.g. `27.0.0-fx+35-zulu`) alongside the legacy `.fx` form
+            - Installation: unified file path separators, improved extraction permission settings, and hardened path concatenation
 
-            ## ✨ 特性
+            ## ⬆️ Upgrades
 
-            - 🎨 **现代化UI** - 基于AtlantaFX主题，提供精美的界面设计
-            - 🌍 **国际化支持** - 支持中英文，自动检测系统语言
-            - 🌗 **主题切换** - 支持亮色/暗色主题
-            - 📦 **SDK管理** - 浏览、安装、卸载、切换SDK版本
-            - 🔍 **搜索过滤** - 快速查找所需的SDK
-            - 🏷️ **分类浏览** - 按类别查看SDK（Java、构建工具、编程语言等）
-            - 🔄 **更新检查** - 自动检测SDK更新
-            - ⚙️ **配置管理** - 灵活的应用配置
+            - JDK 25 → 27, JavaFX 25 → 27
+
+            ## 💥 Breaking Changes
+
+            - macOS builds are now Apple Silicon (arm64) only; Intel (x86_64) DMGs are no longer published
+
+            ## 🔧 CI
+
+            - Release workflow upgraded to JDK 27 + Maven 4.0.0-rc-6
+
+            ## 🐛 修复
+
+            - **JDK页面数据显示错乱** - SDKMAN版本列表接口删除了`Dist`和`Status`列；解析器已适配新的4列表格，恢复供应商分组和JDK分类（JavaFX/NIK）
+            - 识别新版`-fx`形式的JavaFX标识符（如`27.0.0-fx+35-zulu`），兼容旧版`.fx`形式
+            - 安装：统一文件路径分隔符、改进解压权限设置、加固路径拼接
+
+            ## ⬆️ 升级
+
+            - JDK 25 → 27，JavaFX 25 → 27
+
+            ## 💥 破坏性变更
+
+            - macOS构建仅支持Apple Silicon（arm64），不再发布Intel（x86_64）DMG
+
+            ## 🔧 CI
+
+            - 发布工作流升级到JDK 27 + Maven 4.0.0-rc-6
 
             ---
 
@@ -239,9 +253,13 @@ jobs:
 
             ### 📋 Supported Platforms
 
-            - **macOS**: Monterey (12.0) or later (Apple Silicon)
+            - **macOS**: Apple Silicon (arm64)
             - **Windows**: Windows 10/11 (x64)
             - **Linux**: Ubuntu 20.04+, Fedora 35+, RHEL 8+ (x64)
+
+            ---
+
+            **Full Changelog**: https://github.com/youngledo/sdkman-gui/compare/v1.0.0...v${{ steps.get_version.outputs.VERSION }}
 
           files: |
             distributions/**/*.dmg
