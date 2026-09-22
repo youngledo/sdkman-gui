@@ -43,8 +43,11 @@ public class SdkmanHttpClient {
 
     private static final String VENDOR_HEADER_NAME = "Vendor";
 
-    /// 正则表达式：解析Java版本表格（带|分隔符）
-    private static final Pattern JAVA_VERSION_PATTERN = Pattern.compile("(.*?)\\|(.*?)\\|(.*?)\\|(.*?)\\|(.*?)\\|(.*)");
+    /// 正则表达式：检测Java版本表格（表头以"Vendor |"开头）
+    /// SDKMAN API返回过两种列格式，解析时需同时兼容：
+    /// - 4列（现行）：Vendor | Use | Version | Identifier
+    /// - 6列（旧版）：Vendor | Use | Version | Dist | Status | Identifier
+    private static final Pattern JAVA_TABLE_HEADER_PATTERN = Pattern.compile("^\\s*Vendor\\s*\\|", Pattern.MULTILINE);
     /// 正则表达式：解析候选列表
     /// 格式: ---\n候选名称(版本)  网址\n\n描述...\n$ sdk install candidate_id\n
     private static final Pattern CANDIDATE_PATTERN = Pattern.compile(
@@ -486,17 +489,15 @@ public class SdkmanHttpClient {
 
     /// 解析版本列表响应（表格格式）
     /// 使用正则表达式解析，参考 sdkman-ui 的实现
-    private List<SdkVersion> parseVersionsCsv(String tableText, String candidate) {
+    List<SdkVersion> parseVersionsCsv(String tableText, String candidate) {
         List<SdkVersion> versions = new ArrayList<>();
 
         if (tableText == null || tableText.trim().isEmpty()) {
             return versions;
         }
 
-        // 检测是Java格式还是其他格式
-        Matcher javaMatcher = JAVA_VERSION_PATTERN.matcher(tableText);
-        if (javaMatcher.find()) {
-            // Java格式：带|分隔符的表格
+        // 检测是Java格式还是其他格式（Java格式表头以"Vendor |"开头）
+        if (JAVA_TABLE_HEADER_PATTERN.matcher(tableText).find()) {
             logger.debug("Detected Java format for {}", candidate);
             versions = parseJavaVersions(tableText, candidate);
         } else {
@@ -512,57 +513,68 @@ public class SdkmanHttpClient {
     }
 
     /// 解析Java版本（表格格式，|分隔）
-    /// 格式: Vendor | Use | Version | Dist | Status | Identifier
+    /// 兼容两种列格式：
+    /// - 4列（现行）：Vendor | Use | Version | Identifier
+    /// - 6列（旧版）：Vendor | Use | Version | Dist | Status | Identifier
+    ///
+    /// Use列标记：`>` 使用中、`*` 已安装、`+` 仅本地（已安装但远端已下架）
     private List<SdkVersion> parseJavaVersions(String tableText, String candidate) {
         List<SdkVersion> versions = new ArrayList<>();
-        Matcher matcher = JAVA_VERSION_PATTERN.matcher(tableText);
         String lastVendor = null;
 
-        while (matcher.find()) {
-            try {
-                String vendorCol = matcher.group(1).trim();
-                String useCol = matcher.group(2).trim();
-                String versionCol = matcher.group(3).trim();
-                String statusCol = matcher.group(5).trim();
-                String identifierCol = matcher.group(6).trim();
-
-                // 跳过表头
-                if (VENDOR_HEADER_NAME.equals(vendorCol)) {
-                    continue;
-                }
-
-                // 处理vendor（可能为空，使用上一行的vendor）
-                if (!vendorCol.isEmpty()) {
-                    lastVendor = vendorCol;
-                } else {
-                    vendorCol = lastVendor;
-                }
-
-                // identifier 必须非空
-                if (identifierCol.isEmpty()) {
-                    continue;
-                }
-
-                SdkVersion sdkVersion = new SdkVersion(versionCol);
-                sdkVersion.setCandidate(candidate);
-                sdkVersion.setIdentifier(identifierCol);
-                sdkVersion.setVersion(versionCol);
-                sdkVersion.setVendor(vendorCol);
-                sdkVersion.setCategories(JdkCategory.fromIdentifier(identifierCol));
-
-                // 解析状态
-                boolean isInstalled = statusCol.contains("installed") || useCol.contains("*");
-                boolean isInUse = useCol.contains(">");
-
-                sdkVersion.setInstalled(isInstalled);
-                sdkVersion.setInUse(isInUse);
-                sdkVersion.setDefault(isInUse);
-
-                versions.add(sdkVersion);
-
-            } catch (Exception e) {
-                logger.debug("Failed to parse Java version line", e);
+        for (String line : tableText.split("\n")) {
+            // 只处理带|分隔符的数据行，分隔线/标题/图例行自然被跳过
+            String[] rawCols = line.split("\\|");
+            if (rawCols.length < 4) {
+                continue;
             }
+
+            var cols = new String[rawCols.length];
+            for (int i = 0; i < rawCols.length; i++) {
+                cols[i] = rawCols[i].trim();
+            }
+
+            String vendorCol = cols[0];
+            String useCol = cols[1];
+            String versionCol = cols[2];
+            String identifierCol = cols[cols.length - 1];
+            // 6列旧格式中Status位于第5列，4列格式状态全在Use列
+            String statusCol = cols.length >= 6 ? cols[4] : "";
+
+            // 跳过表头
+            if (VENDOR_HEADER_NAME.equals(vendorCol)) {
+                continue;
+            }
+
+            // 处理vendor（可能为空，使用上一行的vendor）
+            if (!vendorCol.isEmpty()) {
+                lastVendor = vendorCol;
+            } else {
+                vendorCol = lastVendor;
+            }
+
+            // identifier 必须非空
+            if (identifierCol.isEmpty()) {
+                continue;
+            }
+
+            SdkVersion sdkVersion = new SdkVersion(versionCol);
+            sdkVersion.setCandidate(candidate);
+            sdkVersion.setIdentifier(identifierCol);
+            sdkVersion.setVersion(versionCol);
+            sdkVersion.setVendor(vendorCol);
+            sdkVersion.setCategories(JdkCategory.fromIdentifier(identifierCol));
+
+            // 解析状态：Use列中 > 使用中、* 已安装、+ 仅本地；旧6列格式额外检查Status列
+            boolean isInUse = useCol.contains(">");
+            boolean isInstalled = isInUse || useCol.contains("*") || useCol.contains("+")
+                    || statusCol.contains("installed");
+
+            sdkVersion.setInstalled(isInstalled);
+            sdkVersion.setInUse(isInUse);
+            sdkVersion.setDefault(isInUse);
+
+            versions.add(sdkVersion);
         }
 
         return versions;

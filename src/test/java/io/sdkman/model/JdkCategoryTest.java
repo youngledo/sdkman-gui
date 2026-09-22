@@ -101,6 +101,40 @@ class JdkCategoryTest {
     }
 
     @Test
+    void testNewDashFxJavaFxOnly() {
+        // 新版SDKMAN标识符的JavaFX形式：-fx（如27.0.0-fx+35-zulu）
+        Set<JdkCategory> categories = JdkCategory.fromIdentifier("27.0.0-fx+35-zulu");
+        assertTrue(categories.contains(JdkCategory.JAVAFX),
+                "-fx标识符应识别为JavaFX分类");
+        assertFalse(categories.contains(JdkCategory.NIK));
+    }
+
+    @Test
+    void testNewDashFxLiberica() {
+        // 新版Liberica的JavaFX标识符：26.0.2-fx+1.1-librca
+        Set<JdkCategory> categories = JdkCategory.fromIdentifier("26.0.2-fx+1.1-librca");
+        assertTrue(categories.contains(JdkCategory.JAVAFX));
+        assertFalse(categories.contains(JdkCategory.NIK));
+    }
+
+    @Test
+    void testCracIsNotJavaFx() {
+        // -crac标识符不应被误判为JavaFX
+        Set<JdkCategory> categories = JdkCategory.fromIdentifier("27.0.0-crac+35-zulu");
+        assertFalse(categories.contains(JdkCategory.JAVAFX),
+                "-crac不应识别为JavaFX分类");
+        assertTrue(categories.contains(JdkCategory.JDK));
+    }
+
+    @Test
+    void testNewDashFxDotRNik() {
+        // 新版NIK的JavaFX标识符：25.0.4-fx+1.1.r25-nik
+        Set<JdkCategory> categories = JdkCategory.fromIdentifier("25.0.4-fx+1.1.r25-nik");
+        assertTrue(categories.contains(JdkCategory.JAVAFX));
+        assertTrue(categories.contains(JdkCategory.NIK));
+    }
+
+    @Test
     void testEmptyIdentifier() {
         Set<JdkCategory> categories = JdkCategory.fromIdentifier("");
         assertEquals(1, categories.size());

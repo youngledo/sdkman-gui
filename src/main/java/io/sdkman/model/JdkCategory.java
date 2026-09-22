@@ -40,7 +40,8 @@ public enum JdkCategory {
         String lowerIdentifier = identifier.toLowerCase();
 
         // 检查是否包含JavaFX
-        if (lowerIdentifier.contains(".fx")) {
+        // SDKMAN的JavaFX标识符有两种形式：旧版 `.fx`（如21.0.9.fx-zulu）和新版 `-fx`（如27.0.0-fx+35-zulu）
+        if (lowerIdentifier.contains(".fx") || lowerIdentifier.contains("-fx")) {
             categories.add(JAVAFX);
         }
 
