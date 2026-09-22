@@ -4,9 +4,9 @@
 
 [English](README.md) | **中文**
 
-> 现代化的[SDKMAN](https://github.com/sdkman)图形化管理工具，提供类似[Applite](https://github.com/milanvarady/Applite)的用户体验。
+> 现代化的[SDKMAN](https://github.com/sdkman)图形化管理工具。
 
-跨平台，支持Windows、macOS、Ubuntu。基于JavaFX + Maven开发，参考Applite设计风格，为SDKMAN提供优雅的GUI界面。
+跨平台，支持Windows、macOS、Ubuntu。基于JavaFX + Maven开发，为SDKMAN提供优雅的GUI界面。
 
 ## 🎬 演示
 
@@ -139,4 +139,3 @@ MIT License
 - [SDKMAN](https://sdkman.io/) - 优秀的SDK管理工具
 - [AtlantaFX](https://github.com/mkpaz/atlantafx) - 精美的JavaFX主题库
 - [IKonli](https://github.com/kordamp/ikonli) - 精美的JavaFX图标库
-- [Applite](https://github.com/milanvarady/Applite) - UI设计灵感来源

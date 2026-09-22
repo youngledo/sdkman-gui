@@ -4,9 +4,9 @@ For the native version, please refer to: [sdkman-gui-native](https://github.com/
 
 **English** | [中文](README_ZH.md)
 
-> A modern graphical management tool for [SDKMAN](https://github.com/sdkman), providing an [Applite](https://github.com/milanvarady/Applite)-like user experience.
+> A modern graphical management tool for [SDKMAN](https://github.com/sdkman).
 
-Cross-platform, supports Windows, macOS, Ubuntu. Built with JavaFX + Maven, inspired by Applite's design aesthetic, offering an elegant GUI interface for SDKMAN.
+Cross-platform, supports Windows, macOS, Ubuntu. Built with JavaFX + Maven, offering an elegant GUI interface for SDKMAN.
 
 ## 🎬 Demo
 
@@ -149,4 +149,3 @@ MIT License
 - [SDKMAN](https://sdkman.io/) - Excellent SDK management tool
 - [AtlantaFX](https://github.com/mkpaz/atlantafx) - Beautiful JavaFX theme library
 - [IKonli](https://github.com/kordamp/ikonli) - Beautiful JavaFX icon library
-- [Applite](https://github.com/milanvarady/Applite) - UI design inspiration source
