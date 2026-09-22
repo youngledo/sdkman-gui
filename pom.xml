@@ -13,13 +13,13 @@
         <!--Maven 4.x支持友好CI变量，不再使用三方插件了：https://maven.apache.org/whatsnewinmaven4.html#Full_support_of_CI-friendly_variables-->
         <revision>1.0.0</revision>
 
-        <java.version>25</java.version>
+        <java.version>27</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <app.name>SDKMAN GUI</app.name>
 
         <!-- Dependency Versions -->
-        <javafx.version>25.0.1</javafx.version>
+        <javafx.version>27</javafx.version>
         <atlantafx.version>2.1.0</atlantafx.version>
         <commons-exec.version>1.5.0</commons-exec.version>
         <jackson.version>2.18.2</jackson.version>
@@ -37,7 +37,7 @@
     </properties>
 
     <dependencies>
-        <!-- JavaFX 25 -->
+        <!-- JavaFX -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
@@ -240,7 +240,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>4.0.0-beta-3</version>
+                <version>4.0.0-beta-5</version>
                 <configuration>
                     <release>${java.version}</release>
                 </configuration>
