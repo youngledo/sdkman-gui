@@ -224,8 +224,7 @@
                         <artifactId>jpackage-maven-plugin</artifactId>
                         <configuration>
                             <icon>package/icons/Linux/launcher.png</icon>
-                            <!-- 留空则不传 type，沿用jpackage在当前发行版上的默认安装包格式 -->
-                            <packageType></packageType>
+                            <packageType>deb</packageType>
                             <linuxPackageName>${project.name}</linuxPackageName>
                             <linuxShortcut>true</linuxShortcut>
                             <linuxMenuGroup>Development</linuxMenuGroup>
